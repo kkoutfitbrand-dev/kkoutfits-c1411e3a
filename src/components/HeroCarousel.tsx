@@ -1,31 +1,31 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroSaree from "@/assets/hero-saree.jpg";
-import heroLehenga from "@/assets/hero-lehenga.jpg";
-import heroSalwar from "@/assets/hero-salwar.jpg";
+import heroKurta from "@/assets/hero-kurta.jpg";
+import heroSherwani from "@/assets/hero-sherwani.jpg";
+import heroBandhgala from "@/assets/hero-bandhgala.jpg";
 
 const slides = [
   {
-    image: heroSaree,
-    title: "Drape Dynasty",
-    subtitle: "Basking In Sun-kissed Sarees",
+    image: heroKurta,
+    title: "Royal Kurta Collection",
+    subtitle: "Timeless Elegance for Modern Men",
     cta: "Shop Now",
-    link: "/category/sarees",
+    link: "/category/kurtas",
   },
   {
-    image: heroLehenga,
-    title: "Bridal Elegance",
-    subtitle: "Luxury Lehenga Collection",
+    image: heroSherwani,
+    title: "Wedding Sherwanis",
+    subtitle: "Luxury Bridal Wear for Grooms",
     cta: "Explore Collection",
-    link: "/category/lehengas",
+    link: "/category/sherwanis",
   },
   {
-    image: heroSalwar,
-    title: "Ethnic Grace",
-    subtitle: "Designer Salwar Kameez",
+    image: heroBandhgala,
+    title: "Contemporary Style",
+    subtitle: "Designer Bandhgala Jackets",
     cta: "Discover More",
-    link: "/category/salwar-kameez",
+    link: "/category/bandhgalas",
   },
 ];
 
@@ -48,7 +48,7 @@ export const HeroCarousel = () => {
   };
 
   return (
-    <div className="relative h-[600px] lg:h-[700px] overflow-hidden bg-muted">
+    <div className="relative h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-muted">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -65,10 +65,10 @@ export const HeroCarousel = () => {
           <div className="absolute inset-0 flex items-center">
             <div className="container px-4">
               <div className="max-w-2xl text-primary-foreground">
-                <h2 className="text-5xl lg:text-7xl font-serif font-bold mb-4 animate-in fade-in slide-in-from-left duration-700">
+                <h2 className="text-3xl md:text-4xl lg:text-6xl font-serif font-bold mb-3 md:mb-4 animate-in fade-in slide-in-from-left duration-700">
                   {slide.title}
                 </h2>
-                <p className="text-xl lg:text-2xl mb-8 animate-in fade-in slide-in-from-left duration-700 delay-150">
+                <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 animate-in fade-in slide-in-from-left duration-700 delay-150">
                   {slide.subtitle}
                 </p>
                 <Button
@@ -87,22 +87,22 @@ export const HeroCarousel = () => {
       <Button
         variant="ghost"
         size="icon"
-        className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-background/20 hover:bg-background/40 text-primary-foreground backdrop-blur"
+        className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 h-10 w-10 md:h-12 md:w-12 rounded-full bg-background/20 hover:bg-background/40 text-primary-foreground backdrop-blur"
         onClick={prevSlide}
       >
-        <ChevronLeft className="h-6 w-6" />
+        <ChevronLeft className="h-5 w-5 md:h-6 md:w-6" />
       </Button>
       <Button
         variant="ghost"
         size="icon"
-        className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-background/20 hover:bg-background/40 text-primary-foreground backdrop-blur"
+        className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 h-10 w-10 md:h-12 md:w-12 rounded-full bg-background/20 hover:bg-background/40 text-primary-foreground backdrop-blur"
         onClick={nextSlide}
       >
-        <ChevronRight className="h-6 w-6" />
+        <ChevronRight className="h-5 w-5 md:h-6 md:w-6" />
       </Button>
 
       {/* Dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+      <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
         {slides.map((_, index) => (
           <button
             key={index}

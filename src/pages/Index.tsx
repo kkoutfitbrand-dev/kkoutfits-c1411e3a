@@ -4,9 +4,9 @@ import { CategoryCard } from "@/components/CategoryCard";
 import { ProductCard } from "@/components/ProductCard";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import categorySaree from "@/assets/category-saree.jpg";
-import categoryLehenga from "@/assets/category-lehenga.jpg";
-import categorySalwar from "@/assets/category-salwar.jpg";
+import categoryKurta from "@/assets/category-kurta.jpg";
+import categorySherwani from "@/assets/category-sherwani.jpg";
+import categoryBandhgala from "@/assets/category-bandhgala.jpg";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -16,34 +16,34 @@ import product6 from "@/assets/product-6.jpg";
 
 const categories = [
   {
-    title: "Sarees",
-    image: categorySaree,
-    link: "/category/sarees",
+    title: "Kurtas",
+    image: categoryKurta,
+    link: "/category/kurtas",
   },
   {
-    title: "Lehengas",
-    image: categoryLehenga,
-    link: "/category/lehengas",
+    title: "Sherwanis",
+    image: categorySherwani,
+    link: "/category/sherwanis",
   },
   {
-    title: "Salwar Kameez",
-    image: categorySalwar,
-    link: "/category/salwar-kameez",
+    title: "Bandhgalas",
+    image: categoryBandhgala,
+    link: "/category/bandhgalas",
   },
 ];
 
 const featuredProducts = [
   {
     id: "1",
-    name: "Burgundy Silk Saree with Golden Embroidery",
-    price: 12999,
-    originalPrice: 18999,
+    name: "Cream Embroidered Kurta Pajama Set",
+    price: 5999,
+    originalPrice: 8999,
     image: product1,
     badge: "Bestseller",
   },
   {
     id: "2",
-    name: "Royal Blue Designer Lehenga Choli",
+    name: "Royal Black Sherwani with Golden Embroidery",
     price: 24999,
     originalPrice: 34999,
     image: product2,
@@ -51,21 +51,21 @@ const featuredProducts = [
   },
   {
     id: "3",
-    name: "Pink Anarkali Salwar Suit with Gold Work",
-    price: 8999,
-    originalPrice: 12999,
+    name: "Burgundy Velvet Bandhgala Jacket",
+    price: 12999,
+    originalPrice: 17999,
     image: product3,
   },
   {
     id: "4",
-    name: "Emerald Green Silk Saree with Red Border",
-    price: 15999,
-    originalPrice: 21999,
+    name: "Emerald Green Silk Kurta with Gold Details",
+    price: 7999,
+    originalPrice: 11999,
     image: product4,
   },
   {
     id: "5",
-    name: "Bridal Red Lehenga with Heavy Embroidery",
+    name: "Premium Ivory Wedding Sherwani",
     price: 49999,
     originalPrice: 69999,
     image: product5,
@@ -73,9 +73,9 @@ const featuredProducts = [
   },
   {
     id: "6",
-    name: "Purple Designer Anarkali Gown",
-    price: 11999,
-    originalPrice: 16999,
+    name: "Grey Indo-Western Kurta",
+    price: 6999,
+    originalPrice: 9999,
     image: product6,
   },
 ];
@@ -89,11 +89,11 @@ const Index = () => {
       <HeroCarousel />
 
       {/* Categories Section */}
-      <section className="container px-4 py-16">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-serif font-bold mb-4">Shop by Category</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover our exquisite collection of traditional Indian wear
+      <section className="container px-4 py-12 md:py-16">
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold mb-3 md:mb-4">Shop by Category</h2>
+          <p className="text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto">
+            Discover our exquisite collection of traditional men's ethnic wear
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -109,11 +109,11 @@ const Index = () => {
       </section>
 
       {/* Featured Products */}
-      <section className="bg-luxury-cream py-16">
+      <section className="bg-luxury-cream py-12 md:py-16">
         <div className="container px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-serif font-bold mb-4">Featured Collection</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold mb-3 md:mb-4">Featured Collection</h2>
+            <p className="text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto">
               Handpicked pieces that define elegance and tradition
             </p>
           </div>
@@ -131,8 +131,8 @@ const Index = () => {
       </section>
 
       {/* USP Section */}
-      <section className="container px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <section className="container px-4 py-12 md:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
               <svg

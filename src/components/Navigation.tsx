@@ -7,17 +7,26 @@ import {
   SheetContent,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { CategoryIconSection } from "@/components/CategoryIconSection";
 
 const categories = [
-  "Sarees",
-  "Lehengas",
-  "Salwar Kameez",
+  "Kurtas",
+  "Sherwanis",
+  "Bandhgalas",
   "Indo Western",
-  "Blouses",
+  "Accessories",
   "Bridal",
-  "Jewellery",
+  "Ethnic Wear",
   "New Arrivals",
   "Sale",
+];
+
+const mainTabs = [
+  { label: "MEN", link: "/" },
+  { label: "WOMEN", link: "/women" },
+  { label: "FESTIVE", link: "/festive" },
+  { label: "BRIDAL", link: "/bridal" },
+  { label: "LUXE", link: "/luxe" },
 ];
 
 export const Navigation = () => {
@@ -56,7 +65,7 @@ export const Navigation = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <h1 className="text-xl md:text-2xl lg:text-3xl font-serif font-bold tracking-wider">
+          <h1 className="text-base md:text-xl lg:text-2xl font-serif font-bold tracking-wider">
             KK OUTFIT
           </h1>
         </Link>
@@ -77,17 +86,12 @@ export const Navigation = () => {
         {/* Right Icons */}
         <div className="flex items-center gap-2">
           <div className="hidden md:flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search for Sarees..."
-                className="w-[300px] pl-9"
-              />
-            </div>
+            <Button variant="ghost" size="icon" className="lg:hidden">
+              <Search className="h-5 w-5" />
+            </Button>
           </div>
-          <Button variant="ghost" size="icon">
-            <Search className="h-5 w-5 md:hidden" />
+          <Button variant="ghost" size="icon" className="md:hidden">
+            <Search className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon">
             <Heart className="h-5 w-5" />
@@ -104,20 +108,43 @@ export const Navigation = () => {
         </div>
       </div>
 
-      {/* Secondary Navigation */}
-      <div className="border-t border-border hidden lg:block">
-        <div className="container flex h-12 items-center justify-center gap-8 px-4">
-          {categories.slice(5).map((category) => (
-            <Link
-              key={category}
-              to={`/category/${category.toLowerCase().replace(" ", "-")}`}
-              className="text-sm font-medium hover:text-accent transition-colors"
-            >
-              {category}
-            </Link>
-          ))}
+      {/* Main Category Tabs */}
+      <div className="border-t border-border bg-background">
+        <div className="container px-4">
+          <div className="flex items-center justify-center md:justify-start gap-4 md:gap-8 h-12 overflow-x-auto scrollbar-hide">
+            {mainTabs.map((tab) => (
+              <Link
+                key={tab.label}
+                to={tab.link}
+                className={`text-sm md:text-base font-medium whitespace-nowrap transition-colors ${
+                  tab.label === "MEN"
+                    ? "text-foreground border-b-2 border-accent"
+                    : "text-muted-foreground hover:text-accent"
+                }`}
+              >
+                {tab.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Search Bar Section */}
+      <div className="border-t border-border bg-muted/30">
+        <div className="container px-4 py-3">
+          <div className="max-w-2xl mx-auto relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search for Kurtas, Sherwanis..."
+              className="w-full pl-10"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Category Icons Section */}
+      <CategoryIconSection />
     </header>
   );
 };
