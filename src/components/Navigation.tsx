@@ -2,41 +2,30 @@ import { Search, Heart, ShoppingBag, User, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryIconSection } from "@/components/CategoryIconSection";
-
-const categories = [
-  "Kurtas",
-  "Sherwanis",
-  "Bandhgalas",
-  "Indo Western",
-  "Accessories",
-  "Bridal",
-  "Ethnic Wear",
-  "New Arrivals",
-  "Sale",
-];
-
-const mainTabs = [
-  { label: "MEN", link: "/" },
-  { label: "WOMEN", link: "/women" },
-  { label: "FESTIVE", link: "/festive" },
-  { label: "BRIDAL", link: "/bridal" },
-  { label: "LUXE", link: "/luxe" },
-];
-
+const categories = ["Kurtas", "Sherwanis", "Bandhgalas", "Indo Western", "Accessories", "Bridal", "Ethnic Wear", "New Arrivals", "Sale"];
+const mainTabs = [{
+  label: "MEN",
+  link: "/"
+}, {
+  label: "WOMEN",
+  link: "/women"
+}, {
+  label: "FESTIVE",
+  link: "/festive"
+}, {
+  label: "BRIDAL",
+  link: "/bridal"
+}, {
+  label: "LUXE",
+  link: "/luxe"
+}];
 export const Navigation = () => {
-  return (
-    <header className="w-full border-b border-border bg-background">
+  return <header className="w-full border-b border-border bg-background">
       {/* Top Bar */}
       <div className="border-b border-border bg-primary text-primary-foreground">
-        <div className="container flex h-10 items-center justify-center px-4 text-sm">
-          <p>Styled more than 100,000+ Clients | Free Shipping on Orders Above ₹999</p>
-        </div>
+        
       </div>
 
       {/* Main Navigation */}
@@ -50,15 +39,9 @@ export const Navigation = () => {
           </SheetTrigger>
           <SheetContent side="left" className="w-[300px]">
             <nav className="flex flex-col gap-4 mt-8">
-              {categories.map((category) => (
-                <Link
-                  key={category}
-                  to={`/category/${category.toLowerCase().replace(" ", "-")}`}
-                  className="text-lg font-medium hover:text-accent transition-colors"
-                >
+              {categories.map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="text-lg font-medium hover:text-accent transition-colors">
                   {category}
-                </Link>
-              ))}
+                </Link>)}
             </nav>
           </SheetContent>
         </Sheet>
@@ -72,15 +55,9 @@ export const Navigation = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          {categories.slice(0, 5).map((category) => (
-            <Link
-              key={category}
-              to={`/category/${category.toLowerCase().replace(" ", "-")}`}
-              className="text-sm font-medium hover:text-accent transition-colors"
-            >
+          {categories.slice(0, 5).map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="text-sm font-medium hover:text-accent transition-colors">
               {category}
-            </Link>
-          ))}
+            </Link>)}
         </nav>
 
         {/* Right Icons */}
@@ -112,19 +89,9 @@ export const Navigation = () => {
       <div className="border-t border-border bg-background">
         <div className="container px-4">
           <div className="flex items-center justify-center md:justify-start gap-4 md:gap-8 h-12 overflow-x-auto scrollbar-hide">
-            {mainTabs.map((tab) => (
-              <Link
-                key={tab.label}
-                to={tab.link}
-                className={`text-sm md:text-base font-medium whitespace-nowrap transition-colors ${
-                  tab.label === "MEN"
-                    ? "text-foreground border-b-2 border-accent"
-                    : "text-muted-foreground hover:text-accent"
-                }`}
-              >
+            {mainTabs.map(tab => <Link key={tab.label} to={tab.link} className={`text-sm md:text-base font-medium whitespace-nowrap transition-colors ${tab.label === "MEN" ? "text-foreground border-b-2 border-accent" : "text-muted-foreground hover:text-accent"}`}>
                 {tab.label}
-              </Link>
-            ))}
+              </Link>)}
           </div>
         </div>
       </div>
@@ -134,17 +101,12 @@ export const Navigation = () => {
         <div className="container px-4 py-3">
           <div className="max-w-2xl mx-auto relative">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search for Kurtas, Sherwanis..."
-              className="w-full pl-10"
-            />
+            <Input type="search" placeholder="Search for Kurtas, Sherwanis..." className="w-full pl-10" />
           </div>
         </div>
       </div>
 
       {/* Category Icons Section */}
       <CategoryIconSection />
-    </header>
-  );
+    </header>;
 };
