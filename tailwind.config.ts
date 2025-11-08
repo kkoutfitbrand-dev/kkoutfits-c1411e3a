@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        serif: ['Playfair Display', 'Georgia', 'serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -57,6 +61,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "luxury-burgundy": "hsl(var(--luxury-burgundy))",
+        "luxury-gold": "hsl(var(--luxury-gold))",
+        "luxury-cream": "hsl(var(--luxury-cream))",
+        "luxury-charcoal": "hsl(var(--luxury-charcoal))",
       },
       borderRadius: {
         lg: "var(--radius)",
