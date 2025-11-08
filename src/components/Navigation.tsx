@@ -22,7 +22,7 @@ const mainTabs = [{
   link: "/luxe"
 }];
 export const Navigation = () => {
-  return <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
+  return <header className="w-full border-b border-border bg-background">
       {/* Top Bar */}
       <div className="border-b border-border bg-primary text-primary-foreground">
         
