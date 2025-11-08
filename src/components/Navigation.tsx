@@ -56,7 +56,7 @@ export const Navigation = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <h1 className="text-3xl font-serif font-bold tracking-wider">
+          <h1 className="text-xl md:text-2xl lg:text-3xl font-serif font-bold tracking-wider">
             KK OUTFIT
           </h1>
         </Link>
