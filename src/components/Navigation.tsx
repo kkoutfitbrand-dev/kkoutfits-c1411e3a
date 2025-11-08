@@ -31,7 +31,7 @@ const mainTabs = [
 
 export const Navigation = () => {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="w-full border-b border-border bg-background">
       {/* Top Bar */}
       <div className="border-b border-border bg-primary text-primary-foreground">
         <div className="container flex h-10 items-center justify-center px-4 text-sm">
