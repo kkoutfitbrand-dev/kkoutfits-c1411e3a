@@ -4,11 +4,12 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn } from "lucide-react";
+import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ProductReviews } from "@/components/ProductReviews";
 import { ProductQA } from "@/components/ProductQA";
 import { RelatedProducts } from "@/components/RelatedProducts";
+import { StickyAddToCart } from "@/components/StickyAddToCart";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -364,6 +365,20 @@ const ProductDetail = () => {
 
       {/* Related Products */}
       <RelatedProducts />
+
+      {/* Sticky Add to Cart Bar */}
+      <StickyAddToCart
+        productName={product.name}
+        productImage={product.images[0]}
+        price={product.price}
+        originalPrice={product.originalPrice}
+        sizes={product.sizes}
+        selectedSize={selectedSize}
+        onSizeChange={setSelectedSize}
+        quantity={quantity}
+        onQuantityChange={setQuantity}
+        onAddToCart={handleAddToCart}
+      />
 
       <Footer />
     </div>

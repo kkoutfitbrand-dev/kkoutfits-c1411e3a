@@ -9,6 +9,7 @@ import { TrendingProducts } from "@/components/TrendingProducts";
 import { InstagramFeed } from "@/components/InstagramFeed";
 import { OccasionShopping } from "@/components/OccasionShopping";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
+import { VideoBanner } from "@/components/VideoBanner";
 import categoryKurta from "@/assets/category-kurta.jpg";
 import categorySherwani from "@/assets/category-sherwani.jpg";
 import categoryBandhgala from "@/assets/category-bandhgala.jpg";
@@ -134,6 +135,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Video Banner - Craftsmanship Showcase */}
+      <VideoBanner />
 
       {/* Trending Products */}
       <TrendingProducts />
