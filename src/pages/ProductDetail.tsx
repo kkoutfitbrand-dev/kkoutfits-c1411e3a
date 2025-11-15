@@ -4,8 +4,11 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Share2, Truck, RefreshCcw, Shield } from "lucide-react";
+import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ProductReviews } from "@/components/ProductReviews";
+import { ProductQA } from "@/components/ProductQA";
+import { RelatedProducts } from "@/components/RelatedProducts";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -97,6 +100,7 @@ const ProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   if (!product) {
     return (
@@ -154,18 +158,32 @@ const ProductDetail = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div>
-            <div className="mb-4 rounded-lg overflow-hidden bg-muted">
+            <div 
+              className="mb-4 rounded-lg overflow-hidden bg-muted relative group cursor-zoom-in"
+              onClick={() => setIsZoomed(!isZoomed)}
+            >
               <img
                 src={product.images[selectedImage]}
                 alt={product.name}
-                className="w-full aspect-[3/4] object-cover"
+                className={`w-full aspect-[3/4] object-cover transition-transform duration-300 ${
+                  isZoomed ? "scale-150" : "group-hover:scale-105"
+                }`}
               />
+              <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-full p-2">
+                <ZoomIn className="h-5 w-5 text-foreground" />
+              </div>
+              <div className="absolute top-4 left-4 bg-accent/90 text-accent-foreground px-3 py-1 rounded-full text-sm font-semibold">
+                360° View Available
+              </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
               {product.images.map((image, index) => (
                 <button
                   key={index}
-                  onClick={() => setSelectedImage(index)}
+                  onClick={() => {
+                    setSelectedImage(index);
+                    setIsZoomed(false);
+                  }}
                   className={`rounded-lg overflow-hidden border-2 transition-colors ${
                     selectedImage === index ? "border-accent" : "border-border"
                   }`}
@@ -200,7 +218,14 @@ const ProductDetail = () => {
             <div className="mb-6">
               <div className="flex items-center justify-between mb-3">
                 <label className="font-semibold">Select Size</label>
-                <button className="text-sm text-accent hover:underline">Size Guide</button>
+                <Link to="/size-guide" className="text-sm text-accent hover:underline">
+                  Size Guide
+                </Link>
+              </div>
+              <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-3">
+                <p className="text-sm text-accent-foreground">
+                  <strong>Size Recommendation:</strong> Based on average measurements, we recommend size M for best fit.
+                </p>
               </div>
               <div className="flex flex-wrap gap-3">
                 {product.sizes.map((size) => (
@@ -285,6 +310,8 @@ const ProductDetail = () => {
             <TabsList className="w-full justify-start">
               <TabsTrigger value="description">Description</TabsTrigger>
               <TabsTrigger value="details">Product Details</TabsTrigger>
+              <TabsTrigger value="reviews">Reviews</TabsTrigger>
+              <TabsTrigger value="qa">Q&A</TabsTrigger>
               <TabsTrigger value="care">Care Instructions</TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="py-6">
@@ -316,6 +343,12 @@ const ProductDetail = () => {
                 </div>
               </div>
             </TabsContent>
+            <TabsContent value="reviews" className="py-6">
+              <ProductReviews />
+            </TabsContent>
+            <TabsContent value="qa" className="py-6">
+              <ProductQA />
+            </TabsContent>
             <TabsContent value="care" className="py-6">
               <ul className="space-y-3 text-muted-foreground">
                 <li>• Dry clean only for best results</li>
@@ -328,6 +361,9 @@ const ProductDetail = () => {
           </Tabs>
         </div>
       </div>
+
+      {/* Related Products */}
+      <RelatedProducts />
 
       <Footer />
     </div>

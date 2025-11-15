@@ -4,6 +4,11 @@ import { CategoryCard } from "@/components/CategoryCard";
 import { ProductCard } from "@/components/ProductCard";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { TestimonialsCarousel } from "@/components/TestimonialsCarousel";
+import { TrendingProducts } from "@/components/TrendingProducts";
+import { InstagramFeed } from "@/components/InstagramFeed";
+import { OccasionShopping } from "@/components/OccasionShopping";
+import { NewsletterPopup } from "@/components/NewsletterPopup";
 import categoryKurta from "@/assets/category-kurta.jpg";
 import categorySherwani from "@/assets/category-sherwani.jpg";
 import categoryBandhgala from "@/assets/category-bandhgala.jpg";
@@ -130,6 +135,18 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Trending Products */}
+      <TrendingProducts />
+
+      {/* Occasion Shopping */}
+      <OccasionShopping />
+
+      {/* Testimonials */}
+      <TestimonialsCarousel />
+
+      {/* Instagram Feed */}
+      <InstagramFeed />
+
       {/* USP Section */}
       <section className="container px-4 py-12 md:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
@@ -219,6 +236,9 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* Newsletter Popup */}
+      <NewsletterPopup />
 
       <Footer />
     </div>

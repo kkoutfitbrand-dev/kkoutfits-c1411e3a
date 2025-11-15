@@ -5,6 +5,16 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryIconSection } from "@/components/CategoryIconSection";
 const categories = ["Kurtas", "Sherwanis", "Bandhgalas", "Indo Western", "Accessories", "Bridal", "Ethnic Wear", "New Arrivals", "Sale"];
+
+const moreLinks = [
+  { label: "About Us", link: "/about" },
+  { label: "Contact", link: "/contact" },
+  { label: "Size Guide", link: "/size-guide" },
+  { label: "Custom Tailoring", link: "/custom-tailoring" },
+  { label: "Blog", link: "/blog" },
+  { label: "FAQ", link: "/faq" },
+  { label: "Track Order", link: "/track-order" },
+];
 const mainTabs = [{
   label: "MEN",
   link: "/"
@@ -39,9 +49,30 @@ export const Navigation = () => {
           </SheetTrigger>
           <SheetContent side="left" className="w-[300px]">
             <nav className="flex flex-col gap-4 mt-8">
-              {categories.map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="text-lg font-medium hover:text-accent transition-colors">
-                  {category}
-                </Link>)}
+              <div className="border-b border-border pb-4">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">CATEGORIES</h3>
+                {categories.map(category => (
+                  <Link 
+                    key={category} 
+                    to={`/category/${category.toLowerCase().replace(" ", "-")}`} 
+                    className="block py-2 text-base font-medium hover:text-accent transition-colors"
+                  >
+                    {category}
+                  </Link>
+                ))}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">MORE</h3>
+                {moreLinks.map(item => (
+                  <Link 
+                    key={item.label} 
+                    to={item.link} 
+                    className="block py-2 text-base font-medium hover:text-accent transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             </nav>
           </SheetContent>
         </Sheet>
@@ -67,21 +98,29 @@ export const Navigation = () => {
               <Search className="h-5 w-5" />
             </Button>
           </div>
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Heart className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon" className="relative">
-            <ShoppingBag className="h-5 w-5" />
-            <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-accent text-[10px] font-semibold text-accent-foreground flex items-center justify-center">
-              0
-            </span>
-          </Button>
+          <Link to="/search">
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Search className="h-5 w-5" />
+            </Button>
+          </Link>
+          <Link to="/wishlist">
+            <Button variant="ghost" size="icon">
+              <Heart className="h-5 w-5" />
+            </Button>
+          </Link>
+          <Link to="/account">
+            <Button variant="ghost" size="icon">
+              <User className="h-5 w-5" />
+            </Button>
+          </Link>
+          <Link to="/cart">
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingBag className="h-5 w-5" />
+              <span className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-accent text-[10px] font-semibold text-accent-foreground flex items-center justify-center">
+                0
+              </span>
+            </Button>
+          </Link>
         </div>
       </div>
 
