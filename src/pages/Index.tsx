@@ -10,9 +10,9 @@ import { InstagramFeed } from "@/components/InstagramFeed";
 import { OccasionShopping } from "@/components/OccasionShopping";
 import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { VideoBanner } from "@/components/VideoBanner";
-import categoryKurta from "@/assets/category-kurta.jpg";
-import categorySherwani from "@/assets/category-sherwani.jpg";
-import categoryBandhgala from "@/assets/category-bandhgala.jpg";
+import categoryShirts from "@/assets/category-shirts.jpg";
+import categoryPants from "@/assets/category-pants.jpg";
+import categoryFormal from "@/assets/category-formal.jpg";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -22,19 +22,19 @@ import product6 from "@/assets/product-6.jpg";
 
 const categories = [
   {
-    title: "Kurtas",
-    image: categoryKurta,
-    link: "/category/kurtas",
+    title: "Shirts",
+    image: categoryShirts,
+    link: "/category/shirts",
   },
   {
-    title: "Sherwanis",
-    image: categorySherwani,
-    link: "/category/sherwanis",
+    title: "Pants",
+    image: categoryPants,
+    link: "/category/pants",
   },
   {
-    title: "Bandhgalas",
-    image: categoryBandhgala,
-    link: "/category/bandhgalas",
+    title: "Formal Wear",
+    image: categoryFormal,
+    link: "/category/formal-wear",
   },
 ];
 
@@ -99,7 +99,7 @@ const Index = () => {
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold mb-3 md:mb-4">Shop by Category</h2>
           <p className="text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover our exquisite collection of traditional men's ethnic wear
+            Discover our premium collection of men's apparel for every occasion
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

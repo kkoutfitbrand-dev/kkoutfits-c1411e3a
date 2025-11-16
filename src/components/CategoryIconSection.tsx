@@ -1,37 +1,40 @@
 import { Link } from "react-router-dom";
-import categoryKurta from "@/assets/category-kurta.jpg";
-import categorySherwani from "@/assets/category-sherwani.jpg";
-import categoryBandhgala from "@/assets/category-bandhgala.jpg";
+import categoryShirts from "@/assets/category-shirts.jpg";
+import categoryTshirts from "@/assets/category-tshirts.jpg";
+import categoryPants from "@/assets/category-pants.jpg";
+import categoryJeans from "@/assets/category-jeans.jpg";
+import categoryCasual from "@/assets/category-casual.jpg";
+import categoryFormal from "@/assets/category-formal.jpg";
 
 const categories = [
   {
     title: "Shirts",
-    image: categoryKurta,
+    image: categoryShirts,
     link: "/category/shirts",
   },
   {
     title: "T-Shirts",
-    image: categorySherwani,
+    image: categoryTshirts,
     link: "/category/t-shirts",
   },
   {
     title: "Pants",
-    image: categoryBandhgala,
+    image: categoryPants,
     link: "/category/pants",
   },
   {
     title: "Jeans",
-    image: categoryKurta,
+    image: categoryJeans,
     link: "/category/jeans",
   },
   {
     title: "Casual Wear",
-    image: categorySherwani,
+    image: categoryCasual,
     link: "/category/casual-wear",
   },
   {
     title: "Formal Wear",
-    image: categoryBandhgala,
+    image: categoryFormal,
     link: "/category/formal-wear",
   },
 ];
