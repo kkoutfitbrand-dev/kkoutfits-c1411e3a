@@ -5,29 +5,34 @@ import categoryBandhgala from "@/assets/category-bandhgala.jpg";
 
 const categories = [
   {
-    title: "Bestsellers",
+    title: "Shirts",
     image: categoryKurta,
-    link: "/category/bestsellers",
+    link: "/category/shirts",
   },
   {
-    title: "Kurta",
-    image: categoryKurta,
-    link: "/category/kurta",
-  },
-  {
-    title: "Sherwani",
+    title: "T-Shirts",
     image: categorySherwani,
-    link: "/category/sherwani",
+    link: "/category/t-shirts",
   },
   {
-    title: "Bandhgala",
+    title: "Pants",
     image: categoryBandhgala,
-    link: "/category/bandhgala",
+    link: "/category/pants",
   },
   {
-    title: "Indo Western",
+    title: "Jeans",
+    image: categoryKurta,
+    link: "/category/jeans",
+  },
+  {
+    title: "Casual Wear",
+    image: categorySherwani,
+    link: "/category/casual-wear",
+  },
+  {
+    title: "Formal Wear",
     image: categoryBandhgala,
-    link: "/category/indo-western",
+    link: "/category/formal-wear",
   },
 ];
 
