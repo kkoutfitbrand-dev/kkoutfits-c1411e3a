@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CategoryIconSection } from "@/components/CategoryIconSection";
-const categories = ["Kurtas", "Sherwanis", "Bandhgalas", "Indo Western", "Accessories", "Bridal", "Ethnic Wear", "New Arrivals", "Sale"];
+const categories = ["Shirts", "T-Shirts", "Pants", "Jeans", "Casual Wear", "Formal Wear", "Accessories", "New Arrivals", "Sale"];
 
 const moreLinks = [
   { label: "About Us", link: "/about" },
@@ -22,14 +22,14 @@ const mainTabs = [{
   label: "WOMEN",
   link: "/women"
 }, {
-  label: "FESTIVE",
-  link: "/festive"
+  label: "CASUAL",
+  link: "/casual"
 }, {
-  label: "BRIDAL",
-  link: "/bridal"
+  label: "FORMAL",
+  link: "/formal"
 }, {
-  label: "LUXE",
-  link: "/luxe"
+  label: "SALE",
+  link: "/sale"
 }];
 export const Navigation = () => {
   return <header className="w-full border-b border-border bg-background">
