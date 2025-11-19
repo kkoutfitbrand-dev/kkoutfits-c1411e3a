@@ -13,12 +13,12 @@ import { VideoBanner } from "@/components/VideoBanner";
 import categoryShirts from "@/assets/category-shirts.jpg";
 import categoryPants from "@/assets/category-pants.jpg";
 import categoryFormal from "@/assets/category-formal.jpg";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
-import product5 from "@/assets/product-5.jpg";
-import product6 from "@/assets/product-6.jpg";
+import productShirt from "@/assets/product-shirt-1.jpg";
+import productTshirt from "@/assets/product-tshirt-1.jpg";
+import productPants from "@/assets/product-pants-1.jpg";
+import productJeans from "@/assets/product-jeans-1.jpg";
+import productCasual from "@/assets/product-casual-1.jpg";
+import productFormal from "@/assets/product-formal-1.jpg";
 
 const categories = [
   {
@@ -40,49 +40,50 @@ const categories = [
 
 const featuredProducts = [
   {
-    id: "1",
-    name: "Cream Embroidered Kurta Pajama Set",
-    price: 5999,
-    originalPrice: 8999,
-    image: product1,
+    id: "shirt-1",
+    name: "Classic Oxford Cotton Shirt",
+    price: 1999,
+    originalPrice: 2999,
+    image: productShirt,
     badge: "Bestseller",
   },
   {
-    id: "2",
-    name: "Royal Black Sherwani with Golden Embroidery",
-    price: 24999,
-    originalPrice: 34999,
-    image: product2,
+    id: "tshirt-1",
+    name: "Premium Cotton Crew Neck T-Shirt",
+    price: 899,
+    originalPrice: 1499,
+    image: productTshirt,
     badge: "New",
   },
   {
-    id: "3",
-    name: "Burgundy Velvet Bandhgala Jacket",
-    price: 12999,
-    originalPrice: 17999,
-    image: product3,
+    id: "pants-1",
+    name: "Slim Fit Chino Pants",
+    price: 2499,
+    originalPrice: 3499,
+    image: productPants,
   },
   {
-    id: "4",
-    name: "Emerald Green Silk Kurta with Gold Details",
-    price: 7999,
-    originalPrice: 11999,
-    image: product4,
+    id: "jeans-1",
+    name: "Dark Wash Stretch Denim Jeans",
+    price: 2999,
+    originalPrice: 4499,
+    image: productJeans,
   },
   {
-    id: "5",
-    name: "Premium Ivory Wedding Sherwani",
-    price: 49999,
-    originalPrice: 69999,
-    image: product5,
+    id: "casual-1",
+    name: "Relaxed Fit Casual Jacket",
+    price: 3999,
+    originalPrice: 5999,
+    image: productCasual,
+    badge: "Trending",
+  },
+  {
+    id: "formal-1",
+    name: "Tailored Business Suit",
+    price: 8999,
+    originalPrice: 12999,
+    image: productFormal,
     badge: "Premium",
-  },
-  {
-    id: "6",
-    name: "Grey Indo-Western Kurta",
-    price: 6999,
-    originalPrice: 9999,
-    image: product6,
   },
 ];
 
