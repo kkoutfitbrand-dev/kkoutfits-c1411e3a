@@ -4,12 +4,46 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, MapPin, Heart, User } from "lucide-react";
+import { Package, MapPin, Heart, User, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
+
+const profileSchema = z.object({
+  firstName: z.string().trim().min(1, "First name is required").max(100, "Name must be less than 100 characters"),
+  lastName: z.string().trim().min(1, "Last name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  phone: z.string().trim().regex(/^(\+91)?[6-9]\d{9}$/, "Invalid Indian phone number")
+});
+
+type ProfileFormData = z.infer<typeof profileSchema>;
 
 const Account = () => {
+  const { toast } = useToast();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      firstName: "John",
+      lastName: "Doe",
+      email: "john.doe@example.com",
+      phone: "+919876543210"
+    }
+  });
+
+  const onSubmit = async (data: ProfileFormData) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    toast({
+      title: "Profile Updated",
+      description: "Your profile information has been saved successfully."
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <Navigation />
       
       <div className="container px-4 py-8 md:py-12">
         <h1 className="text-3xl md:text-4xl font-serif font-bold mb-8">My Account</h1>
@@ -75,29 +109,44 @@ const Account = () => {
           <TabsContent value="profile">
             <div className="bg-card border border-border rounded-lg p-6">
               <h2 className="text-xl font-serif font-bold mb-6">Profile Information</h2>
-              <form className="space-y-6 max-w-2xl">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" defaultValue="John" className="mt-2" />
+                    <Input id="firstName" {...register('firstName')} className="mt-2" />
+                    {errors.firstName && (
+                      <p className="text-sm text-destructive mt-1">{errors.firstName.message}</p>
+                    )}
                   </div>
                   <div>
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" defaultValue="Doe" className="mt-2" />
+                    <Input id="lastName" {...register('lastName')} className="mt-2" />
+                    {errors.lastName && (
+                      <p className="text-sm text-destructive mt-1">{errors.lastName.message}</p>
+                    )}
                   </div>
                 </div>
                 
                 <div>
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" defaultValue="john.doe@example.com" className="mt-2" />
+                  <Input id="email" type="email" {...register('email')} className="mt-2" />
+                  {errors.email && (
+                    <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
+                  )}
                 </div>
                 
                 <div>
                   <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" defaultValue="+91 98765 43210" className="mt-2" />
+                  <Input id="phone" type="tel" {...register('phone')} className="mt-2" />
+                  {errors.phone && (
+                    <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>
+                  )}
                 </div>
                 
-                <Button>Save Changes</Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
               </form>
             </div>
           </TabsContent>
@@ -157,6 +206,7 @@ const Account = () => {
 
       <Footer />
     </div>
+  </ProtectedRoute>
   );
 };
 
