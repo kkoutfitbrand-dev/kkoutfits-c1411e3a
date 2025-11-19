@@ -6,6 +6,8 @@ import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Filter } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useState, useMemo } from "react";
 import productShirt from "@/assets/product-shirt-1.jpg";
@@ -119,94 +121,103 @@ const CategoryPage = () => {
       <Navigation />
       
       <div className="container px-4 py-8 md:py-12">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold mb-2">
-          {getCategoryTitle()}
-        </h1>
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-3xl md:text-4xl font-serif font-bold">
+            {getCategoryTitle()}
+          </h1>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="shrink-0">
+                <Filter className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>Filters</SheetTitle>
+              </SheetHeader>
+              <div className="mt-6">
+                <div className="flex items-center justify-end mb-6">
+                  <Button variant="ghost" size="sm" onClick={handleClearFilters}>
+                    Clear All
+                  </Button>
+                </div>
+
+                {/* Price Range */}
+                <div className="mb-6 pb-6 border-b border-border">
+                  <h3 className="font-semibold mb-4">Price Range</h3>
+                  <Slider
+                    value={priceRange}
+                    onValueChange={setPriceRange}
+                    max={20000}
+                    step={100}
+                    className="mb-4"
+                  />
+                  <div className="flex justify-between text-sm">
+                    <span>₹{priceRange[0].toLocaleString()}</span>
+                    <span>₹{priceRange[1].toLocaleString()}</span>
+                  </div>
+                </div>
+
+                {/* Colors */}
+                {availableColors.length > 0 && (
+                  <div className="mb-6 pb-6 border-b border-border">
+                    <h3 className="font-semibold mb-4">Color</h3>
+                    <div className="space-y-3">
+                      {availableColors.map(color => (
+                        <div key={color} className="flex items-center space-x-2">
+                          <Checkbox
+                            id={color}
+                            checked={selectedColors.includes(color)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedColors([...selectedColors, color]);
+                              } else {
+                                setSelectedColors(selectedColors.filter(c => c !== color));
+                              }
+                            }}
+                          />
+                          <Label htmlFor={color} className="cursor-pointer">{color}</Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sizes */}
+                {availableSizes.length > 0 && (
+                  <div className="mb-6">
+                    <h3 className="font-semibold mb-4">Size</h3>
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableSizes.map(size => (
+                        <Button
+                          key={size}
+                          variant={selectedSizes.includes(size) ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            if (selectedSizes.includes(size)) {
+                              setSelectedSizes(selectedSizes.filter(s => s !== size));
+                            } else {
+                              setSelectedSizes([...selectedSizes, size]);
+                            }
+                          }}
+                        >
+                          {size}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
         <p className="text-muted-foreground mb-8">
           Showing {sortedProducts.length} of {products.length} products
         </p>
 
-        <div className="grid lg:grid-cols-4 gap-8">
-          {/* Filter Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-card border border-border rounded-lg p-6 sticky top-24">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-bold">Filters</h2>
-                <Button variant="ghost" size="sm" onClick={handleClearFilters}>
-                  Clear All
-                </Button>
-              </div>
-
-              {/* Price Range */}
-              <div className="mb-6 pb-6 border-b border-border">
-                <h3 className="font-semibold mb-4">Price Range</h3>
-                <Slider
-                  value={priceRange}
-                  onValueChange={setPriceRange}
-                  max={20000}
-                  step={100}
-                  className="mb-4"
-                />
-                <div className="flex justify-between text-sm">
-                  <span>₹{priceRange[0].toLocaleString()}</span>
-                  <span>₹{priceRange[1].toLocaleString()}</span>
-                </div>
-              </div>
-
-              {/* Colors */}
-              {availableColors.length > 0 && (
-                <div className="mb-6 pb-6 border-b border-border">
-                  <h3 className="font-semibold mb-4">Color</h3>
-                  <div className="space-y-3">
-                    {availableColors.map(color => (
-                      <div key={color} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={color}
-                          checked={selectedColors.includes(color)}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
-                              setSelectedColors([...selectedColors, color]);
-                            } else {
-                              setSelectedColors(selectedColors.filter(c => c !== color));
-                            }
-                          }}
-                        />
-                        <Label htmlFor={color} className="cursor-pointer">{color}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Sizes */}
-              {availableSizes.length > 0 && (
-                <div className="mb-6 pb-6 border-b border-border">
-                  <h3 className="font-semibold mb-4">Size</h3>
-                  <div className="grid grid-cols-3 gap-2">
-                    {availableSizes.map(size => (
-                      <Button
-                        key={size}
-                        variant={selectedSizes.includes(size) ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => {
-                          if (selectedSizes.includes(size)) {
-                            setSelectedSizes(selectedSizes.filter(s => s !== size));
-                          } else {
-                            setSelectedSizes([...selectedSizes, size]);
-                          }
-                        }}
-                      >
-                        {size}
-                      </Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-
+        <div className="grid grid-cols-1 gap-8">
           {/* Products Grid */}
-          <div className="lg:col-span-3">
+          <div>
             {/* Sort and View Options */}
             <div className="flex items-center justify-between mb-6">
               <p className="text-sm text-muted-foreground">
