@@ -5,14 +5,50 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useToast } from "@/hooks/use-toast";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import product1 from "@/assets/product-1.jpg";
 import product3 from "@/assets/product-3.jpg";
+
+const addressSchema = z.object({
+  firstName: z.string().trim().min(1, "First name is required").max(100, "Name must be less than 100 characters"),
+  lastName: z.string().trim().min(1, "Last name is required").max(100, "Name must be less than 100 characters"),
+  phone: z.string().trim().regex(/^(\+91)?[6-9]\d{9}$/, "Invalid Indian phone number"),
+  address: z.string().trim().min(10, "Address must be at least 10 characters").max(500, "Address must be less than 500 characters"),
+  city: z.string().trim().min(1, "City is required").max(100, "City must be less than 100 characters"),
+  state: z.string().trim().min(1, "State is required").max(100, "State must be less than 100 characters"),
+  pincode: z.string().trim().regex(/^\d{6}$/, "Pincode must be exactly 6 digits")
+});
+
+type AddressFormData = z.infer<typeof addressSchema>;
 
 const Checkout = () => {
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const { toast } = useToast();
+  
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<AddressFormData>({
+    resolver: zodResolver(addressSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      address: "",
+      city: "",
+      state: "",
+      pincode: ""
+    }
+  });
+
+  const onAddressSubmit = async (data: AddressFormData) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    setStep(2);
+  };
 
   const cartItems = [
     { id: "1", name: "Cream Embroidered Kurta Pajama Set", price: 5999, image: product1, quantity: 1 },
@@ -24,8 +60,9 @@ const Checkout = () => {
   const total = subtotal + shipping;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <Navigation />
       
       <div className="container px-4 py-8 md:py-12">
         <h1 className="text-3xl md:text-4xl font-serif font-bold mb-8">Checkout</h1>
@@ -72,43 +109,64 @@ const Checkout = () => {
             {step === 1 && (
               <div className="bg-card border border-border rounded-lg p-6">
                 <h2 className="text-xl font-serif font-bold mb-6">Delivery Address</h2>
-                <form className="space-y-4">
+                <form onSubmit={handleSubmit(onAddressSubmit)} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
-                      <Input id="firstName" required className="mt-2" />
+                      <Input id="firstName" {...register('firstName')} className="mt-2" />
+                      {errors.firstName && (
+                        <p className="text-sm text-destructive mt-1">{errors.firstName.message}</p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="lastName">Last Name *</Label>
-                      <Input id="lastName" required className="mt-2" />
+                      <Input id="lastName" {...register('lastName')} className="mt-2" />
+                      {errors.lastName && (
+                        <p className="text-sm text-destructive mt-1">{errors.lastName.message}</p>
+                      )}
                     </div>
                   </div>
                   
                   <div>
                     <Label htmlFor="phone">Phone Number *</Label>
-                    <Input id="phone" type="tel" required className="mt-2" />
+                    <Input id="phone" type="tel" {...register('phone')} className="mt-2" />
+                    {errors.phone && (
+                      <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>
+                    )}
                   </div>
                   
                   <div>
                     <Label htmlFor="address">Street Address *</Label>
-                    <Input id="address" required className="mt-2" />
+                    <Input id="address" {...register('address')} className="mt-2" />
+                    {errors.address && (
+                      <p className="text-sm text-destructive mt-1">{errors.address.message}</p>
+                    )}
                   </div>
                   
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="city">City *</Label>
-                      <Input id="city" required className="mt-2" />
+                      <Input id="city" {...register('city')} className="mt-2" />
+                      {errors.city && (
+                        <p className="text-sm text-destructive mt-1">{errors.city.message}</p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="state">State *</Label>
-                      <Input id="state" required className="mt-2" />
+                      <Input id="state" {...register('state')} className="mt-2" />
+                      {errors.state && (
+                        <p className="text-sm text-destructive mt-1">{errors.state.message}</p>
+                      )}
                     </div>
                   </div>
                   
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="pincode">Pincode *</Label>
-                      <Input id="pincode" required className="mt-2" />
+                      <Input id="pincode" {...register('pincode')} className="mt-2" placeholder="e.g. 600001" />
+                      {errors.pincode && (
+                        <p className="text-sm text-destructive mt-1">{errors.pincode.message}</p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor="country">Country *</Label>
@@ -116,7 +174,8 @@ const Checkout = () => {
                     </div>
                   </div>
                   
-                  <Button onClick={() => setStep(2)} className="w-full" size="lg">
+                  <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Continue to Payment
                   </Button>
                 </form>
@@ -239,6 +298,7 @@ const Checkout = () => {
 
       <Footer />
     </div>
+  </ProtectedRoute>
   );
 };
 

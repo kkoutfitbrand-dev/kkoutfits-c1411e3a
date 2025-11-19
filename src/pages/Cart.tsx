@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
@@ -76,8 +77,9 @@ const Cart = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <Navigation />
       <div className="container px-4 py-8 md:py-12">
         <h1 className="text-3xl md:text-4xl font-serif font-bold mb-8">Shopping Cart</h1>
         
@@ -180,8 +182,9 @@ const Cart = () => {
           </div>
         </div>
       </div>
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </ProtectedRoute>
   );
 };
 

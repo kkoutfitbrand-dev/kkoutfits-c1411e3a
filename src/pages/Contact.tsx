@@ -4,27 +4,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
-import { useState } from "react";
+import { Mail, Phone, MapPin, Clock, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
+
+const contactSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  phone: z.string().trim().regex(/^(\+91)?[6-9]\d{9}$/, "Invalid Indian phone number").optional().or(z.literal('')),
+  subject: z.string().trim().min(1, "Subject is required").max(200, "Subject must be less than 200 characters"),
+  message: z.string().trim().min(10, "Message must be at least 10 characters").max(2000, "Message must be less than 2000 characters")
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
 
 const Contact = () => {
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    subject: "",
-    message: "",
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactFormData>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: ""
+    }
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data: ContactFormData) => {
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     toast({
       title: "Message Sent!",
       description: "We'll get back to you within 24 hours.",
     });
-    setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
+    reset();
   };
 
   return (
@@ -46,17 +63,18 @@ const Contact = () => {
           {/* Contact Form */}
           <div>
             <h2 className="text-2xl md:text-3xl font-serif font-bold mb-6">Send us a Message</h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <Label htmlFor="name">Full Name *</Label>
                 <Input
                   id="name"
-                  required
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  {...register('name')}
                   placeholder="Enter your name"
                   className="mt-2"
                 />
+                {errors.name && (
+                  <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+                )}
               </div>
 
               <div>
@@ -64,12 +82,13 @@ const Contact = () => {
                 <Input
                   id="email"
                   type="email"
-                  required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  {...register('email')}
                   placeholder="your.email@example.com"
                   className="mt-2"
                 />
+                {errors.email && (
+                  <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
+                )}
               </div>
 
               <div>
@@ -77,38 +96,43 @@ const Contact = () => {
                 <Input
                   id="phone"
                   type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  {...register('phone')}
                   placeholder="+91 XXXXX XXXXX"
                   className="mt-2"
                 />
+                {errors.phone && (
+                  <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>
+                )}
               </div>
 
               <div>
                 <Label htmlFor="subject">Subject *</Label>
                 <Input
                   id="subject"
-                  required
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  {...register('subject')}
                   placeholder="How can we help?"
                   className="mt-2"
                 />
+                {errors.subject && (
+                  <p className="text-sm text-destructive mt-1">{errors.subject.message}</p>
+                )}
               </div>
 
               <div>
                 <Label htmlFor="message">Message *</Label>
                 <Textarea
                   id="message"
-                  required
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  {...register('message')}
                   placeholder="Tell us more about your inquiry..."
                   className="mt-2 min-h-[150px]"
                 />
+                {errors.message && (
+                  <p className="text-sm text-destructive mt-1">{errors.message.message}</p>
+                )}
               </div>
 
-              <Button type="submit" size="lg" className="w-full">
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Send Message
               </Button>
             </form>

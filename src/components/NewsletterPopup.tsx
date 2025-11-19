@@ -1,13 +1,25 @@
 import { useState, useEffect } from "react";
-import { X, Mail } from "lucide-react";
+import { X, Mail, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const newsletterSchema = z.object({
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters")
+});
+
+type NewsletterFormData = z.infer<typeof newsletterSchema>;
 
 export const NewsletterPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [email, setEmail] = useState("");
   const { toast } = useToast();
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<NewsletterFormData>({
+    resolver: zodResolver(newsletterSchema),
+    defaultValues: { email: "" }
+  });
 
   useEffect(() => {
     const hasSeenPopup = localStorage.getItem("newsletter-popup-seen");
@@ -27,16 +39,14 @@ export const NewsletterPopup = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      toast({
-        title: "Welcome to KK OUTFIT!",
-        description: "Check your email for a 10% discount code.",
-      });
-      localStorage.setItem("newsletter-popup-seen", "true");
-      setIsOpen(false);
-    }
+  const onSubmit = async (data: NewsletterFormData) => {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    toast({
+      title: "Welcome to KK OUTFIT!",
+      description: "Check your email for a 10% discount code.",
+    });
+    localStorage.setItem("newsletter-popup-seen", "true");
+    setIsOpen(false);
   };
 
   if (!isOpen) return null;
@@ -63,16 +73,20 @@ export const NewsletterPopup = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full"
-          />
-          <Button type="submit" className="w-full" size="lg">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <Input
+              type="email"
+              placeholder="Enter your email"
+              {...register('email')}
+              className="w-full"
+            />
+            {errors.email && (
+              <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
+            )}
+          </div>
+          <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Subscribe & Get 10% OFF
           </Button>
         </form>

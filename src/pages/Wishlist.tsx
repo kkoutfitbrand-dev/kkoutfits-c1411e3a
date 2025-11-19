@@ -1,5 +1,6 @@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Heart, ShoppingCart } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -63,8 +64,9 @@ const Wishlist = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <Navigation />
       <div className="container px-4 py-8 md:py-12">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl md:text-4xl font-serif font-bold">
@@ -111,8 +113,9 @@ const Wishlist = () => {
           ))}
         </div>
       </div>
-      <Footer />
-    </div>
+        <Footer />
+      </div>
+    </ProtectedRoute>
   );
 };
 
