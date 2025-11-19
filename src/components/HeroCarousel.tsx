@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import heroKurta from "@/assets/hero-kurta.jpg";
@@ -50,9 +51,11 @@ export const HeroCarousel = () => {
                 <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 animate-in fade-in slide-in-from-left duration-700 delay-150">
                   {slide.subtitle}
                 </p>
-                <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold animate-in fade-in slide-in-from-left duration-700 delay-300">
-                  {slide.cta}
-                </Button>
+                <Link to={slide.link}>
+                  <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold animate-in fade-in slide-in-from-left duration-700 delay-300">
+                    {slide.cta}
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
