@@ -19,77 +19,62 @@ import productPants from "@/assets/product-pants-1.jpg";
 import productJeans from "@/assets/product-jeans-1.jpg";
 import productCasual from "@/assets/product-casual-1.jpg";
 import productFormal from "@/assets/product-formal-1.jpg";
-
-const categories = [
-  {
-    title: "Shirts",
-    image: categoryShirts,
-    link: "/category/shirts",
-  },
-  {
-    title: "Pants",
-    image: categoryPants,
-    link: "/category/pants",
-  },
-  {
-    title: "Formal Wear",
-    image: categoryFormal,
-    link: "/category/formal-wear",
-  },
-];
-
-const featuredProducts = [
-  {
-    id: "shirt-1",
-    name: "Classic Oxford Cotton Shirt",
-    price: 1999,
-    originalPrice: 2999,
-    image: productShirt,
-    badge: "Bestseller",
-  },
-  {
-    id: "tshirt-1",
-    name: "Premium Cotton Crew Neck T-Shirt",
-    price: 899,
-    originalPrice: 1499,
-    image: productTshirt,
-    badge: "New",
-  },
-  {
-    id: "pants-1",
-    name: "Slim Fit Chino Pants",
-    price: 2499,
-    originalPrice: 3499,
-    image: productPants,
-  },
-  {
-    id: "jeans-1",
-    name: "Dark Wash Stretch Denim Jeans",
-    price: 2999,
-    originalPrice: 4499,
-    image: productJeans,
-  },
-  {
-    id: "casual-1",
-    name: "Relaxed Fit Casual Jacket",
-    price: 3999,
-    originalPrice: 5999,
-    image: productCasual,
-    badge: "Trending",
-  },
-  {
-    id: "formal-1",
-    name: "Tailored Business Suit",
-    price: 8999,
-    originalPrice: 12999,
-    image: productFormal,
-    badge: "Premium",
-  },
-];
-
+const categories = [{
+  title: "Shirts",
+  image: categoryShirts,
+  link: "/category/shirts"
+}, {
+  title: "Pants",
+  image: categoryPants,
+  link: "/category/pants"
+}, {
+  title: "Formal Wear",
+  image: categoryFormal,
+  link: "/category/formal-wear"
+}];
+const featuredProducts = [{
+  id: "shirt-1",
+  name: "Classic Oxford Cotton Shirt",
+  price: 1999,
+  originalPrice: 2999,
+  image: productShirt,
+  badge: "Bestseller"
+}, {
+  id: "tshirt-1",
+  name: "Premium Cotton Crew Neck T-Shirt",
+  price: 899,
+  originalPrice: 1499,
+  image: productTshirt,
+  badge: "New"
+}, {
+  id: "pants-1",
+  name: "Slim Fit Chino Pants",
+  price: 2499,
+  originalPrice: 3499,
+  image: productPants
+}, {
+  id: "jeans-1",
+  name: "Dark Wash Stretch Denim Jeans",
+  price: 2999,
+  originalPrice: 4499,
+  image: productJeans
+}, {
+  id: "casual-1",
+  name: "Relaxed Fit Casual Jacket",
+  price: 3999,
+  originalPrice: 5999,
+  image: productCasual,
+  badge: "Trending"
+}, {
+  id: "formal-1",
+  name: "Tailored Business Suit",
+  price: 8999,
+  originalPrice: 12999,
+  image: productFormal,
+  badge: "Premium"
+}];
 const Index = () => {
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Section */}
@@ -104,14 +89,7 @@ const Index = () => {
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {categories.map((category) => (
-            <CategoryCard
-              key={category.title}
-              title={category.title}
-              image={category.image}
-              link={category.link}
-            />
-          ))}
+          {categories.map(category => <CategoryCard key={category.title} title={category.title} image={category.image} link={category.link} />)}
         </div>
       </section>
 
@@ -125,9 +103,7 @@ const Index = () => {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {featuredProducts.map((product) => (
-              <ProductCard key={product.id} {...product} />
-            ))}
+            {featuredProducts.map(product => <ProductCard key={product.id} {...product} />)}
           </div>
           <div className="text-center">
             <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
@@ -138,7 +114,7 @@ const Index = () => {
       </section>
 
       {/* Video Banner - Craftsmanship Showcase */}
-      <VideoBanner />
+      
 
       {/* Trending Products */}
       <TrendingProducts />
@@ -157,18 +133,8 @@ const Index = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-accent"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <h3 className="font-semibold mb-2">100% Authentic</h3>
@@ -178,18 +144,8 @@ const Index = () => {
           </div>
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-accent"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <h3 className="font-semibold mb-2">Fast Delivery</h3>
@@ -199,18 +155,8 @@ const Index = () => {
           </div>
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-accent"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </div>
             <h3 className="font-semibold mb-2">Easy Returns</h3>
@@ -220,18 +166,8 @@ const Index = () => {
           </div>
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent/10 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-accent"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                />
+              <svg className="w-8 h-8 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
             </div>
             <h3 className="font-semibold mb-2">Secure Payment</h3>
@@ -246,8 +182,6 @@ const Index = () => {
       <NewsletterPopup />
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
