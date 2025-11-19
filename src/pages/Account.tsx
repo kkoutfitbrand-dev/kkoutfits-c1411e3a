@@ -49,21 +49,21 @@ const Account = () => {
         <h1 className="text-3xl md:text-4xl font-serif font-bold mb-8">My Account</h1>
         
         <Tabs defaultValue="orders" className="space-y-8">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-            <TabsTrigger value="orders" className="gap-2">
-              <Package className="w-4 h-4" />
+          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 h-auto">
+            <TabsTrigger value="orders" className="gap-2 flex-col sm:flex-row">
+              <Package className="w-5 h-5" />
               <span className="hidden sm:inline">Orders</span>
             </TabsTrigger>
-            <TabsTrigger value="profile" className="gap-2">
-              <User className="w-4 h-4" />
+            <TabsTrigger value="profile" className="gap-2 flex-col sm:flex-row">
+              <User className="w-5 h-5" />
               <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="addresses" className="gap-2">
-              <MapPin className="w-4 h-4" />
+            <TabsTrigger value="addresses" className="gap-2 flex-col sm:flex-row">
+              <MapPin className="w-5 h-5" />
               <span className="hidden sm:inline">Addresses</span>
             </TabsTrigger>
-            <TabsTrigger value="wishlist" className="gap-2">
-              <Heart className="w-4 h-4" />
+            <TabsTrigger value="wishlist" className="gap-2 flex-col sm:flex-row">
+              <Heart className="w-5 h-5" />
               <span className="hidden sm:inline">Wishlist</span>
             </TabsTrigger>
           </TabsList>
