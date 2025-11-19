@@ -29,7 +29,7 @@ const products = {
     sizes: ["S", "M", "L", "XL", "XXL"],
     inStock: true,
     sku: "KK-KRT-001",
-    category: "Kurtas",
+    category: "Kurtas"
   },
   "2": {
     id: "2",
@@ -41,7 +41,7 @@ const products = {
     sizes: ["S", "M", "L", "XL", "XXL"],
     inStock: true,
     sku: "KK-SHR-002",
-    category: "Sherwanis",
+    category: "Sherwanis"
   },
   "3": {
     id: "3",
@@ -53,7 +53,7 @@ const products = {
     sizes: ["S", "M", "L", "XL", "XXL"],
     inStock: true,
     sku: "KK-BND-003",
-    category: "Bandhgalas",
+    category: "Bandhgalas"
   },
   "4": {
     id: "4",
@@ -65,7 +65,7 @@ const products = {
     sizes: ["S", "M", "L", "XL", "XXL"],
     inStock: true,
     sku: "KK-KRT-004",
-    category: "Kurtas",
+    category: "Kurtas"
   },
   "5": {
     id: "5",
@@ -77,7 +77,7 @@ const products = {
     sizes: ["S", "M", "L", "XL", "XXL"],
     inStock: true,
     sku: "KK-SHR-005",
-    category: "Sherwanis",
+    category: "Sherwanis"
   },
   "6": {
     id: "6",
@@ -89,23 +89,23 @@ const products = {
     sizes: ["S", "M", "L", "XL", "XXL"],
     inStock: true,
     sku: "KK-IND-006",
-    category: "Indo Western",
-  },
+    category: "Indo Western"
+  }
 };
-
 const ProductDetail = () => {
-  const { id } = useParams();
-  const { toast } = useToast();
+  const {
+    id
+  } = useParams();
+  const {
+    toast
+  } = useToast();
   const product = products[id as keyof typeof products];
-  
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
-
   if (!product) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container px-4 py-16 text-center">
           <h1 className="text-3xl font-serif font-bold mb-4">Product Not Found</h1>
@@ -114,34 +114,29 @@ const ProductDetail = () => {
           </Link>
         </div>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
   const handleAddToCart = () => {
     if (!selectedSize) {
       toast({
         title: "Please select a size",
         description: "Choose a size before adding to cart",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
     toast({
       title: "Added to cart!",
-      description: `${product.name} (Size: ${selectedSize}, Qty: ${quantity})`,
+      description: `${product.name} (Size: ${selectedSize}, Qty: ${quantity})`
     });
   };
-
   const handleAddToWishlist = () => {
     toast({
       title: "Added to wishlist!",
-      description: product.name,
+      description: product.name
     });
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container px-4 py-8">
@@ -159,17 +154,8 @@ const ProductDetail = () => {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
           <div>
-            <div 
-              className="mb-4 rounded-lg overflow-hidden bg-muted relative group cursor-zoom-in"
-              onClick={() => setIsZoomed(!isZoomed)}
-            >
-              <img
-                src={product.images[selectedImage]}
-                alt={product.name}
-                className={`w-full aspect-[3/4] object-cover transition-transform duration-300 ${
-                  isZoomed ? "scale-150" : "group-hover:scale-105"
-                }`}
-              />
+            <div className="mb-4 rounded-lg overflow-hidden bg-muted relative group cursor-zoom-in" onClick={() => setIsZoomed(!isZoomed)}>
+              <img src={product.images[selectedImage]} alt={product.name} className={`w-full aspect-[3/4] object-cover transition-transform duration-300 ${isZoomed ? "scale-150" : "group-hover:scale-105"}`} />
               <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-full p-2">
                 <ZoomIn className="h-5 w-5 text-foreground" />
               </div>
@@ -178,24 +164,12 @@ const ProductDetail = () => {
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {product.images.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => {
-                    setSelectedImage(index);
-                    setIsZoomed(false);
-                  }}
-                  className={`rounded-lg overflow-hidden border-2 transition-colors ${
-                    selectedImage === index ? "border-accent" : "border-border"
-                  }`}
-                >
-                  <img
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full aspect-[3/4] object-cover"
-                  />
-                </button>
-              ))}
+              {product.images.map((image, index) => <button key={index} onClick={() => {
+              setSelectedImage(index);
+              setIsZoomed(false);
+            }} className={`rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-accent" : "border-border"}`}>
+                  <img src={image} alt={`${product.name} ${index + 1}`} className="w-full aspect-[3/4] object-cover" />
+                </button>)}
             </div>
           </div>
 
@@ -209,7 +183,7 @@ const ProductDetail = () => {
                 ₹{product.originalPrice.toLocaleString()}
               </span>
               <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">
-                {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                {Math.round((product.originalPrice - product.price) / product.originalPrice * 100)}% OFF
               </span>
             </div>
 
@@ -223,25 +197,11 @@ const ProductDetail = () => {
                   Size Guide
                 </Link>
               </div>
-              <div className="bg-accent/10 border border-accent/20 rounded-lg p-3 mb-3">
-                <p className="text-sm text-accent-foreground">
-                  <strong>Size Recommendation:</strong> Based on average measurements, we recommend size M for best fit.
-                </p>
-              </div>
+              
               <div className="flex flex-wrap gap-3">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`px-6 py-3 rounded-lg border-2 font-medium transition-colors ${
-                      selectedSize === size
-                        ? "border-accent bg-accent text-accent-foreground"
-                        : "border-border hover:border-accent"
-                    }`}
-                  >
+                {product.sizes.map(size => <button key={size} onClick={() => setSelectedSize(size)} className={`px-6 py-3 rounded-lg border-2 font-medium transition-colors ${selectedSize === size ? "border-accent bg-accent text-accent-foreground" : "border-border hover:border-accent"}`}>
                     {size}
-                  </button>
-                ))}
+                  </button>)}
               </div>
             </div>
 
@@ -249,17 +209,11 @@ const ProductDetail = () => {
             <div className="mb-6">
               <label className="font-semibold block mb-3">Quantity</label>
               <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 rounded-lg border-2 border-border hover:border-accent flex items-center justify-center font-bold"
-                >
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 rounded-lg border-2 border-border hover:border-accent flex items-center justify-center font-bold">
                   -
                 </button>
                 <span className="w-16 text-center font-semibold">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 rounded-lg border-2 border-border hover:border-accent flex items-center justify-center font-bold"
-                >
+                <button onClick={() => setQuantity(quantity + 1)} className="w-10 h-10 rounded-lg border-2 border-border hover:border-accent flex items-center justify-center font-bold">
                   +
                 </button>
               </div>
@@ -367,22 +321,9 @@ const ProductDetail = () => {
       <RelatedProducts />
 
       {/* Sticky Add to Cart Bar */}
-      <StickyAddToCart
-        productName={product.name}
-        productImage={product.images[0]}
-        price={product.price}
-        originalPrice={product.originalPrice}
-        sizes={product.sizes}
-        selectedSize={selectedSize}
-        onSizeChange={setSelectedSize}
-        quantity={quantity}
-        onQuantityChange={setQuantity}
-        onAddToCart={handleAddToCart}
-      />
+      <StickyAddToCart productName={product.name} productImage={product.images[0]} price={product.price} originalPrice={product.originalPrice} sizes={product.sizes} selectedSize={selectedSize} onSizeChange={setSelectedSize} quantity={quantity} onQuantityChange={setQuantity} onAddToCart={handleAddToCart} />
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default ProductDetail;
