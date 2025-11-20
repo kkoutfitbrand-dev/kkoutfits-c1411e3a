@@ -38,21 +38,21 @@ export const HeroCarousel = () => {
   const prevSlide = () => {
     setCurrentSlide(prev => (prev - 1 + slides.length) % slides.length);
   };
-  return <div className="relative h-[400px] md:h-[500px] lg:h-[600px] overflow-hidden bg-muted">
+  return <div className="relative h-[300px] md:h-[400px] overflow-hidden bg-muted">
       {slides.map((slide, index) => <div key={index} className={`absolute inset-0 transition-opacity duration-1000 ${index === currentSlide ? "opacity-100" : "opacity-0"}`}>
           <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
           <div className="absolute inset-0 flex items-center">
             <div className="container px-4">
-              <div className="max-w-2xl text-primary-foreground">
-                <h2 className="text-3xl md:text-4xl lg:text-6xl font-serif font-bold mb-3 md:mb-4 animate-in fade-in slide-in-from-left duration-700">
+              <div className="max-w-xl text-primary-foreground">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 font-sans">
                   {slide.title}
                 </h2>
-                <p className="text-base md:text-lg lg:text-xl mb-6 md:mb-8 animate-in fade-in slide-in-from-left duration-700 delay-150">
+                <p className="text-sm md:text-base mb-4">
                   {slide.subtitle}
                 </p>
                 <Link to={slide.link}>
-                  <Button size="lg" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold animate-in fade-in slide-in-from-left duration-700 delay-300">
+                  <Button size="default" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-bold rounded-sm">
                     {slide.cta}
                   </Button>
                 </Link>

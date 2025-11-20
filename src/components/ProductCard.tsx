@@ -1,8 +1,8 @@
-import { Heart } from "lucide-react";
+import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+
 interface ProductCardProps {
   id: string;
   name: string;
@@ -10,39 +10,70 @@ interface ProductCardProps {
   originalPrice?: number;
   image: string;
   badge?: string;
+  rating?: number;
 }
+
 export const ProductCard = ({
   id,
   name,
   price,
   originalPrice,
   image,
-  badge
+  badge,
+  rating = 4.2,
 }: ProductCardProps) => {
-  const discount = originalPrice ? Math.round((originalPrice - price) / originalPrice * 100) : 0;
-  return <Card className="group overflow-hidden border-border hover:shadow-lg transition-all duration-300">
-      <Link to={`/product/${id}`}>
+  const discount = originalPrice
+    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+    : 0;
+
+  return (
+    <Link to={`/product/${id}`} className="group block">
+      <Card className="overflow-hidden border border-border hover:shadow-md transition-shadow duration-200">
         <div className="relative overflow-hidden aspect-[3/4]">
-          <img src={image} alt={name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-          {badge}
-          {discount > 0 && <Badge className="absolute bottom-4 left-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold shadow-lg border-0 text-xs px-3 py-1 backdrop-blur-sm bg-opacity-95 animate-pulse group-hover:animate-none transition-all">
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full object-cover"
+          />
+          {badge && (
+            <Badge className="absolute top-2 left-2 bg-foreground text-background border-0 text-xs font-bold uppercase rounded-sm px-2 py-1">
+              {badge}
+            </Badge>
+          )}
+          {discount > 0 && (
+            <div className="absolute bottom-2 left-2 bg-myntra-pink text-white text-xs font-bold px-2 py-1 rounded-sm">
               {discount}% OFF
-            </Badge>}
-          
+            </div>
+          )}
         </div>
-      </Link>
-      <CardContent className="p-4">
-        <Link to={`/product/${id}`}>
-          <h3 className="font-medium text-sm mb-2 line-clamp-2 group-hover:text-accent transition-colors">
+        <CardContent className="p-3">
+          <h3 className="font-medium text-sm mb-1 line-clamp-2 text-foreground">
             {name}
           </h3>
-        </Link>
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold">₹{price.toLocaleString("en-IN")}</span>
-          {originalPrice && <span className="text-sm text-muted-foreground line-through">
-              ₹{originalPrice.toLocaleString("en-IN")}
-            </span>}
-        </div>
-      </CardContent>
-    </Card>;
+          <div className="flex items-center gap-1 mb-2">
+            <div className="flex items-center gap-0.5 bg-myntra-green text-white text-xs font-bold px-1.5 py-0.5 rounded-sm">
+              <span>{rating}</span>
+              <Star className="h-2.5 w-2.5 fill-current" />
+            </div>
+            <span className="text-xs text-muted-foreground">(2.3k)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold text-foreground">
+              ₹{price.toLocaleString("en-IN")}
+            </span>
+            {originalPrice && (
+              <>
+                <span className="text-xs text-muted-foreground line-through">
+                  ₹{originalPrice.toLocaleString("en-IN")}
+                </span>
+                <span className="text-xs text-myntra-orange font-semibold">
+                  ({discount}% OFF)
+                </span>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
 };
