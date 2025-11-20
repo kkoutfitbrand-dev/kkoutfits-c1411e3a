@@ -7,7 +7,7 @@ import { Check } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Filter } from "lucide-react";
+import { Filter, Grid2x2, List } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useState, useMemo } from "react";
 import productShirt from "@/assets/product-shirt-1.jpg";
@@ -74,6 +74,7 @@ const CategoryPage = () => {
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("popularity");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   
   // Get products for current category
   const categoryKey = category?.toLowerCase() || "";
@@ -256,34 +257,99 @@ const CategoryPage = () => {
               <p className="text-sm text-muted-foreground">
                 {sortedProducts.length} products found
               </p>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="popularity">Most Popular</SelectItem>
-                  <SelectItem value="newest">Newest First</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-3">
+                <div className="flex border border-border rounded-lg p-1">
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className="h-8 px-3"
+                  >
+                    <Grid2x2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className="h-8 px-3"
+                  >
+                    <List className="h-4 w-4" />
+                  </Button>
+                </div>
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="popularity">Most Popular</SelectItem>
+                    <SelectItem value="newest">Newest First</SelectItem>
+                    <SelectItem value="price-low">Price: Low to High</SelectItem>
+                    <SelectItem value="price-high">Price: High to Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            {/* Products Grid */}
+            {/* Products Display */}
             {sortedProducts.length > 0 ? (
-              <div className="grid grid-cols-2 gap-4 md:gap-6">
-                {sortedProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.name}
-                    price={product.price}
-                    originalPrice={product.originalPrice}
-                    image={product.image}
-                    badge={product.badge}
-                  />
-                ))}
-              </div>
+              viewMode === "grid" ? (
+                <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in">
+                  {sortedProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      originalPrice={product.originalPrice}
+                      image={product.image}
+                      badge={product.badge}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-4 animate-fade-in">
+                  {sortedProducts.map((product) => (
+                    <div key={product.id} className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-32 h-32 object-cover rounded-md flex-shrink-0"
+                      />
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="font-semibold text-lg">{product.name}</h3>
+                            {product.badge && (
+                              <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">
+                                {product.badge}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-xl font-bold">₹{product.price.toLocaleString()}</span>
+                            {product.originalPrice && (
+                              <span className="text-sm text-muted-foreground line-through">
+                                ₹{product.originalPrice.toLocaleString()}
+                              </span>
+                            )}
+                          </div>
+                          {product.color && (
+                            <p className="text-sm text-muted-foreground">Color: {product.color}</p>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={() => window.location.href = `/product/${product.id}`}
+                            className="flex-1"
+                          >
+                            View Details
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground text-lg mb-4">
