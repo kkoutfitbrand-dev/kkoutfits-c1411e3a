@@ -24,48 +24,39 @@ import productPants from "@/assets/product-pants-1.jpg";
 import productJeans from "@/assets/product-jeans-1.jpg";
 import productCasual from "@/assets/product-casual-1.jpg";
 import productFormal from "@/assets/product-formal-1.jpg";
-const categories = [
-  {
-    title: "Shirts",
-    image: categoryShirts,
-    link: "/category/shirts"
-  },
-  {
-    title: "T-Shirts",
-    image: categoryTshirts,
-    link: "/category/tshirt"
-  },
-  {
-    title: "Pants",
-    image: categoryPants,
-    link: "/category/pants-shorts"
-  },
-  {
-    title: "Jeans",
-    image: categoryJeans,
-    link: "/category/jeans"
-  },
-  {
-    title: "Kurtas",
-    image: categoryKurta,
-    link: "/category/kurtas"
-  },
-  {
-    title: "Sarees",
-    image: categorySaree,
-    link: "/category/sarees"
-  },
-  {
-    title: "Lehengas",
-    image: categoryLehenga,
-    link: "/category/lehengas"
-  },
-  {
-    title: "Churidar",
-    image: categorySalwar,
-    link: "/category/churidar"
-  },
-];
+const categories = [{
+  title: "Shirts",
+  image: categoryShirts,
+  link: "/category/shirts"
+}, {
+  title: "T-Shirts",
+  image: categoryTshirts,
+  link: "/category/tshirt"
+}, {
+  title: "Pants",
+  image: categoryPants,
+  link: "/category/pants-shorts"
+}, {
+  title: "Jeans",
+  image: categoryJeans,
+  link: "/category/jeans"
+}, {
+  title: "Kurtas",
+  image: categoryKurta,
+  link: "/category/kurtas"
+}, {
+  title: "Sarees",
+  image: categorySaree,
+  link: "/category/sarees"
+}, {
+  title: "Lehengas",
+  image: categoryLehenga,
+  link: "/category/lehengas"
+}, {
+  title: "Churidar",
+  image: categorySalwar,
+  link: "/category/churidar"
+}];
 const featuredProducts = [{
   id: "shirt-1",
   name: "Classic Oxford Cotton Shirt",
@@ -115,7 +106,7 @@ const Index = () => {
       <HeroCarousel />
 
       {/* Deals Banner */}
-      <DealsBanner />
+      
 
       {/* Categories Section */}
       <section className="container px-4 py-8">
@@ -128,12 +119,7 @@ const Index = () => {
       </section>
 
       {/* Promotional Banner */}
-      <PromotionalBanner
-        title="MEGA SALE - UP TO 70% OFF"
-        subtitle="End of Season Sale on All Products"
-        ctaText="Shop Now"
-        ctaLink="/category/all"
-      />
+      <PromotionalBanner title="MEGA SALE - UP TO 70% OFF" subtitle="End of Season Sale on All Products" ctaText="Shop Now" ctaLink="/category/all" />
 
       {/* Deals of the Day */}
       <section className="container px-4 py-8">
