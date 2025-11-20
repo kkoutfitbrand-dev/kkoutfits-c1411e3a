@@ -7,16 +7,28 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { CategoryIconSection } from "@/components/CategoryIconSection";
 import { useAuth } from "@/contexts/AuthContext";
 const categories = ["Shirts", "T-Shirts", "Pants", "Jeans", "Casual Wear", "Formal Wear", "Accessories", "New Arrivals", "Sale"];
-
-const moreLinks = [
-  { label: "About Us", link: "/about" },
-  { label: "Contact", link: "/contact" },
-  { label: "Size Guide", link: "/size-guide" },
-  { label: "Custom Tailoring", link: "/custom-tailoring" },
-  { label: "Blog", link: "/blog" },
-  { label: "FAQ", link: "/faq" },
-  { label: "Track Order", link: "/track-order" },
-];
+const moreLinks = [{
+  label: "About Us",
+  link: "/about"
+}, {
+  label: "Contact",
+  link: "/contact"
+}, {
+  label: "Size Guide",
+  link: "/size-guide"
+}, {
+  label: "Custom Tailoring",
+  link: "/custom-tailoring"
+}, {
+  label: "Blog",
+  link: "/blog"
+}, {
+  label: "FAQ",
+  link: "/faq"
+}, {
+  label: "Track Order",
+  link: "/track-order"
+}];
 const mainTabs = [{
   label: "MEN",
   link: "/"
@@ -34,14 +46,15 @@ const mainTabs = [{
   link: "/sale"
 }];
 export const Navigation = () => {
-  const { user, signOut } = useAuth();
+  const {
+    user,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
-
   return <header className="w-full border-b border-border bg-background">
       {/* Top Bar */}
       <div className="border-b border-border bg-primary text-primary-foreground">
@@ -61,27 +74,15 @@ export const Navigation = () => {
             <nav className="flex flex-col gap-4 mt-8">
               <div className="border-b border-border pb-4">
                 <h3 className="text-sm font-semibold text-muted-foreground mb-3">CATEGORIES</h3>
-                {categories.map(category => (
-                  <Link 
-                    key={category} 
-                    to={`/category/${category.toLowerCase().replace(" ", "-")}`} 
-                    className="block py-2 text-base font-medium hover:text-accent transition-colors"
-                  >
+                {categories.map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="block py-2 text-base font-medium hover:text-accent transition-colors">
                     {category}
-                  </Link>
-                ))}
+                  </Link>)}
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-muted-foreground mb-3">MORE</h3>
-                {moreLinks.map(item => (
-                  <Link 
-                    key={item.label} 
-                    to={item.link} 
-                    className="block py-2 text-base font-medium hover:text-accent transition-colors"
-                  >
+                {moreLinks.map(item => <Link key={item.label} to={item.link} className="block py-2 text-base font-medium hover:text-accent transition-colors">
                     {item.label}
-                  </Link>
-                ))}
+                  </Link>)}
               </div>
             </nav>
           </SheetContent>
@@ -89,9 +90,7 @@ export const Navigation = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <h1 className="text-base md:text-xl lg:text-2xl font-serif font-bold tracking-wider">
-            KK OUTFIT
-          </h1>
+          <h1 className="text-base md:text-xl lg:text-2xl font-serif font-bold tracking-wider">KK OUTFITS</h1>
         </Link>
 
         {/* Desktop Navigation */}
@@ -118,8 +117,7 @@ export const Navigation = () => {
               <Heart className="h-5 w-5" />
             </Button>
           </Link>
-          {user ? (
-            <DropdownMenu>
+          {user ? <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <User className="h-5 w-5" />
@@ -142,14 +140,11 @@ export const Navigation = () => {
                   Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Link to="/auth">
+            </DropdownMenu> : <Link to="/auth">
               <Button variant="ghost" size="icon">
                 <User className="h-5 w-5" />
               </Button>
-            </Link>
-          )}
+            </Link>}
           <Link to="/cart">
             <Button variant="ghost" size="icon" className="relative">
               <ShoppingBag className="h-5 w-5" />
