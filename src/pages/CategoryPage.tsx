@@ -24,30 +24,29 @@ const categoryProducts = {
     { id: "shirt-2", name: "Premium Cotton Formal Shirt", price: 2499, originalPrice: 3499, image: productShirt, category: "shirts", color: "White", size: ["M", "L", "XL"] },
     { id: "shirt-3", name: "Slim Fit Business Shirt", price: 2199, originalPrice: 3199, image: productShirt, category: "shirts", color: "Light Blue", size: ["S", "M", "L", "XL"] },
   ],
-  "t-shirts": [
-    { id: "tshirt-1", name: "Graphic Print T-Shirt", price: 799, originalPrice: 1299, image: productTshirt, badge: "New", category: "t-shirts", color: "Black", size: ["S", "M", "L", "XL"] },
-    { id: "tshirt-2", name: "Plain Cotton T-Shirt", price: 599, originalPrice: 999, image: productTshirt, category: "t-shirts", color: "White", size: ["S", "M", "L", "XL", "XXL"] },
-    { id: "tshirt-3", name: "V-Neck Basic Tee", price: 699, originalPrice: 1099, image: productTshirt, category: "t-shirts", color: "Navy", size: ["M", "L", "XL"] },
+  "tshirt": [
+    { id: "tshirt-1", name: "Graphic Print T-Shirt", price: 799, originalPrice: 1299, image: productTshirt, badge: "New", category: "tshirt", color: "Black", size: ["S", "M", "L", "XL"] },
+    { id: "tshirt-2", name: "Plain Cotton T-Shirt", price: 599, originalPrice: 999, image: productTshirt, category: "tshirt", color: "White", size: ["S", "M", "L", "XL", "XXL"] },
+    { id: "tshirt-3", name: "V-Neck Basic Tee", price: 699, originalPrice: 1099, image: productTshirt, category: "tshirt", color: "Navy", size: ["M", "L", "XL"] },
   ],
-  "pants": [
-    { id: "pants-1", name: "Premium Chino Pants", price: 2499, originalPrice: 3499, image: productPants, badge: "Bestseller", category: "pants", color: "Khaki", size: ["30", "32", "34", "36"] },
-    { id: "pants-2", name: "Slim Fit Trousers", price: 2799, originalPrice: 3999, image: productPants, category: "pants", color: "Grey", size: ["30", "32", "34", "36", "38"] },
-    { id: "pants-3", name: "Casual Cotton Pants", price: 1999, originalPrice: 2999, image: productPants, category: "pants", color: "Beige", size: ["32", "34", "36"] },
+  "pants-shorts": [
+    { id: "pants-1", name: "Premium Chino Pants", price: 2499, originalPrice: 3499, image: productPants, badge: "Bestseller", category: "pants-shorts", color: "Khaki", size: ["30", "32", "34", "36"] },
+    { id: "pants-2", name: "Slim Fit Trousers", price: 2799, originalPrice: 3999, image: productPants, category: "pants-shorts", color: "Grey", size: ["30", "32", "34", "36", "38"] },
+    { id: "pants-3", name: "Casual Cotton Pants", price: 1999, originalPrice: 2999, image: productPants, category: "pants-shorts", color: "Beige", size: ["32", "34", "36"] },
+    { id: "shorts-1", name: "Summer Cargo Shorts", price: 1499, originalPrice: 2199, image: productPants, category: "pants-shorts", color: "Olive", size: ["30", "32", "34", "36"] },
+    { id: "shorts-2", name: "Classic Denim Shorts", price: 1299, originalPrice: 1899, image: productJeans, category: "pants-shorts", color: "Blue", size: ["30", "32", "34"] },
   ],
-  "jeans": [
-    { id: "jeans-1", name: "Slim Fit Blue Jeans", price: 2199, originalPrice: 3199, image: productJeans, badge: "Bestseller", category: "jeans", color: "Blue", size: ["30", "32", "34", "36"] },
-    { id: "jeans-2", name: "Dark Wash Denim", price: 2499, originalPrice: 3499, image: productJeans, category: "jeans", color: "Dark Blue", size: ["30", "32", "34", "36", "38"] },
-    { id: "jeans-3", name: "Comfort Stretch Jeans", price: 2299, originalPrice: 3299, image: productJeans, category: "jeans", color: "Light Blue", size: ["32", "34", "36"] },
+  "sarees": [
+    { id: "saree-1", name: "Silk Banarasi Saree", price: 8999, originalPrice: 12999, image: productFormal, badge: "Premium", category: "sarees", color: "Red", size: ["One Size"] },
+    { id: "saree-2", name: "Cotton Printed Saree", price: 2499, originalPrice: 3499, image: productCasual, category: "sarees", color: "Blue", size: ["One Size"] },
+    { id: "saree-3", name: "Designer Party Wear Saree", price: 6999, originalPrice: 9999, image: productFormal, badge: "Bestseller", category: "sarees", color: "Gold", size: ["One Size"] },
+    { id: "saree-4", name: "Traditional Handloom Saree", price: 3999, originalPrice: 5999, image: productCasual, category: "sarees", color: "Green", size: ["One Size"] },
   ],
-  "casual-wear": [
-    { id: "casual-1", name: "Comfortable Hoodie Set", price: 3499, originalPrice: 4999, image: productCasual, badge: "New", category: "casual-wear", color: "Grey", size: ["M", "L", "XL"] },
-    { id: "casual-2", name: "Weekend Joggers Combo", price: 2999, originalPrice: 4299, image: productCasual, category: "casual-wear", color: "Black", size: ["S", "M", "L", "XL"] },
-    { id: "casual-3", name: "Relaxed Fit Sweatshirt", price: 1999, originalPrice: 2999, image: productCasual, category: "casual-wear", color: "Navy", size: ["M", "L", "XL", "XXL"] },
-  ],
-  "formal-wear": [
-    { id: "formal-1", name: "Executive Navy Suit", price: 12999, originalPrice: 17999, image: productFormal, badge: "Premium", category: "formal-wear", color: "Navy", size: ["38", "40", "42", "44"] },
-    { id: "formal-2", name: "Classic Black Suit", price: 14999, originalPrice: 19999, image: productFormal, category: "formal-wear", color: "Black", size: ["38", "40", "42", "44", "46"] },
-    { id: "formal-3", name: "Charcoal Business Suit", price: 13499, originalPrice: 18499, image: productFormal, category: "formal-wear", color: "Charcoal", size: ["40", "42", "44"] },
+  "churidar": [
+    { id: "churidar-1", name: "Anarkali Churidar Set", price: 3999, originalPrice: 5999, image: productCasual, badge: "New", category: "churidar", color: "Pink", size: ["S", "M", "L", "XL"] },
+    { id: "churidar-2", name: "Cotton Churidar Suit", price: 2499, originalPrice: 3499, image: productCasual, category: "churidar", color: "Blue", size: ["S", "M", "L", "XL", "XXL"] },
+    { id: "churidar-3", name: "Embroidered Party Wear Churidar", price: 5999, originalPrice: 8999, image: productFormal, badge: "Premium", category: "churidar", color: "Maroon", size: ["M", "L", "XL"] },
+    { id: "churidar-4", name: "Casual Daily Wear Churidar", price: 1999, originalPrice: 2999, image: productCasual, category: "churidar", color: "White", size: ["S", "M", "L", "XL"] },
   ],
 };
 
