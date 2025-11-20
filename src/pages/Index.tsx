@@ -10,6 +10,7 @@ import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { DealsBanner } from "@/components/DealsBanner";
 import { BrandShowcase } from "@/components/BrandShowcase";
 import { PromotionalBanner } from "@/components/PromotionalBanner";
+import { Link } from "react-router-dom";
 import categoryShirts from "@/assets/category-shirts.jpg";
 import categoryPants from "@/assets/category-pants.jpg";
 import categoryTshirts from "@/assets/category-tshirts.jpg";
@@ -109,12 +110,23 @@ const Index = () => {
       
 
       {/* Categories Section */}
-      <section className="container px-4 py-8">
-        <h2 className="text-xl md:text-2xl font-bold mb-4 font-sans uppercase">
+      <section className="container px-4 py-6 bg-muted/30">
+        <h2 className="text-lg md:text-xl font-bold mb-4 font-sans uppercase text-center">
           Shop by Category
         </h2>
-        <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-          {categories.map(category => <CategoryCard key={category.title} title={category.title} image={category.image} link={category.link} />)}
+        <div className="flex overflow-x-auto gap-6 pb-2 scrollbar-hide justify-center flex-wrap md:flex-nowrap">
+          {categories.map(category => (
+            <Link key={category.title} to={category.link} className="flex flex-col items-center gap-2 min-w-[80px] group">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2 border-border bg-background transition-transform group-hover:scale-110">
+                <img
+                  src={category.image}
+                  alt={category.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="text-xs md:text-sm font-medium text-center">{category.title}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
