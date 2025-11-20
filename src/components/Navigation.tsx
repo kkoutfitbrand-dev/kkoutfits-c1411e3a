@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CategoryIconSection } from "@/components/CategoryIconSection";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 const categories = ["Shirts", "T-Shirts", "Pants", "Jeans", "Casual Wear", "Formal Wear", "Accessories", "New Arrivals", "Sale"];
 const moreLinks = [{
@@ -64,9 +63,6 @@ export const Navigation = () => {
 
       {/* Main Navigation */}
       <div className="container flex h-20 items-center justify-between px-4">
-        {/* Sidebar Toggle */}
-        <SidebarTrigger className="mr-2" />
-        
         {/* Mobile Menu */}
         <Sheet>
           <SheetTrigger asChild className="lg:hidden">

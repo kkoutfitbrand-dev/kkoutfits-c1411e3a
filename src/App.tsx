@@ -6,9 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { CategorySidebar } from "@/components/CategorySidebar";
-import { Navigation } from "@/components/Navigation";
 import Index from "./pages/Index";
 import CategoryPage from "./pages/CategoryPage";
 import ProductDetail from "./pages/ProductDetail";
@@ -37,13 +34,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <SidebarProvider>
-            <div className="flex min-h-screen w-full">
-              <CategorySidebar />
-              <div className="flex-1 flex flex-col">
-                <Navigation />
-                <main className="flex-1">
-                  <Routes>
+          <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/category/:category" element={<CategoryPage />} />
             <Route path="/product/:id" element={<ProductDetail />} />
@@ -60,13 +51,9 @@ const App = () => (
             <Route path="/faq" element={<FAQ />} />
             <Route path="/search" element={<Search />} />
             <Route path="/track-order" element={<TrackOrder />} />
-                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </main>
-              </div>
-            </div>
-          </SidebarProvider>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
