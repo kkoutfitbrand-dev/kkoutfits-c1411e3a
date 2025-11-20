@@ -36,7 +36,7 @@ All colors MUST be HSL.
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    --accent: 355 75% 45%;
+    --accent: 340 82% 52%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
@@ -46,9 +46,14 @@ All colors MUST be HSL.
     --input: 0 0% 90%;
     --ring: 0 0% 10%;
 
-    --radius: 0.5rem;
+    --radius: 0.25rem;
 
-    /* Fashion-specific colors */
+    /* Myntra-style colors */
+    --myntra-pink: 340 82% 52%;
+    --myntra-orange: 28 100% 54%;
+    --myntra-yellow: 45 100% 50%;
+    --myntra-green: 142 71% 45%;
+    --myntra-blue: 210 100% 50%;
     --luxury-burgundy: 355 75% 35%;
     --luxury-gold: 43 96% 56%;
     --luxury-cream: 40 40% 94%;
@@ -57,6 +62,7 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-hero: linear-gradient(135deg, hsl(var(--luxury-burgundy)) 0%, hsl(var(--luxury-charcoal)) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(var(--luxury-gold)) 0%, hsl(43 84% 45%) 100%);
+    --gradient-deal: linear-gradient(135deg, hsl(var(--myntra-pink)) 0%, hsl(var(--myntra-orange)) 100%);
     
     /* Transitions */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -81,7 +87,7 @@ All colors MUST be HSL.
     --muted: 0 0% 20%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 355 75% 45%;
+    --accent: 340 82% 52%;
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;

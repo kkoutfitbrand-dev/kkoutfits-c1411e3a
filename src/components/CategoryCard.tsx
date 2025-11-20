@@ -9,28 +9,18 @@ interface CategoryCardProps {
 
 export const CategoryCard = ({ title, image, link }: CategoryCardProps) => {
   return (
-    <Link to={link}>
-      <Card className="group relative overflow-hidden border-0 rounded-lg aspect-[4/5] cursor-pointer">
+    <Link to={link} className="group block">
+      <div className="relative overflow-hidden rounded-sm aspect-square border border-border bg-card">
         <img
           src={image}
           alt={title}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-primary-foreground">
-          <h3 className="text-2xl font-serif font-semibold mb-2">{title}</h3>
-          <p className="text-sm opacity-90 group-hover:opacity-100 transition-opacity">
-            Shop Collection →
-          </p>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-3 text-primary-foreground">
+          <h3 className="text-sm md:text-base font-bold uppercase font-sans">{title}</h3>
         </div>
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/60">
-          <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-            <button className="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors">
-              View Collection
-            </button>
-          </div>
-        </div>
-      </Card>
+      </div>
     </Link>
   );
 };
