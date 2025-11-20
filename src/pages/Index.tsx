@@ -12,7 +12,9 @@ import { NewsletterPopup } from "@/components/NewsletterPopup";
 import { VideoBanner } from "@/components/VideoBanner";
 import categoryShirts from "@/assets/category-shirts.jpg";
 import categoryPants from "@/assets/category-pants.jpg";
-import categoryFormal from "@/assets/category-formal.jpg";
+import categoryTshirts from "@/assets/category-tshirts.jpg";
+import categorySaree from "@/assets/category-saree.jpg";
+import categorySalwar from "@/assets/category-salwar.jpg";
 import productShirt from "@/assets/product-shirt-1.jpg";
 import productTshirt from "@/assets/product-tshirt-1.jpg";
 import productPants from "@/assets/product-pants-1.jpg";
@@ -24,13 +26,21 @@ const categories = [{
   image: categoryShirts,
   link: "/category/shirts"
 }, {
-  title: "Pants",
+  title: "Pants and Shorts",
   image: categoryPants,
-  link: "/category/pants"
+  link: "/category/pants-shorts"
 }, {
-  title: "Formal Wear",
-  image: categoryFormal,
-  link: "/category/formal-wear"
+  title: "T-Shirt",
+  image: categoryTshirts,
+  link: "/category/tshirt"
+}, {
+  title: "Sarees",
+  image: categorySaree,
+  link: "/category/sarees"
+}, {
+  title: "Churidar",
+  image: categorySalwar,
+  link: "/category/churidar"
 }];
 const featuredProducts = [{
   id: "shirt-1",
@@ -85,10 +95,10 @@ const Index = () => {
         <div className="text-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold mb-3 md:mb-4">Shop by Category</h2>
           <p className="text-sm md:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Discover our premium collection of men's apparel for every occasion
+            Discover our premium collection for men and women
           </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {categories.map(category => <CategoryCard key={category.title} title={category.title} image={category.image} link={category.link} />)}
         </div>
       </section>
