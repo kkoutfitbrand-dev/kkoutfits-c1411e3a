@@ -10,7 +10,7 @@ interface CategoryCardProps {
 export const CategoryCard = ({ title, image, link }: CategoryCardProps) => {
   return (
     <Link to={link}>
-      <Card className="group relative overflow-hidden border-0 rounded-lg h-[400px] cursor-pointer">
+      <Card className="group relative overflow-hidden border-0 rounded-lg aspect-[4/5] cursor-pointer">
         <img
           src={image}
           alt={title}
