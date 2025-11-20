@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Check } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -16,6 +16,24 @@ import productPants from "@/assets/product-pants-1.jpg";
 import productJeans from "@/assets/product-jeans-1.jpg";
 import productCasual from "@/assets/product-casual-1.jpg";
 import productFormal from "@/assets/product-formal-1.jpg";
+
+// Color mapping for visual swatches
+const colorMap: Record<string, string> = {
+  "Blue": "bg-blue-500",
+  "White": "bg-white border-2 border-border",
+  "Light Blue": "bg-blue-300",
+  "Black": "bg-black",
+  "Navy": "bg-blue-900",
+  "Khaki": "bg-yellow-700",
+  "Grey": "bg-gray-500",
+  "Beige": "bg-amber-200",
+  "Olive": "bg-green-700",
+  "Red": "bg-red-600",
+  "Gold": "bg-yellow-500",
+  "Green": "bg-green-600",
+  "Pink": "bg-pink-400",
+  "Maroon": "bg-red-900",
+};
 
 // Category-specific products
 const categoryProducts = {
@@ -161,22 +179,38 @@ const CategoryPage = () => {
                 {availableColors.length > 0 && (
                   <div className="mb-6 pb-6 border-b border-border">
                     <h3 className="font-semibold mb-4">Color</h3>
-                    <div className="space-y-3">
+                    <div className="flex flex-wrap gap-3">
                       {availableColors.map(color => (
-                        <div key={color} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={color}
-                            checked={selectedColors.includes(color)}
-                            onCheckedChange={(checked) => {
-                              if (checked) {
-                                setSelectedColors([...selectedColors, color]);
-                              } else {
-                                setSelectedColors(selectedColors.filter(c => c !== color));
-                              }
-                            }}
-                          />
-                          <Label htmlFor={color} className="cursor-pointer">{color}</Label>
-                        </div>
+                        <button
+                          key={color}
+                          onClick={() => {
+                            if (selectedColors.includes(color)) {
+                              setSelectedColors(selectedColors.filter(c => c !== color));
+                            } else {
+                              setSelectedColors([...selectedColors, color]);
+                            }
+                          }}
+                          className="group relative"
+                          title={color}
+                        >
+                          <div
+                            className={`w-10 h-10 rounded-full ${colorMap[color] || "bg-gray-400"} 
+                              transition-all duration-200 
+                              ${selectedColors.includes(color) 
+                                ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" 
+                                : "hover:scale-105 hover:ring-2 hover:ring-muted ring-offset-2 ring-offset-background"
+                              }`}
+                          >
+                            {selectedColors.includes(color) && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <Check className="w-5 h-5 text-primary-foreground drop-shadow-md" strokeWidth={3} />
+                              </div>
+                            )}
+                          </div>
+                          <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
+                            {color}
+                          </span>
+                        </button>
                       ))}
                     </div>
                   </div>
