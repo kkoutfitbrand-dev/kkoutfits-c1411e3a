@@ -24,9 +24,7 @@ export const ProductCard = ({
       <Link to={`/product/${id}`}>
         <div className="relative overflow-hidden aspect-[3/4]">
           <img src={image} alt={name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-          {badge && <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground">
-              {badge}
-            </Badge>}
+          {badge}
           {discount > 0 && <Badge className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold shadow-lg border-0">
               {discount}% OFF
             </Badge>}
