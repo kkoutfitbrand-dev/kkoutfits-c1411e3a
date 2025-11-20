@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { Check, Loader2 } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Check, Loader2, Plus, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,9 +28,50 @@ const addressSchema = z.object({
 
 type AddressFormData = z.infer<typeof addressSchema>;
 
+interface SavedAddress {
+  id: string;
+  type: "Home" | "Office" | "Other";
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  isDefault: boolean;
+}
+
 const Checkout = () => {
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([
+    {
+      id: "1",
+      type: "Home",
+      firstName: "John",
+      lastName: "Doe",
+      phone: "9876543210",
+      address: "123 MG Road, Near City Mall",
+      city: "Mumbai",
+      state: "Maharashtra",
+      pincode: "400001",
+      isDefault: true,
+    },
+    {
+      id: "2",
+      type: "Office",
+      firstName: "John",
+      lastName: "Doe",
+      phone: "9876543210",
+      address: "456 Tech Park, Whitefield",
+      city: "Bangalore",
+      state: "Karnataka",
+      pincode: "560066",
+      isDefault: false,
+    },
+  ]);
   const { toast } = useToast();
   
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<AddressFormData>({
@@ -47,8 +89,80 @@ const Checkout = () => {
 
   const onAddressSubmit = async (data: AddressFormData) => {
     await new Promise(resolve => setTimeout(resolve, 500));
+    
+    if (selectedAddressId) {
+      // Editing existing address
+      setSavedAddresses(prev =>
+        prev.map(addr =>
+          addr.id === selectedAddressId
+            ? { ...addr, ...data }
+            : addr
+        )
+      );
+      toast({ title: "Address updated successfully" });
+    } else {
+      // Adding new address
+      const newAddress: SavedAddress = {
+        id: Date.now().toString(),
+        type: "Home",
+        firstName: data.firstName,
+        lastName: data.lastName,
+        phone: data.phone,
+        address: data.address,
+        city: data.city,
+        state: data.state,
+        pincode: data.pincode,
+        isDefault: savedAddresses.length === 0,
+      };
+      setSavedAddresses(prev => [...prev, newAddress]);
+      toast({ title: "Address added successfully" });
+    }
+    
+    setShowAddressForm(false);
+    setSelectedAddressId(null);
+  };
+
+  const handleSelectAddress = (id: string) => {
+    setSelectedAddressId(id);
     setStep(2);
   };
+
+  const handleEditAddress = (address: SavedAddress) => {
+    setSelectedAddressId(address.id);
+    Object.entries(address).forEach(([key, value]) => {
+      if (key !== "id" && key !== "type" && key !== "isDefault") {
+        (form as any).setValue(key, value);
+      }
+    });
+    setShowAddressForm(true);
+  };
+
+  const handleDeleteAddress = (id: string) => {
+    setSavedAddresses(prev => prev.filter(addr => addr.id !== id));
+    toast({ title: "Address deleted" });
+  };
+
+  const handleSetDefault = (id: string) => {
+    setSavedAddresses(prev =>
+      prev.map(addr => ({
+        ...addr,
+        isDefault: addr.id === id,
+      }))
+    );
+  };
+
+  const form = useForm<AddressFormData>({
+    resolver: zodResolver(addressSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      phone: "",
+      address: "",
+      city: "",
+      state: "",
+      pincode: ""
+    }
+  });
 
   const cartItems = [
     { id: "1", name: "Cream Embroidered Kurta Pajama Set", price: 5999, image: product1, quantity: 1 },

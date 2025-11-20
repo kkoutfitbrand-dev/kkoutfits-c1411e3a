@@ -3,9 +3,12 @@ import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Minus, Plus, Trash2, ShoppingBag, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
+import { SavedForLater } from "@/components/SavedForLater";
+import { toast } from "sonner";
 import product1 from "@/assets/product-1.jpg";
 import product3 from "@/assets/product-3.jpg";
 
@@ -38,7 +41,9 @@ const Cart = () => {
     },
   ]);
 
+  const [savedItems, setSavedItems] = useState<CartItem[]>([]);
   const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
   const updateQuantity = (id: string, delta: number) => {
     setCartItems(items =>
@@ -52,12 +57,44 @@ const Cart = () => {
 
   const removeItem = (id: string) => {
     setCartItems(items => items.filter(item => item.id !== id));
+    toast.success("Item removed from cart");
+  };
+
+  const saveForLater = (id: string) => {
+    const item = cartItems.find(item => item.id === id);
+    if (item) {
+      setSavedItems(prev => [...prev, item]);
+      setCartItems(items => items.filter(item => item.id !== id));
+      toast.success("Item saved for later");
+    }
+  };
+
+  const moveToCart = (id: string) => {
+    const item = savedItems.find(item => item.id === id);
+    if (item) {
+      setCartItems(prev => [...prev, item]);
+      setSavedItems(items => items.filter(item => item.id !== id));
+      toast.success("Item moved to cart");
+    }
+  };
+
+  const removeSavedItem = (id: string) => {
+    setSavedItems(items => items.filter(item => item.id !== id));
+    toast.success("Item removed");
+  };
+
+  const applyCoupon = () => {
+    if (couponCode.trim()) {
+      setAppliedCoupon(couponCode.toUpperCase());
+      toast.success(`Coupon ${couponCode.toUpperCase()} applied!`);
+    }
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 20000 ? 0 : 299;
-  const discount = 0;
+  const shipping = subtotal > 999 ? 0 : 99;
+  const discount = appliedCoupon === "SAVE200" ? 200 : appliedCoupon === "SAVE10" ? Math.floor(subtotal * 0.1) : 0;
   const total = subtotal + shipping - discount;
+  const savings = discount + (shipping === 0 ? 99 : 0);
 
   if (cartItems.length === 0) {
     return (
@@ -181,9 +218,20 @@ const Cart = () => {
             </div>
           </div>
         </div>
+
+        {/* Saved for Later Section */}
+        {savedItems.length > 0 && (
+          <div className="mt-8">
+            <SavedForLater
+              items={savedItems}
+              onMoveToCart={moveToCart}
+              onRemove={removeSavedItem}
+            />
+          </div>
+        )}
       </div>
-        <Footer />
-      </div>
+      <Footer />
+    </div>
     </ProtectedRoute>
   );
 };

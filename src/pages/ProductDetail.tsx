@@ -4,12 +4,24 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus } from "lucide-react";
+import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ProductReviews } from "@/components/ProductReviews";
 import { ProductQA } from "@/components/ProductQA";
 import { RelatedProducts } from "@/components/RelatedProducts";
 import { StickyAddToCart } from "@/components/StickyAddToCart";
+import { PincodeChecker } from "@/components/PincodeChecker";
+import { SizeGuideModal } from "@/components/SizeGuideModal";
+import { ProductOffers } from "@/components/ProductOffers";
+import { RatingSummary } from "@/components/RatingSummary";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
@@ -139,17 +151,31 @@ const ProductDetail = () => {
   return <div className="min-h-screen bg-background">
       <Navigation />
       
-      <div className="container px-4 py-8">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-          <Link to="/" className="hover:text-accent">Home</Link>
-          <span>/</span>
-          <Link to={`/category/${product.category.toLowerCase()}`} className="hover:text-accent">
-            {product.category}
-          </Link>
-          <span>/</span>
-          <span className="text-foreground">{product.name}</span>
-        </div>
+      <div className="container px-4 py-8 md:py-12">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to="/">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <ChevronRight className="h-4 w-4" />
+            </BreadcrumbSeparator>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link to={`/category/${product.category.toLowerCase()}`}>{product.category}</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <ChevronRight className="h-4 w-4" />
+            </BreadcrumbSeparator>
+            <BreadcrumbItem>
+              <BreadcrumbPage>{product.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
