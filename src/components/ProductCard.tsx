@@ -27,7 +27,7 @@ export const ProductCard = ({
           {badge && <Badge className="absolute top-4 left-4 bg-accent text-accent-foreground">
               {badge}
             </Badge>}
-          {discount > 0 && <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground">
+          {discount > 0 && <Badge className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white font-bold shadow-lg border-0">
               {discount}% OFF
             </Badge>}
           
