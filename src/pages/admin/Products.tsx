@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { AdminLayout } from '@/components/admin/AdminLayout';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, AlertTriangle } from 'lucide-react';
+import { Plus, Pencil, Trash2, AlertTriangle, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { ProductForm } from '@/components/admin/ProductForm';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
   TableBody,
@@ -33,13 +35,20 @@ export default function AdminProducts() {
   const [formOpen, setFormOpen] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [bulkInventory, setBulkInventory] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
 
   const fetchProducts = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    let query = supabase
       .from('products')
       .select('*')
       .order('created_at', { ascending: false });
+
+    if (statusFilter !== 'all') {
+      query = query.eq('status', statusFilter);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       toast({
@@ -55,7 +64,7 @@ export default function AdminProducts() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [statusFilter]);
 
   const handleDelete = async () => {
     if (!deleteId) return;
@@ -170,6 +179,14 @@ export default function AdminProducts() {
           </Button>
         </div>
 
+        <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)} className="mb-4">
+          <TabsList>
+            <TabsTrigger value="all">All Products</TabsTrigger>
+            <TabsTrigger value="published">Published</TabsTrigger>
+            <TabsTrigger value="draft">Drafts</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
         {selectedProducts.length > 0 && (
           <div className="bg-muted/50 border border-border rounded-lg p-4 flex items-center gap-4">
             <AlertTriangle className="h-5 w-5 text-primary" />
@@ -232,7 +249,12 @@ export default function AdminProducts() {
                       />
                     </TableCell>
                     <TableCell>
-                      <div className="font-medium">{product.title}</div>
+                      <div className="flex items-center gap-2">
+                        <div className="font-medium">{product.title}</div>
+                        {product.status === 'draft' && (
+                          <Badge variant="secondary">Draft</Badge>
+                        )}
+                      </div>
                       <div className="text-sm text-muted-foreground">{product.slug}</div>
                     </TableCell>
                     <TableCell>₹{(product.price_cents / 100).toLocaleString('en-IN')}</TableCell>

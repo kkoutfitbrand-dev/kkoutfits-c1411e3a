@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Upload, X, Loader2, Check, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Upload, X, Loader2, Check, ChevronRight, ChevronLeft, Eye, Save } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
 import { Progress } from '@/components/ui/progress';
+import { ProductPreview } from './ProductPreview';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -64,6 +65,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   // Fetch categories from database
   const { data: categories = [] } = useQuery({
@@ -246,6 +248,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
         price_cents: Math.round(data.price_cents * 100),
         inventory_count: data.inventory_count,
         images: imageUrls,
+        status: 'published',
         variants: {
           sku: data.sku,
           barcode: data.barcode,
@@ -262,7 +265,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
 
       toast({
         title: 'Success',
-        description: 'Product created successfully',
+        description: 'Product published successfully',
       });
 
       reset();
@@ -280,6 +283,74 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
     } finally {
       setUploading(false);
     }
+  };
+
+  const saveDraft = async () => {
+    try {
+      setUploading(true);
+      const data = getValues();
+      const imageUrls = imageFiles.length > 0 ? await uploadImages() : [];
+
+      const { error } = await supabase.from('products').insert({
+        title: data.title || 'Untitled Product',
+        slug: data.slug || `draft-${Date.now()}`,
+        description: data.description || '',
+        price_cents: data.price_cents ? Math.round(data.price_cents * 100) : 0,
+        inventory_count: data.inventory_count || 0,
+        images: imageUrls,
+        status: 'draft',
+        variants: {
+          sku: data.sku,
+          barcode: data.barcode,
+          category: data.category,
+          tags: data.tags?.split(',').map(t => t.trim()).filter(Boolean),
+          weight: data.weight,
+          sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null,
+          meta_title: data.meta_title,
+          meta_description: data.meta_description,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Draft Saved',
+        description: 'Product saved as draft. You can continue editing later.',
+      });
+
+      reset();
+      setImageFiles([]);
+      setImagePreviews([]);
+      setCurrentStep(1);
+      onOpenChange(false);
+      onSuccess();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save draft',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handlePreview = () => {
+    setPreviewOpen(true);
+  };
+
+  const getPreviewData = () => {
+    const data = getValues();
+    return {
+      title: data.title || 'Product Title',
+      description: data.description || '',
+      price_cents: data.price_cents || 0,
+      sale_price_cents: data.sale_price_cents,
+      category: data.category,
+      tags: data.tags,
+      images: imagePreviews,
+      inventory_count: data.inventory_count || 0,
+    };
   };
 
   const progress = (currentStep / steps.length) * 100;
@@ -626,24 +697,37 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
 
           {/* Navigation Buttons */}
           <div className="flex items-center justify-between pt-6 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentStep === 1 || isSubmitting || uploading}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
-
             <div className="flex gap-2">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => onOpenChange(false)}
+                onClick={handleBack}
+                disabled={currentStep === 1 || isSubmitting || uploading}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+              
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handlePreview}
+                disabled={!getValues('title')}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview
+              </Button>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={saveDraft}
                 disabled={isSubmitting || uploading}
               >
-                Cancel
+                <Save className="h-4 w-4 mr-2" />
+                Save as Draft
               </Button>
 
               {currentStep < 4 ? (
@@ -664,12 +748,19 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                   {(isSubmitting || uploading) && (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   )}
-                  Create Product
+                  Publish Product
                 </Button>
               )}
             </div>
           </div>
         </form>
+
+        {/* Product Preview Modal */}
+        <ProductPreview
+          open={previewOpen}
+          onOpenChange={setPreviewOpen}
+          productData={getPreviewData()}
+        />
       </DialogContent>
     </Dialog>
   );
