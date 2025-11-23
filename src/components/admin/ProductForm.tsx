@@ -40,8 +40,6 @@ const productSchema = z.object({
   category: z.string().optional(),
   tags: z.string().optional(),
   weight: z.number().min(0).optional(),
-  meta_title: z.string().max(60).optional(),
-  meta_description: z.string().max(160).optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -56,7 +54,6 @@ const steps = [
   { id: 1, name: 'Basic Info', description: 'Product details' },
   { id: 2, name: 'Pricing', description: 'Price & costs' },
   { id: 3, name: 'Inventory', description: 'Stock & tracking' },
-  { id: 4, name: 'SEO', description: 'Optimization' },
 ];
 
 export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps) => {
@@ -104,8 +101,6 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
       category: '',
       tags: '',
       weight: 0,
-      meta_title: '',
-      meta_description: '',
     },
   });
 
@@ -207,9 +202,6 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
       case 3:
         fieldsToValidate = ['inventory_count', 'sku', 'barcode'];
         break;
-      case 4:
-        fieldsToValidate = ['meta_title', 'meta_description'];
-        break;
     }
 
     const result = await trigger(fieldsToValidate);
@@ -220,7 +212,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
     const isValid = await validateStep();
     
     if (isValid) {
-      if (currentStep < 4) {
+      if (currentStep < 3) {
         setCurrentStep(currentStep + 1);
         toast({
           title: 'Progress Saved',
@@ -256,8 +248,6 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
           tags: data.tags?.split(',').map(t => t.trim()).filter(Boolean),
           weight: data.weight,
           sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null,
-          meta_title: data.meta_title,
-          meta_description: data.meta_description,
         },
       });
 
@@ -306,8 +296,6 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
           tags: data.tags?.split(',').map(t => t.trim()).filter(Boolean),
           weight: data.weight,
           sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null,
-          meta_title: data.meta_title,
-          meta_description: data.meta_description,
         },
       });
 
@@ -651,50 +639,6 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
             </div>
           )}
 
-          {/* Step 4: SEO */}
-          {currentStep === 4 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="space-y-2">
-                <Label htmlFor="meta_title">Meta Title</Label>
-                <Input
-                  id="meta_title"
-                  {...register('meta_title')}
-                  placeholder="Premium Cotton Kurta - Comfortable & Stylish"
-                  maxLength={60}
-                />
-                <p className="text-xs text-muted-foreground">
-                  {getValues('meta_title')?.length || 0}/60 characters • Recommended: 50-60
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="meta_description">Meta Description</Label>
-                <Textarea
-                  id="meta_description"
-                  {...register('meta_description')}
-                  placeholder="Shop our premium cotton kurta collection. Perfect for any occasion, featuring comfortable fabrics and elegant designs."
-                  rows={3}
-                  maxLength={160}
-                  className="resize-none"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {getValues('meta_description')?.length || 0}/160 characters • Recommended: 120-160
-                </p>
-              </div>
-
-              <div className="bg-muted/50 border border-border rounded-lg p-4">
-                <h4 className="font-medium mb-2">SEO Best Practices</h4>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <p>✓ Include primary keyword in title</p>
-                  <p>✓ Write compelling meta description</p>
-                  <p>✓ Use descriptive, unique content</p>
-                  <p>✓ Add high-quality product images</p>
-                  <p>✓ Keep URLs short and readable</p>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Navigation Buttons */}
           <div className="flex items-center justify-between pt-6 border-t">
             <div className="flex gap-2">
@@ -730,7 +674,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                 Save as Draft
               </Button>
 
-              {currentStep < 4 ? (
+              {currentStep < 3 ? (
                 <Button
                   type="button"
                   onClick={handleNext}
