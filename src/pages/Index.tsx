@@ -110,7 +110,14 @@ const Index = () => {
       
 
       {/* Promotional Banner */}
-      <PromotionalBanner title="MEGA SALE - UP TO 70% OFF" subtitle="End of Season Sale on All Products" ctaText="Shop Now" ctaLink="/category/all" />
+      <PromotionalBanner 
+        title="MEGA SALE - UP TO 70% OFF" 
+        subtitle="End of Season Sale on All Products" 
+        ctaText="Shop Now" 
+        ctaLink="/category/all"
+        badge="LIMITED TIME OFFER"
+        showTimer={true}
+      />
 
       {/* Deals of the Day */}
       <section className="container px-4 py-8">
