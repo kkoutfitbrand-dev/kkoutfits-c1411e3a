@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useQuery } from '@tanstack/react-query';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -56,6 +57,21 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
+
+  // Fetch categories from database
+  const { data: categories = [] } = useQuery({
+    queryKey: ['categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   const {
     register,
@@ -269,13 +285,16 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="shirts">Shirts</SelectItem>
-                    <SelectItem value="pants-shorts">Pants and Shorts</SelectItem>
-                    <SelectItem value="tshirt">T-shirt</SelectItem>
-                    <SelectItem value="sarees">Sarees</SelectItem>
-                    <SelectItem value="chudithar">Chudithar</SelectItem>
+                    {categories.map((cat: any) => (
+                      <SelectItem key={cat.id} value={cat.slug}>
+                        {cat.parent_id && '• '}{cat.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  Choose the most relevant category for this product
+                </p>
               </div>
 
               <div className="space-y-2">
