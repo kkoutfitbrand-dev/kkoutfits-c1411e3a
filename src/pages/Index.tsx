@@ -152,7 +152,7 @@ const Index = () => {
               to={category.link} 
               className="group relative overflow-hidden rounded-xl bg-card border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
             >
-              <div className="aspect-[3/4] overflow-hidden">
+              <div className="aspect-square overflow-hidden">
                 <img
                   src={category.image}
                   alt={category.title}
