@@ -1,4 +1,4 @@
-import { Search, Heart, ShoppingBag, User, Menu, LogOut, UserCircle, Users, Shirt, Briefcase, Tag } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, LogOut, UserCircle, Users, Shirt, Briefcase, Tag, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CategoryIconSection } from "@/components/CategoryIconSection";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 const categories = ["Shirts", "T-Shirts", "Pants", "Jeans", "Casual Wear", "Formal Wear", "Accessories", "New Arrivals", "Sale"];
 const moreLinks = [{
   label: "About Us",
@@ -55,6 +56,7 @@ export const Navigation = () => {
     user,
     signOut
   } = useAuth();
+  const { isAdmin } = useUserRole();
   const navigate = useNavigate();
   const handleSignOut = async () => {
     await signOut();
@@ -134,6 +136,17 @@ export const Navigation = () => {
                   <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                 </div>
                 <DropdownMenuSeparator />
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin/dashboard" className="cursor-pointer">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem asChild>
                   <Link to="/account" className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" />
