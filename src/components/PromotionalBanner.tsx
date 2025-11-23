@@ -26,7 +26,7 @@ export const PromotionalBanner = ({
 }: PromotionalBannerProps) => {
   return (
     <section className="container px-4 py-6 md:py-8">
-      <div className={`relative overflow-hidden rounded-lg border border-border ${bgImage ? 'bg-background' : `bg-gradient-to-r ${bgGradient}`} shadow-sm hover:shadow-md transition-shadow duration-300`}>
+      <div className={`relative overflow-hidden border border-border ${bgImage ? 'bg-background' : `bg-gradient-to-r ${bgGradient}`} shadow-sm hover:shadow-md transition-shadow duration-300`}>
         {bgImage && (
           <>
             <img
