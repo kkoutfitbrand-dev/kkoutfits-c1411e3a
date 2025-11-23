@@ -27,6 +27,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { Progress } from '@/components/ui/progress';
 import { ProductPreview } from './ProductPreview';
+import { VariantsManager } from './VariantsManager';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -48,21 +49,25 @@ interface ProductFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  editProduct?: any;
 }
 
 const steps = [
   { id: 1, name: 'Basic Info', description: 'Product details' },
   { id: 2, name: 'Pricing', description: 'Price & costs' },
   { id: 3, name: 'Inventory', description: 'Stock & tracking' },
+  { id: 4, name: 'Variants', description: 'Size, Color options' },
 ];
 
-export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps) => {
+export const ProductForm = ({ open, onOpenChange, onSuccess, editProduct }: ProductFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [uploading, setUploading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [variants, setVariants] = useState<any[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
 
   // Fetch categories from database
   const { data: categories = [] } = useQuery({
@@ -110,8 +115,30 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
       reset();
       setImageFiles([]);
       setImagePreviews([]);
+      setExistingImages([]);
+      setVariants([]);
+    } else if (editProduct) {
+      // Populate form with existing product data
+      const variantsData = editProduct.variants || {};
+      setValue('title', editProduct.title);
+      setValue('slug', editProduct.slug);
+      setValue('description', editProduct.description || '');
+      setValue('price_cents', editProduct.price_cents / 100);
+      setValue('sale_price_cents', variantsData.sale_price_cents ? variantsData.sale_price_cents / 100 : 0);
+      setValue('inventory_count', editProduct.inventory_count || 0);
+      setValue('sku', variantsData.sku || '');
+      setValue('barcode', variantsData.barcode || '');
+      setValue('category', variantsData.category || '');
+      setValue('tags', variantsData.tags?.join(', ') || '');
+      setValue('weight', variantsData.weight || 0);
+      
+      // Set existing images
+      if (editProduct.images && Array.isArray(editProduct.images)) {
+        setExistingImages(editProduct.images);
+        setImagePreviews(editProduct.images);
+      }
     }
-  }, [open, reset]);
+  }, [open, reset, editProduct, setValue]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -164,7 +191,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
   };
 
   const uploadImages = async () => {
-    const uploadedUrls: string[] = [];
+    const uploadedUrls: string[] = [...existingImages];
     
     for (const file of imageFiles) {
       const fileExt = file.name.split('.').pop();
@@ -202,6 +229,10 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
       case 3:
         fieldsToValidate = ['inventory_count', 'sku', 'barcode'];
         break;
+      case 4:
+        // Variants step - no required fields
+        fieldsToValidate = [];
+        break;
     }
 
     const result = await trigger(fieldsToValidate);
@@ -212,7 +243,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
     const isValid = await validateStep();
     
     if (isValid) {
-      if (currentStep < 3) {
+      if (currentStep < 4) {
         setCurrentStep(currentStep + 1);
         toast({
           title: 'Progress Saved',
@@ -231,9 +262,11 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
   const onSubmit = async (data: ProductFormData) => {
     try {
       setUploading(true);
-      const imageUrls = imageFiles.length > 0 ? await uploadImages() : [];
+      const imageUrls = imageFiles.length > 0 || existingImages.length > 0 
+        ? await uploadImages() 
+        : existingImages;
 
-      const { error } = await supabase.from('products').insert({
+      const productData = {
         title: data.title,
         slug: data.slug,
         description: data.description || '',
@@ -249,25 +282,70 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
           weight: data.weight,
           sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null,
         },
-      });
+      };
+
+      let error;
+      if (editProduct) {
+        // Update existing product
+        const result = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', editProduct.id);
+        error = result.error;
+
+        // Update or insert variants
+        if (variants.length > 0) {
+          // Delete old variants
+          await supabase
+            .from('product_variants')
+            .delete()
+            .eq('product_id', editProduct.id);
+
+          // Insert new variants
+          const variantsData = variants.map(v => ({
+            product_id: editProduct.id,
+            ...v,
+            price_cents: v.price_cents || productData.price_cents,
+          }));
+
+          await supabase.from('product_variants').insert(variantsData);
+        }
+      } else {
+        // Create new product
+        const result = await supabase.from('products').insert(productData).select().single();
+        error = result.error;
+
+        // Insert variants if any
+        if (!error && result.data && variants.length > 0) {
+          const variantsData = variants.map(v => ({
+            product_id: result.data.id,
+            ...v,
+            price_cents: v.price_cents || productData.price_cents,
+          }));
+
+          await supabase.from('product_variants').insert(variantsData);
+        }
+      }
 
       if (error) throw error;
 
       toast({
         title: 'Success',
-        description: 'Product published successfully',
+        description: editProduct ? 'Product updated successfully' : 'Product published successfully',
       });
 
       reset();
       setImageFiles([]);
       setImagePreviews([]);
+      setExistingImages([]);
+      setVariants([]);
       setCurrentStep(1);
       onOpenChange(false);
       onSuccess();
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.message || 'Failed to create product',
+        description: error.message || `Failed to ${editProduct ? 'update' : 'create'} product`,
         variant: 'destructive',
       });
     } finally {
@@ -279,9 +357,11 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
     try {
       setUploading(true);
       const data = getValues();
-      const imageUrls = imageFiles.length > 0 ? await uploadImages() : [];
+      const imageUrls = imageFiles.length > 0 || existingImages.length > 0 
+        ? await uploadImages() 
+        : existingImages;
 
-      const { error } = await supabase.from('products').insert({
+      const productData = {
         title: data.title || 'Untitled Product',
         slug: data.slug || `draft-${Date.now()}`,
         description: data.description || '',
@@ -297,7 +377,19 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
           weight: data.weight,
           sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null,
         },
-      });
+      };
+
+      let error;
+      if (editProduct) {
+        const result = await supabase
+          .from('products')
+          .update(productData)
+          .eq('id', editProduct.id);
+        error = result.error;
+      } else {
+        const result = await supabase.from('products').insert(productData);
+        error = result.error;
+      }
 
       if (error) throw error;
 
@@ -309,6 +401,8 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
       reset();
       setImageFiles([]);
       setImagePreviews([]);
+      setExistingImages([]);
+      setVariants([]);
       setCurrentStep(1);
       onOpenChange(false);
       onSuccess();
@@ -347,9 +441,14 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Add New Product</DialogTitle>
+          <DialogTitle className="text-2xl">
+            {editProduct ? 'Edit Product' : 'Add New Product'}
+          </DialogTitle>
           <DialogDescription>
-            Complete all steps to create a comprehensive product listing
+            {editProduct 
+              ? 'Update product information and variants'
+              : 'Complete all steps to create a comprehensive product listing'
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -639,6 +738,17 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
             </div>
           )}
 
+          {/* Step 4: Variants */}
+          {currentStep === 4 && (
+            <div className="animate-fade-in">
+              <VariantsManager
+                variants={variants}
+                basePrice={getValues('price_cents') ? Math.round(getValues('price_cents') * 100) : 0}
+                onChange={setVariants}
+              />
+            </div>
+          )}
+
           {/* Navigation Buttons */}
           <div className="flex items-center justify-between pt-6 border-t">
             <div className="flex gap-2">
@@ -674,13 +784,13 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                 Save as Draft
               </Button>
 
-              {currentStep < 3 ? (
+              {currentStep < 4 ? (
                 <Button
                   type="button"
                   onClick={handleNext}
                   disabled={isSubmitting || uploading}
                 >
-                  Save & Continue
+                  {currentStep === 3 ? 'Continue to Variants (Optional)' : 'Save & Continue'}
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
@@ -692,7 +802,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                   {(isSubmitting || uploading) && (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   )}
-                  Publish Product
+                  {editProduct ? 'Update Product' : 'Publish Product'}
                 </Button>
               )}
             </div>

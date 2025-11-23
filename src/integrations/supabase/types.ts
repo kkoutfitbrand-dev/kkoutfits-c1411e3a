@@ -112,6 +112,74 @@ export type Database = {
         }
         Relationships: []
       }
+      product_variants: {
+        Row: {
+          barcode: string | null
+          compare_at_price_cents: number | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          inventory_count: number
+          is_available: boolean | null
+          option1_name: string | null
+          option1_value: string | null
+          option2_name: string | null
+          option2_value: string | null
+          option3_name: string | null
+          option3_value: string | null
+          price_cents: number | null
+          product_id: string
+          sku: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          barcode?: string | null
+          compare_at_price_cents?: number | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          inventory_count?: number
+          is_available?: boolean | null
+          option1_name?: string | null
+          option1_value?: string | null
+          option2_name?: string | null
+          option2_value?: string | null
+          option3_name?: string | null
+          option3_value?: string | null
+          price_cents?: number | null
+          product_id: string
+          sku?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          barcode?: string | null
+          compare_at_price_cents?: number | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          inventory_count?: number
+          is_available?: boolean | null
+          option1_name?: string | null
+          option1_value?: string | null
+          option2_name?: string | null
+          option2_value?: string | null
+          option3_name?: string | null
+          option3_value?: string | null
+          price_cents?: number | null
+          product_id?: string
+          sku?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           created_at: string | null
