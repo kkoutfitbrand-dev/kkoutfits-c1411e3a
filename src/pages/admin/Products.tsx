@@ -36,6 +36,7 @@ export default function AdminProducts() {
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [bulkInventory, setBulkInventory] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [editingProduct, setEditingProduct] = useState<any>(null);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -165,6 +166,18 @@ export default function AdminProducts() {
     }
   };
 
+  const handleEdit = (product: any) => {
+    setEditingProduct(product);
+    setFormOpen(true);
+  };
+
+  const handleFormClose = (open: boolean) => {
+    setFormOpen(open);
+    if (!open) {
+      setEditingProduct(null);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -173,7 +186,10 @@ export default function AdminProducts() {
             <h1 className="text-3xl font-bold text-foreground">Products</h1>
             <p className="text-muted-foreground">Manage your product catalog</p>
           </div>
-          <Button onClick={() => setFormOpen(true)}>
+          <Button onClick={() => {
+            setEditingProduct(null);
+            setFormOpen(true);
+          }}>
             <Plus className="h-4 w-4 mr-2" />
             Add Product
           </Button>
@@ -266,7 +282,11 @@ export default function AdminProducts() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => handleEdit(product)}
+                        >
                           <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
@@ -288,8 +308,9 @@ export default function AdminProducts() {
 
       <ProductForm
         open={formOpen}
-        onOpenChange={setFormOpen}
+        onOpenChange={handleFormClose}
         onSuccess={fetchProducts}
+        editProduct={editingProduct}
       />
 
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
