@@ -109,6 +109,25 @@ const Index = () => {
       {/* Deals Banner */}
       
 
+      {/* Promotional Banner */}
+      <PromotionalBanner title="MEGA SALE - UP TO 70% OFF" subtitle="End of Season Sale on All Products" ctaText="Shop Now" ctaLink="/category/all" />
+
+      {/* Deals of the Day */}
+      <section className="container px-4 py-8">
+        <h2 className="text-xl md:text-2xl font-bold mb-4 font-sans uppercase">
+          Deals of the Day
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {featuredProducts.map(product => <ProductCard key={product.id} {...product} />)}
+        </div>
+      </section>
+
+      {/* Brand Showcase */}
+      <BrandShowcase />
+
+      {/* Trending Products */}
+      <TrendingProducts />
+
       {/* Categories Section */}
       <section className="container px-4 py-8">
         <h2 className="text-2xl md:text-3xl font-bold mb-6 font-sans text-foreground">
@@ -138,25 +157,6 @@ const Index = () => {
           ))}
         </div>
       </section>
-
-      {/* Promotional Banner */}
-      <PromotionalBanner title="MEGA SALE - UP TO 70% OFF" subtitle="End of Season Sale on All Products" ctaText="Shop Now" ctaLink="/category/all" />
-
-      {/* Deals of the Day */}
-      <section className="container px-4 py-8">
-        <h2 className="text-xl md:text-2xl font-bold mb-4 font-sans uppercase">
-          Deals of the Day
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {featuredProducts.map(product => <ProductCard key={product.id} {...product} />)}
-        </div>
-      </section>
-
-      {/* Brand Showcase */}
-      <BrandShowcase />
-
-      {/* Trending Products */}
-      <TrendingProducts />
 
       {/* Occasion Shopping */}
       <OccasionShopping />
