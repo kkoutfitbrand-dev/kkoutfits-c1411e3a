@@ -37,36 +37,36 @@ export const PromotionalBanner = ({
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
           </>
         )}
-        <div className="relative px-6 py-6 md:px-12 md:py-8 lg:py-10">
+        <div className="relative px-6 py-4 md:px-8 md:py-5 lg:py-6">
           <div className="max-w-2xl">
             {badge && (
               <Badge 
                 variant="secondary" 
-                className="mb-4 bg-primary text-primary-foreground font-semibold px-4 py-1 animate-fade-in"
+                className="mb-2 bg-primary text-primary-foreground font-semibold px-3 py-0.5 text-xs animate-fade-in"
               >
                 {badge}
               </Badge>
             )}
             
-            <h2 className={`text-3xl md:text-5xl lg:text-6xl font-bold mb-3 font-sans tracking-tight animate-fade-in ${bgImage ? 'text-white' : 'text-foreground'}`}>
+            <h2 className={`text-xl md:text-3xl lg:text-4xl font-bold mb-2 font-sans tracking-tight animate-fade-in ${bgImage ? 'text-white' : 'text-foreground'}`}>
               {title}
             </h2>
             
-            <p className={`text-base md:text-xl mb-6 max-w-xl animate-fade-in ${bgImage ? 'text-white/90' : 'text-muted-foreground'}`}>
+            <p className={`text-sm md:text-base mb-3 max-w-xl animate-fade-in ${bgImage ? 'text-white/90' : 'text-muted-foreground'}`}>
               {subtitle}
             </p>
 
             {showTimer && (
-              <div className={`flex items-center gap-2 mb-6 ${bgImage ? 'text-white' : 'text-foreground'} animate-fade-in`}>
-                <Clock className="w-4 h-4" />
-                <span className="text-sm font-medium">Ends in 2 days</span>
+              <div className={`flex items-center gap-2 mb-3 ${bgImage ? 'text-white' : 'text-foreground'} animate-fade-in`}>
+                <Clock className="w-3 h-3" />
+                <span className="text-xs font-medium">Ends in 2 days</span>
               </div>
             )}
             
             <Link to={ctaLink} className="inline-block animate-scale-in">
               <Button
-                size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 px-8 py-6 text-base md:text-lg hover:scale-105"
+                size="default"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-2 text-sm md:text-base hover:scale-105"
               >
                 {ctaText}
               </Button>
