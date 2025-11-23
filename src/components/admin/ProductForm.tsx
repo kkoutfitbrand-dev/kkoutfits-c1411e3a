@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,16 +8,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Upload, X, Loader2, Package, Tag, TrendingUp, FileText } from 'lucide-react';
+import { Upload, X, Loader2, Check, ChevronRight, ChevronLeft } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -27,6 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
+import { Progress } from '@/components/ui/progress';
 
 const productSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -52,7 +51,15 @@ interface ProductFormProps {
   onSuccess: () => void;
 }
 
+const steps = [
+  { id: 1, name: 'Basic Info', description: 'Product details' },
+  { id: 2, name: 'Pricing', description: 'Price & costs' },
+  { id: 3, name: 'Inventory', description: 'Stock & tracking' },
+  { id: 4, name: 'SEO', description: 'Optimization' },
+];
+
 export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps) => {
+  const [currentStep, setCurrentStep] = useState(1);
   const [uploading, setUploading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -79,9 +86,35 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
     formState: { errors, isSubmitting },
     reset,
     setValue,
+    trigger,
+    getValues,
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
+    defaultValues: {
+      title: '',
+      slug: '',
+      description: '',
+      price_cents: 0,
+      sale_price_cents: 0,
+      inventory_count: 0,
+      sku: '',
+      barcode: '',
+      category: '',
+      tags: '',
+      weight: 0,
+      meta_title: '',
+      meta_description: '',
+    },
   });
+
+  useEffect(() => {
+    if (!open) {
+      setCurrentStep(1);
+      reset();
+      setImageFiles([]);
+      setImagePreviews([]);
+    }
+  }, [open, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -159,6 +192,48 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
     return uploadedUrls;
   };
 
+  const validateStep = async () => {
+    let fieldsToValidate: (keyof ProductFormData)[] = [];
+
+    switch (currentStep) {
+      case 1:
+        fieldsToValidate = ['title', 'slug', 'description', 'category', 'tags'];
+        break;
+      case 2:
+        fieldsToValidate = ['price_cents', 'sale_price_cents', 'weight'];
+        break;
+      case 3:
+        fieldsToValidate = ['inventory_count', 'sku', 'barcode'];
+        break;
+      case 4:
+        fieldsToValidate = ['meta_title', 'meta_description'];
+        break;
+    }
+
+    const result = await trigger(fieldsToValidate);
+    return result;
+  };
+
+  const handleNext = async () => {
+    const isValid = await validateStep();
+    
+    if (isValid) {
+      if (currentStep < 4) {
+        setCurrentStep(currentStep + 1);
+        toast({
+          title: 'Progress Saved',
+          description: `${steps[currentStep - 1].name} completed successfully`,
+        });
+      }
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   const onSubmit = async (data: ProductFormData) => {
     try {
       setUploading(true);
@@ -193,6 +268,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
       reset();
       setImageFiles([]);
       setImagePreviews([]);
+      setCurrentStep(1);
       onOpenChange(false);
       onSuccess();
     } catch (error: any) {
@@ -206,46 +282,76 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
     }
   };
 
+  const progress = (currentStep / steps.length) * 100;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">Add New Product</DialogTitle>
           <DialogDescription>
-            Create a comprehensive product listing with all necessary details
+            Complete all steps to create a comprehensive product listing
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <Tabs defaultValue="basic" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="basic" className="flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Basic Info
-              </TabsTrigger>
-              <TabsTrigger value="pricing" className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4" />
-                Pricing
-              </TabsTrigger>
-              <TabsTrigger value="inventory" className="flex items-center gap-2">
-                <Tag className="h-4 w-4" />
-                Inventory
-              </TabsTrigger>
-              <TabsTrigger value="seo" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                SEO
-              </TabsTrigger>
-            </TabsList>
+        {/* Progress Bar */}
+        <div className="space-y-4 mb-6">
+          <div className="relative">
+            <Progress value={progress} className="h-2" />
+            <div className="flex justify-between mt-4">
+              {steps.map((step) => (
+                <div
+                  key={step.id}
+                  className={`flex flex-col items-center relative ${
+                    step.id <= currentStep ? 'opacity-100' : 'opacity-40'
+                  }`}
+                >
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all ${
+                      step.id < currentStep
+                        ? 'bg-primary text-primary-foreground'
+                        : step.id === currentStep
+                        ? 'bg-primary text-primary-foreground ring-4 ring-primary/20'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {step.id < currentStep ? (
+                      <Check className="h-5 w-5" />
+                    ) : (
+                      step.id
+                    )}
+                  </div>
+                  <div className="mt-2 text-center">
+                    <p className={`text-sm font-medium ${
+                      step.id === currentStep ? 'text-foreground' : 'text-muted-foreground'
+                    }`}>
+                      {step.name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
-            {/* Basic Information Tab */}
-            <TabsContent value="basic" className="space-y-4 animate-fade-in">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Step 1: Basic Info */}
+          {currentStep === 1 && (
+            <div className="space-y-4 animate-fade-in">
               <div className="space-y-2">
                 <Label htmlFor="title">Product Title *</Label>
                 <Input
                   id="title"
                   {...register('title')}
                   placeholder="e.g., Premium Cotton Kurta"
-                  className="transition-all"
+                  onChange={(e) => {
+                    register('title').onChange(e);
+                    setValue('slug', e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9]+/g, '-')
+                      .replace(/^-+|-+$/g, ''));
+                  }}
                 />
                 {errors.title && (
                   <p className="text-sm text-destructive animate-fade-in">{errors.title.message}</p>
@@ -258,6 +364,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                   id="slug"
                   {...register('slug')}
                   placeholder="premium-cotton-kurta"
+                  className="font-mono text-sm"
                 />
                 {errors.slug && (
                   <p className="text-sm text-destructive animate-fade-in">{errors.slug.message}</p>
@@ -273,9 +380,6 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                   rows={5}
                   className="resize-none"
                 />
-                {errors.description && (
-                  <p className="text-sm text-destructive animate-fade-in">{errors.description.message}</p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -307,7 +411,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                 <p className="text-xs text-muted-foreground">Add relevant tags to help customers find this product</p>
               </div>
 
-              {/* Image Upload Section with Drag & Drop */}
+              {/* Image Upload */}
               <div className="space-y-2">
                 <Label>Product Images *</Label>
                 <div
@@ -368,10 +472,12 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                   </div>
                 )}
               </div>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* Pricing Tab */}
-            <TabsContent value="pricing" className="space-y-4 animate-fade-in">
+          {/* Step 2: Pricing */}
+          {currentStep === 2 && (
+            <div className="space-y-4 animate-fade-in">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="price">Regular Price (₹) *</Label>
@@ -411,10 +517,21 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                 />
                 <p className="text-xs text-muted-foreground">Used for shipping calculations</p>
               </div>
-            </TabsContent>
 
-            {/* Inventory Tab */}
-            <TabsContent value="inventory" className="space-y-4 animate-fade-in">
+              <div className="bg-muted/50 border border-border rounded-lg p-4 mt-4">
+                <h4 className="font-medium mb-2">Pricing Tips</h4>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p>• Set competitive prices based on market research</p>
+                  <p>• Use sale prices to create urgency and boost conversions</p>
+                  <p>• Include weight for accurate shipping cost calculations</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Inventory */}
+          {currentStep === 3 && (
+            <div className="space-y-4 animate-fade-in">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="sku">SKU (Stock Keeping Unit)</Label>
@@ -452,17 +569,20 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
               </div>
 
               <div className="bg-muted/50 border border-border rounded-lg p-4">
-                <h4 className="font-medium mb-2">Inventory Status</h4>
-                <div className="space-y-1 text-sm">
-                  <p className="text-muted-foreground">• Set to 0 to mark as "Out of Stock"</p>
-                  <p className="text-muted-foreground">• Low stock alerts trigger at &lt; 10 units</p>
-                  <p className="text-muted-foreground">• Track inventory automatically on orders</p>
+                <h4 className="font-medium mb-2">Inventory Management</h4>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p>• Set to 0 to mark as "Out of Stock"</p>
+                  <p>• Low stock alerts trigger at &lt; 10 units</p>
+                  <p>• Track inventory automatically on orders</p>
+                  <p>• Use SKU for multi-variant products</p>
                 </div>
               </div>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* SEO Tab */}
-            <TabsContent value="seo" className="space-y-4 animate-fade-in">
+          {/* Step 4: SEO */}
+          {currentStep === 4 && (
+            <div className="space-y-4 animate-fade-in">
               <div className="space-y-2">
                 <Label htmlFor="meta_title">Meta Title</Label>
                 <Input
@@ -472,7 +592,7 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                   maxLength={60}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Recommended: 50-60 characters for optimal search results
+                  {getValues('meta_title')?.length || 0}/60 characters • Recommended: 50-60
                 </p>
               </div>
 
@@ -487,45 +607,68 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                   className="resize-none"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Recommended: 120-160 characters for best SEO performance
+                  {getValues('meta_description')?.length || 0}/160 characters • Recommended: 120-160
                 </p>
               </div>
 
               <div className="bg-muted/50 border border-border rounded-lg p-4">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  SEO Best Practices
-                </h4>
-                <div className="space-y-1 text-sm">
-                  <p className="text-muted-foreground">✓ Include primary keyword in title</p>
-                  <p className="text-muted-foreground">✓ Write compelling meta description</p>
-                  <p className="text-muted-foreground">✓ Use descriptive, unique content</p>
-                  <p className="text-muted-foreground">✓ Add high-quality product images</p>
+                <h4 className="font-medium mb-2">SEO Best Practices</h4>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p>✓ Include primary keyword in title</p>
+                  <p>✓ Write compelling meta description</p>
+                  <p>✓ Use descriptive, unique content</p>
+                  <p>✓ Add high-quality product images</p>
+                  <p>✓ Keep URLs short and readable</p>
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
 
-          <DialogFooter className="gap-2">
+          {/* Navigation Buttons */}
+          <div className="flex items-center justify-between pt-6 border-t">
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting || uploading}
+              onClick={handleBack}
+              disabled={currentStep === 1 || isSubmitting || uploading}
             >
-              Cancel
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back
             </Button>
-            <Button 
-              type="submit" 
-              disabled={isSubmitting || uploading}
-              className="min-w-[120px]"
-            >
-              {(isSubmitting || uploading) && (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                disabled={isSubmitting || uploading}
+              >
+                Cancel
+              </Button>
+
+              {currentStep < 4 ? (
+                <Button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={isSubmitting || uploading}
+                >
+                  Save & Continue
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting || uploading}
+                  className="min-w-[140px]"
+                >
+                  {(isSubmitting || uploading) && (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  )}
+                  Create Product
+                </Button>
               )}
-              Create Product
-            </Button>
-          </DialogFooter>
+            </div>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
