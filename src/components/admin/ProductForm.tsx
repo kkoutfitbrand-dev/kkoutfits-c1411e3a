@@ -269,11 +269,11 @@ export const ProductForm = ({ open, onOpenChange, onSuccess }: ProductFormProps)
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="men">Men's Wear</SelectItem>
-                    <SelectItem value="women">Women's Wear</SelectItem>
-                    <SelectItem value="casual">Casual</SelectItem>
-                    <SelectItem value="formal">Formal</SelectItem>
-                    <SelectItem value="traditional">Traditional</SelectItem>
+                    <SelectItem value="shirts">Shirts</SelectItem>
+                    <SelectItem value="pants-shorts">Pants and Shorts</SelectItem>
+                    <SelectItem value="tshirt">T-shirt</SelectItem>
+                    <SelectItem value="sarees">Sarees</SelectItem>
+                    <SelectItem value="chudithar">Chudithar</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
