@@ -3,8 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Check } from 'lucide-react';
+import { Plus, Trash2, Check, Upload, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface VariantOption {
   name: string;
@@ -23,24 +32,61 @@ interface Variant {
   price_cents?: number;
   inventory_count: number;
   is_available: boolean;
+  image_url?: string;
+  imageFile?: File;
 }
 
 interface VariantsManagerProps {
   variants: Variant[];
   basePrice: number;
   onChange: (variants: Variant[]) => void;
+  productCategory?: string;
 }
 
-export const VariantsManager = ({ variants, basePrice, onChange }: VariantsManagerProps) => {
+const SIZE_TEMPLATES = {
+  'shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'formal-shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'casual-shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'party-wear-shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  't-shirt': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'pants-and-shorts': ['28', '30', '32', '34', '36', '38', '40', '42'],
+  'jeans': ['28', '30', '32', '34', '36', '38', '40', '42'],
+  'kurta': ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'sherwani': ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'bandhgala': ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  'sarees': ['Free Size'],
+  'chudithar': ['S', 'M', 'L', 'XL', 'XXL'],
+  'lehenga': ['S', 'M', 'L', 'XL', 'XXL'],
+};
+
+export const VariantsManager = ({ variants, basePrice, onChange, productCategory }: VariantsManagerProps) => {
   const [options, setOptions] = useState<VariantOption[]>([
     { name: '', values: [] },
   ]);
   const [currentOption, setCurrentOption] = useState(0);
   const [newValue, setNewValue] = useState('');
+  const [uploadingImages, setUploadingImages] = useState<Set<number>>(new Set());
 
   const addOption = () => {
     if (options.length < 3) {
       setOptions([...options, { name: '', values: [] }]);
+    }
+  };
+
+  const applySizeTemplate = (optionIndex: number) => {
+    if (!productCategory) return;
+    
+    const categoryKey = productCategory.toLowerCase().replace(/\s+/g, '-');
+    const sizes = SIZE_TEMPLATES[categoryKey as keyof typeof SIZE_TEMPLATES];
+    
+    if (sizes) {
+      const newOptions = [...options];
+      newOptions[optionIndex].values = sizes;
+      setOptions(newOptions);
+      toast({
+        title: 'Size Template Applied',
+        description: `Added ${sizes.length} sizes for ${productCategory}`,
+      });
     }
   };
 
@@ -108,6 +154,48 @@ export const VariantsManager = ({ variants, basePrice, onChange }: VariantsManag
     onChange(variants.filter((_, i) => i !== index));
   };
 
+  const handleVariantImageUpload = async (index: number, file: File) => {
+    setUploadingImages(prev => new Set(prev).add(index));
+    
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `variant-${Date.now()}-${Math.random()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+
+      updateVariant(index, 'image_url', publicUrl);
+      
+      toast({
+        title: 'Image Uploaded',
+        description: 'Variant image uploaded successfully',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Upload Failed',
+        description: error.message || 'Failed to upload variant image',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingImages(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(index);
+        return newSet;
+      });
+    }
+  };
+
+  const removeVariantImage = (index: number) => {
+    updateVariant(index, 'image_url', undefined);
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -133,7 +221,19 @@ export const VariantsManager = ({ variants, basePrice, onChange }: VariantsManag
             </div>
 
             <div className="space-y-2">
-              <Label>Values</Label>
+              <div className="flex items-center justify-between">
+                <Label>Values</Label>
+                {option.name.toLowerCase() === 'size' && productCategory && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => applySizeTemplate(optionIndex)}
+                  >
+                    Use {productCategory} sizes
+                  </Button>
+                )}
+              </div>
               <div className="flex gap-2">
                 <Input
                   placeholder="e.g., Small, Medium, Large"
@@ -227,31 +327,79 @@ export const VariantsManager = ({ variants, basePrice, onChange }: VariantsManag
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <Label className="text-xs">SKU</Label>
-                    <Input
-                      placeholder="SKU"
-                      value={variant.sku || ''}
-                      onChange={(e) => updateVariant(index, 'sku', e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Price (₹)</Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={variant.price_cents ? variant.price_cents / 100 : basePrice / 100}
-                      onChange={(e) => updateVariant(index, 'price_cents', Math.round(parseFloat(e.target.value) * 100))}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">Stock</Label>
-                    <Input
-                      type="number"
-                      value={variant.inventory_count}
-                      onChange={(e) => updateVariant(index, 'inventory_count', parseInt(e.target.value) || 0)}
-                    />
+                <div className="space-y-3">
+                  {/* Variant Image Upload for Color variants */}
+                  {variant.option1_name?.toLowerCase().includes('color') || 
+                   variant.option2_name?.toLowerCase().includes('color') || 
+                   variant.option3_name?.toLowerCase().includes('color') ? (
+                    <div className="space-y-2">
+                      <Label className="text-xs">Color Image</Label>
+                      {variant.image_url ? (
+                        <div className="relative w-full h-32 border rounded-lg overflow-hidden">
+                          <img 
+                            src={variant.image_url} 
+                            alt="Variant" 
+                            className="w-full h-full object-cover"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2"
+                            onClick={() => removeVariantImage(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            id={`variant-image-${index}`}
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleVariantImageUpload(index, file);
+                            }}
+                          />
+                          <label htmlFor={`variant-image-${index}`} className="cursor-pointer">
+                            <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-xs text-muted-foreground">
+                              {uploadingImages.has(index) ? 'Uploading...' : 'Upload color image'}
+                            </p>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">SKU</Label>
+                      <Input
+                        placeholder="SKU"
+                        value={variant.sku || ''}
+                        onChange={(e) => updateVariant(index, 'sku', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Price (₹)</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={variant.price_cents ? variant.price_cents / 100 : basePrice / 100}
+                        onChange={(e) => updateVariant(index, 'price_cents', Math.round(parseFloat(e.target.value) * 100))}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Stock</Label>
+                      <Input
+                        type="number"
+                        value={variant.inventory_count}
+                        onChange={(e) => updateVariant(index, 'inventory_count', parseInt(e.target.value) || 0)}
+                      />
+                    </div>
                   </div>
                 </div>
               </Card>

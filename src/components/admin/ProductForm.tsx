@@ -137,6 +137,20 @@ export const ProductForm = ({ open, onOpenChange, onSuccess, editProduct }: Prod
         setExistingImages(editProduct.images);
         setImagePreviews(editProduct.images);
       }
+
+      // Load existing variants from product_variants table
+      const loadVariants = async () => {
+        const { data, error } = await supabase
+          .from('product_variants')
+          .select('*')
+          .eq('product_id', editProduct.id);
+
+        if (!error && data && data.length > 0) {
+          setVariants(data);
+        }
+      };
+      
+      loadVariants();
     }
   }, [open, reset, editProduct, setValue]);
 
@@ -745,16 +759,18 @@ export const ProductForm = ({ open, onOpenChange, onSuccess, editProduct }: Prod
                 variants={variants}
                 basePrice={getValues('price_cents') ? Math.round(getValues('price_cents') * 100) : 0}
                 onChange={setVariants}
+                productCategory={getValues('category')}
               />
               
               {variants.length === 0 && (
                 <div className="mt-4 p-4 border border-dashed rounded-lg bg-muted/20">
                   <h4 className="font-medium mb-2">💡 How to add variants:</h4>
                   <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                    <li>Add an option name (e.g., "Size", "Color")</li>
-                    <li>Add values for that option (e.g., "Small", "Medium", "Large")</li>
+                    <li>Add option name "Size" and click "Use {getValues('category')} sizes" for auto-fill</li>
+                    <li>Add option name "Color" and add color values (e.g., "Red", "White", "Black")</li>
                     <li>Click "Generate Variants" to create all combinations</li>
-                    <li>Set price, SKU, and stock for each variant</li>
+                    <li>Upload color images, set price, SKU, and stock for each variant</li>
+                    <li>⚠️ Product will only be published after completing variants setup</li>
                   </ol>
                 </div>
               )}
@@ -802,19 +818,19 @@ export const ProductForm = ({ open, onOpenChange, onSuccess, editProduct }: Prod
                   onClick={handleNext}
                   disabled={isSubmitting || uploading}
                 >
-                  {currentStep === 3 ? 'Continue to Variants (Optional)' : 'Save & Continue'}
+                  {currentStep === 3 ? 'Continue to Variants (Required)' : 'Save & Continue'}
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Button>
               ) : (
                 <Button 
                   type="submit" 
-                  disabled={isSubmitting || uploading}
+                  disabled={isSubmitting || uploading || variants.length === 0}
                   className="min-w-[140px]"
                 >
                   {(isSubmitting || uploading) && (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   )}
-                  {editProduct ? 'Update Product' : 'Publish Product'}
+                  {variants.length === 0 ? 'Add Variants First' : editProduct ? 'Update Product' : 'Publish Product'}
                 </Button>
               )}
             </div>
