@@ -110,21 +110,30 @@ const Index = () => {
       
 
       {/* Categories Section */}
-      <section className="container px-4 py-6 bg-muted/30">
-        <h2 className="text-lg md:text-xl font-bold mb-4 font-sans uppercase text-center">
+      <section className="container px-4 py-8">
+        <h2 className="text-2xl md:text-3xl font-bold mb-6 font-sans text-foreground">
           Shop by Category
         </h2>
-        <div className="flex overflow-x-auto gap-6 pb-2 scrollbar-hide justify-center flex-wrap md:flex-nowrap">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
           {categories.map(category => (
-            <Link key={category.title} to={category.link} className="flex flex-col items-center gap-2 min-w-[80px] group">
-              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden border-2 border-border bg-background transition-transform group-hover:scale-110">
+            <Link 
+              key={category.title} 
+              to={category.link} 
+              className="group relative overflow-hidden rounded-lg bg-card border border-border hover:border-primary transition-all duration-300 hover:shadow-lg"
+            >
+              <div className="aspect-square overflow-hidden">
                 <img
                   src={category.image}
                   alt={category.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                 />
               </div>
-              <span className="text-xs md:text-sm font-medium text-center">{category.title}</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3">
+                <span className="text-sm md:text-base font-semibold text-white drop-shadow-lg">
+                  {category.title}
+                </span>
+              </div>
             </Link>
           ))}
         </div>
