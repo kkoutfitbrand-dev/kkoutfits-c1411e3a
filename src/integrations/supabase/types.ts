@@ -122,6 +122,7 @@ export type Database = {
           inventory_count: number | null
           price_cents: number
           slug: string
+          status: string | null
           title: string
           updated_at: string | null
           variants: Json | null
@@ -135,6 +136,7 @@ export type Database = {
           inventory_count?: number | null
           price_cents: number
           slug: string
+          status?: string | null
           title: string
           updated_at?: string | null
           variants?: Json | null
@@ -148,6 +150,7 @@ export type Database = {
           inventory_count?: number | null
           price_cents?: number
           slug?: string
+          status?: string | null
           title?: string
           updated_at?: string | null
           variants?: Json | null
