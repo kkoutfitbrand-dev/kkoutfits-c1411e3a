@@ -1,4 +1,4 @@
-import { Search, Heart, ShoppingBag, User, Menu, LogOut, User2, Users, Shirt, Briefcase, BadgePercent } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, LogOut, User2, Users, Shirt, Briefcase, BadgePercent, Baby, Sparkles, Watch, Tag } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,17 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CategoryIconSection } from "@/components/CategoryIconSection";
 import { useAuth } from "@/contexts/AuthContext";
-const categories = ["Shirts", "T-Shirts", "Pants", "Jeans", "Casual Wear", "Formal Wear", "Accessories", "New Arrivals", "Sale"];
+const categories = [
+  { label: "Shirts", icon: Shirt },
+  { label: "T-Shirts", icon: Shirt },
+  { label: "Pants", icon: Briefcase },
+  { label: "Jeans", icon: Shirt },
+  { label: "Casual Wear", icon: Shirt },
+  { label: "Formal Wear", icon: Briefcase },
+  { label: "Accessories", icon: Watch },
+  { label: "New Arrivals", icon: Sparkles },
+  { label: "Sale", icon: Tag }
+];
 const moreLinks = [{
   label: "About Us",
   link: "/about"
@@ -79,9 +89,19 @@ export const Navigation = () => {
             <nav className="flex flex-col gap-4 mt-8">
               <div className="border-b border-border pb-4">
                 <h3 className="text-sm font-semibold text-muted-foreground mb-3">CATEGORIES</h3>
-                {categories.map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="block py-2 text-base font-medium hover:text-accent transition-colors">
-                    {category}
-                  </Link>)}
+                {categories.map(category => {
+                  const IconComponent = category.icon;
+                  return (
+                    <Link 
+                      key={category.label} 
+                      to={`/category/${category.label.toLowerCase().replace(/\s+/g, "-")}`} 
+                      className="flex items-center gap-3 py-2 text-base font-medium hover:text-accent transition-colors"
+                    >
+                      <IconComponent className="h-5 w-5" />
+                      {category.label}
+                    </Link>
+                  );
+                })}
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-muted-foreground mb-3">MORE</h3>
@@ -100,8 +120,8 @@ export const Navigation = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          {categories.slice(0, 5).map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="text-sm font-medium hover:text-accent transition-colors">
-              {category}
+          {categories.slice(0, 5).map(category => <Link key={category.label} to={`/category/${category.label.toLowerCase().replace(/\s+/g, "-")}`} className="text-sm font-medium hover:text-accent transition-colors">
+              {category.label}
             </Link>)}
         </nav>
 
