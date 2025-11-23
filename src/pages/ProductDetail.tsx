@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -29,95 +30,142 @@ import product4 from "@/assets/product-4.jpg";
 import product5 from "@/assets/product-5.jpg";
 import product6 from "@/assets/product-6.jpg";
 
-// Mock product data
-const products = {
-  "1": {
-    id: "1",
-    name: "Cream Embroidered Kurta Pajama Set",
-    price: 5999,
-    originalPrice: 8999,
-    images: [product1, product2, product3],
-    description: "Elegant cream kurta pajama set with intricate embroidery on collar and cuffs. Perfect for festive occasions and celebrations.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    inStock: true,
-    sku: "KK-KRT-001",
-    category: "Kurtas"
-  },
-  "2": {
-    id: "2",
-    name: "Royal Black Sherwani with Golden Embroidery",
-    price: 24999,
-    originalPrice: 34999,
-    images: [product2, product1, product4],
-    description: "Luxurious black sherwani with golden embroidery. Perfect for weddings and special occasions.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    inStock: true,
-    sku: "KK-SHR-002",
-    category: "Sherwanis"
-  },
-  "3": {
-    id: "3",
-    name: "Burgundy Velvet Bandhgala Jacket",
-    price: 12999,
-    originalPrice: 17999,
-    images: [product3, product5, product2],
-    description: "Premium velvet bandhgala jacket with silver buttons. Ideal for festive celebrations.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    inStock: true,
-    sku: "KK-BND-003",
-    category: "Bandhgalas"
-  },
-  "4": {
-    id: "4",
-    name: "Emerald Green Silk Kurta with Gold Details",
-    price: 7999,
-    originalPrice: 11999,
-    images: [product4, product1, product6],
-    description: "Elegant silk kurta with gold border details. Traditional wear for festive occasions.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    inStock: true,
-    sku: "KK-KRT-004",
-    category: "Kurtas"
-  },
-  "5": {
-    id: "5",
-    name: "Premium Ivory Wedding Sherwani",
-    price: 49999,
-    originalPrice: 69999,
-    images: [product5, product2, product3],
-    description: "Premium ivory sherwani with heavy embroidery and red dupatta. Perfect for wedding ceremonies.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    inStock: true,
-    sku: "KK-SHR-005",
-    category: "Sherwanis"
-  },
-  "6": {
-    id: "6",
-    name: "Grey Indo-Western Kurta",
-    price: 6999,
-    originalPrice: 9999,
-    images: [product6, product4, product1],
-    description: "Contemporary grey indo-western kurta with modern cut. Perfect blend of tradition and style.",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    inStock: true,
-    sku: "KK-IND-006",
-    category: "Indo Western"
-  }
-};
+interface Variant {
+  id: string;
+  option1_name: string | null;
+  option1_value: string | null;
+  option2_name: string | null;
+  option2_value: string | null;
+  image_url: string | null;
+  price_cents: number | null;
+  inventory_count: number;
+  is_available: boolean | null;
+}
+
+interface Product {
+  id: string;
+  title: string;
+  description: string | null;
+  price_cents: number;
+  images: string[];
+  slug: string;
+  variants?: Variant[];
+}
 const ProductDetail = () => {
-  const {
-    id
-  } = useParams();
-  const {
-    toast
-  } = useToast();
-  const product = products[id as keyof typeof products];
+  const { id } = useParams();
+  const { toast } = useToast();
+  
+  const [product, setProduct] = useState<Product | null>(null);
+  const [variants, setVariants] = useState<Variant[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
+
+  // Fetch product and variants
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!id) return;
+      
+      setLoading(true);
+      try {
+        const { data: productData, error: productError } = await supabase
+          .from('products')
+          .select('*')
+          .eq('id', id)
+          .single();
+
+        if (productError) throw productError;
+
+        const { data: variantsData, error: variantsError } = await supabase
+          .from('product_variants')
+          .select('*')
+          .eq('product_id', id);
+
+        if (variantsError) throw variantsError;
+
+        setProduct({
+          ...productData,
+          images: Array.isArray(productData.images) 
+            ? productData.images.filter((img): img is string => typeof img === 'string')
+            : [],
+          variants: variantsData || []
+        });
+        setVariants(variantsData || []);
+
+        // Auto-select first color if available
+        const colorVariants = variantsData?.filter(v => v.option1_name?.toLowerCase() === 'color') || [];
+        if (colorVariants.length > 0 && colorVariants[0].option1_value) {
+          setSelectedColor(colorVariants[0].option1_value);
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+        toast({
+          title: "Error loading product",
+          description: "Please try again later",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProduct();
+  }, [id, toast]);
+
+  // Get unique colors with images
+  const colorVariants = variants
+    .filter(v => v.option1_name?.toLowerCase() === 'color' && v.option1_value)
+    .reduce((acc, curr) => {
+      const colorValue = curr.option1_value!;
+      if (!acc.find(v => v.option1_value === colorValue)) {
+        acc.push(curr);
+      }
+      return acc;
+    }, [] as Variant[]);
+
+  // Get sizes for selected color
+  const availableSizes = variants
+    .filter(v => 
+      !selectedColor || 
+      v.option1_value?.toLowerCase() === selectedColor.toLowerCase() ||
+      v.option2_value?.toLowerCase() === selectedColor.toLowerCase()
+    )
+    .map(v => v.option2_name?.toLowerCase() === 'size' ? v.option2_value : v.option1_name?.toLowerCase() === 'size' ? v.option1_value : null)
+    .filter((v, i, arr) => v && arr.indexOf(v) === i) as string[];
+
+  // Update main image when color changes
+  useEffect(() => {
+    if (selectedColor) {
+      const colorVariant = colorVariants.find(v => v.option1_value?.toLowerCase() === selectedColor.toLowerCase());
+      if (colorVariant?.image_url) {
+        const images = product?.images || [];
+        const colorImageIndex = images.indexOf(colorVariant.image_url);
+        if (colorImageIndex !== -1) {
+          setSelectedImage(colorImageIndex);
+        } else if (colorVariant.image_url) {
+          setSelectedImage(0);
+        }
+      }
+    }
+  }, [selectedColor, colorVariants, product?.images]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        <div className="container px-4 py-16 text-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
   if (!product) {
-    return <div className="min-h-screen bg-background">
+    return (
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container px-4 py-16 text-center">
           <h1 className="text-3xl font-serif font-bold mb-4">Product Not Found</h1>
@@ -126,10 +174,14 @@ const ProductDetail = () => {
           </Link>
         </div>
         <Footer />
-      </div>;
+      </div>
+    );
   }
+
+  const displayPrice = product.price_cents / 100;
+  const productImages = product.images.length > 0 ? product.images : [product1];
   const handleAddToCart = () => {
-    if (!selectedSize) {
+    if (availableSizes.length > 0 && !selectedSize) {
       toast({
         title: "Please select a size",
         description: "Choose a size before adding to cart",
@@ -137,15 +189,24 @@ const ProductDetail = () => {
       });
       return;
     }
+    if (colorVariants.length > 0 && !selectedColor) {
+      toast({
+        title: "Please select a color",
+        description: "Choose a color before adding to cart",
+        variant: "destructive"
+      });
+      return;
+    }
     toast({
       title: "Added to cart!",
-      description: `${product.name} (Size: ${selectedSize}, Qty: ${quantity})`
+      description: `${product.title} ${selectedColor ? `(Color: ${selectedColor})` : ''} ${selectedSize ? `(Size: ${selectedSize})` : ''} (Qty: ${quantity})`
     });
   };
+  
   const handleAddToWishlist = () => {
     toast({
       title: "Added to wishlist!",
-      description: product.name
+      description: product.title
     });
   };
   return <div className="min-h-screen bg-background">
@@ -164,15 +225,7 @@ const ProductDetail = () => {
               <ChevronRight className="h-4 w-4" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link to={`/category/${product.category.toLowerCase()}`}>{product.category}</Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator>
-              <ChevronRight className="h-4 w-4" />
-            </BreadcrumbSeparator>
-            <BreadcrumbItem>
-              <BreadcrumbPage>{product.name}</BreadcrumbPage>
+              <BreadcrumbPage>{product.title}</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -181,55 +234,108 @@ const ProductDetail = () => {
           {/* Image Gallery */}
           <div>
             <div className="mb-4 rounded-lg overflow-hidden bg-muted relative group cursor-zoom-in" onClick={() => setIsZoomed(!isZoomed)}>
-              <img src={product.images[selectedImage]} alt={product.name} className={`w-full aspect-[3/4] object-cover transition-transform duration-300 ${isZoomed ? "scale-150" : "group-hover:scale-105"}`} />
+              <img 
+                src={productImages[selectedImage]} 
+                alt={product.title} 
+                className={`w-full aspect-[3/4] object-cover transition-transform duration-300 ${isZoomed ? "scale-150" : "group-hover:scale-105"}`} 
+              />
               <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-full p-2">
                 <ZoomIn className="h-5 w-5 text-foreground" />
               </div>
-              <div className="absolute top-4 left-4 bg-accent/90 text-accent-foreground px-3 py-1 rounded-full text-sm font-semibold">
-                360° View Available
-              </div>
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {product.images.map((image, index) => <button key={index} onClick={() => {
-              setSelectedImage(index);
-              setIsZoomed(false);
-            }} className={`rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-accent" : "border-border"}`}>
-                  <img src={image} alt={`${product.name} ${index + 1}`} className="w-full aspect-[3/4] object-cover" />
-                </button>)}
+              {productImages.map((image, index) => (
+                <button 
+                  key={index} 
+                  onClick={() => {
+                    setSelectedImage(index);
+                    setIsZoomed(false);
+                  }} 
+                  className={`rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-accent" : "border-border"}`}
+                >
+                  <img src={image} alt={`${product.title} ${index + 1}`} className="w-full aspect-[3/4] object-cover" />
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Product Info */}
           <div>
-            <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">{product.name}</h1>
+            <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">{product.title}</h1>
             
             <div className="flex items-center gap-4 mb-6">
-              <span className="text-3xl font-bold">₹{product.price.toLocaleString()}</span>
-              <span className="text-xl text-muted-foreground line-through">
-                ₹{product.originalPrice.toLocaleString()}
-              </span>
-              <span className="text-sm font-semibold text-green-600 bg-green-50 px-2 py-1 rounded">
-                {Math.round((product.originalPrice - product.price) / product.originalPrice * 100)}% OFF
-              </span>
+              <span className="text-3xl font-bold">₹{displayPrice.toLocaleString()}</span>
             </div>
 
-            <p className="text-muted-foreground mb-6">{product.description}</p>
+            {product.description && (
+              <p className="text-muted-foreground mb-6">{product.description}</p>
+            )}
+
+            {/* Color Selection */}
+            {colorVariants.length > 0 && (
+              <div className="mb-6">
+                <label className="font-semibold block mb-3">Select Color</label>
+                <div className="flex flex-wrap gap-3">
+                  {colorVariants.map((variant) => (
+                    <button
+                      key={variant.id}
+                      onClick={() => setSelectedColor(variant.option1_value || "")}
+                      className={`relative rounded-lg border-2 overflow-hidden transition-all ${
+                        selectedColor === variant.option1_value 
+                          ? "border-accent ring-2 ring-accent ring-offset-2" 
+                          : "border-border hover:border-accent"
+                      }`}
+                    >
+                      <img 
+                        src={variant.image_url || productImages[0]} 
+                        alt={variant.option1_value || "Color variant"}
+                        className="w-16 h-16 object-cover"
+                      />
+                      {selectedColor === variant.option1_value && (
+                        <div className="absolute inset-0 bg-accent/20 flex items-center justify-center">
+                          <div className="w-6 h-6 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xs font-bold">
+                            ✓
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                {selectedColor && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Selected: <span className="font-medium capitalize">{selectedColor}</span>
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Size Selection */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
-                <label className="font-semibold">Select Size</label>
-                <Link to="/size-guide" className="text-sm text-accent hover:underline">
-                  Size Guide
-                </Link>
+            {availableSizes.length > 0 && (
+              <div className="mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="font-semibold">Select Size</label>
+                  <Link to="/size-guide" className="text-sm text-accent hover:underline">
+                    Size Guide
+                  </Link>
+                </div>
+                
+                <div className="flex flex-wrap gap-3">
+                  {availableSizes.map(size => (
+                    <button 
+                      key={size} 
+                      onClick={() => setSelectedSize(size)} 
+                      className={`px-6 py-3 rounded-lg border-2 font-medium transition-colors ${
+                        selectedSize === size 
+                          ? "border-accent bg-accent text-accent-foreground" 
+                          : "border-border hover:border-accent"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-              
-              <div className="flex flex-wrap gap-3">
-                {product.sizes.map(size => <button key={size} onClick={() => setSelectedSize(size)} className={`px-6 py-3 rounded-lg border-2 font-medium transition-colors ${selectedSize === size ? "border-accent bg-accent text-accent-foreground" : "border-border hover:border-accent"}`}>
-                    {size}
-                  </button>)}
-              </div>
-            </div>
+            )}
 
             {/* Quantity */}
             <div className="mb-6">
@@ -296,30 +402,24 @@ const ProductDetail = () => {
               <TabsTrigger value="care">Care Instructions</TabsTrigger>
             </TabsList>
             <TabsContent value="description" className="py-6">
-              <p className="text-muted-foreground">{product.description}</p>
-              <p className="mt-4 text-muted-foreground">
-                Crafted with premium fabrics and attention to detail, this piece combines traditional
-                elegance with contemporary comfort. Perfect for special occasions and celebrations.
-              </p>
+              {product.description ? (
+                <p className="text-muted-foreground">{product.description}</p>
+              ) : (
+                <p className="text-muted-foreground">No description available.</p>
+              )}
             </TabsContent>
             <TabsContent value="details" className="py-6">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
                   <p className="font-semibold mb-2">Product Information</p>
                   <ul className="space-y-2 text-muted-foreground">
-                    <li>SKU: {product.sku}</li>
-                    <li>Category: {product.category}</li>
-                    <li>Available Sizes: {product.sizes.join(", ")}</li>
-                    <li>Stock Status: {product.inStock ? "In Stock" : "Out of Stock"}</li>
-                  </ul>
-                </div>
-                <div>
-                  <p className="font-semibold mb-2">Fabric Details</p>
-                  <ul className="space-y-2 text-muted-foreground">
-                    <li>Material: Premium Cotton Blend</li>
-                    <li>Pattern: Embroidered</li>
-                    <li>Occasion: Festive & Wedding</li>
-                    <li>Wash Care: Dry Clean Only</li>
+                    <li>Product ID: {product.id}</li>
+                    {availableSizes.length > 0 && (
+                      <li>Available Sizes: {availableSizes.join(", ")}</li>
+                    )}
+                    {colorVariants.length > 0 && (
+                      <li>Available Colors: {colorVariants.map(v => v.option1_value).join(", ")}</li>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -347,7 +447,18 @@ const ProductDetail = () => {
       <RelatedProducts />
 
       {/* Sticky Add to Cart Bar */}
-      <StickyAddToCart productName={product.name} productImage={product.images[0]} price={product.price} originalPrice={product.originalPrice} sizes={product.sizes} selectedSize={selectedSize} onSizeChange={setSelectedSize} quantity={quantity} onQuantityChange={setQuantity} onAddToCart={handleAddToCart} />
+      <StickyAddToCart 
+        productName={product.title} 
+        productImage={productImages[0]} 
+        price={displayPrice} 
+        originalPrice={displayPrice} 
+        sizes={availableSizes} 
+        selectedSize={selectedSize} 
+        onSizeChange={setSelectedSize} 
+        quantity={quantity} 
+        onQuantityChange={setQuantity} 
+        onAddToCart={handleAddToCart} 
+      />
 
       <Footer />
     </div>;
