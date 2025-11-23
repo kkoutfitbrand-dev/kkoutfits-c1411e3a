@@ -136,27 +136,32 @@ const Index = () => {
       <TrendingProducts />
 
       {/* Categories Section */}
-      <section className="container px-4 py-8">
-        <h2 className="text-2xl md:text-3xl font-bold mb-6 font-sans text-foreground">
-          Shop by Category
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
+      <section className="container px-4 py-16 md:py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 font-sans text-foreground tracking-tight">
+            Shop by Category
+          </h2>
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">
+            Discover our curated collection across various styles and occasions
+          </p>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
           {categories.map(category => (
             <Link 
               key={category.title} 
               to={category.link} 
-              className="group relative overflow-hidden rounded-lg bg-card border border-border hover:border-primary transition-all duration-300 hover:shadow-lg"
+              className="group relative overflow-hidden rounded-xl bg-card border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
             >
-              <div className="aspect-square overflow-hidden">
+              <div className="aspect-[3/4] overflow-hidden">
                 <img
                   src={category.image}
                   alt={category.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
                 />
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <span className="text-sm md:text-base font-semibold text-white drop-shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6">
+                <span className="text-base md:text-lg font-semibold text-white drop-shadow-2xl tracking-wide uppercase">
                   {category.title}
                 </span>
               </div>
