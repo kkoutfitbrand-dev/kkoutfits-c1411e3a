@@ -746,6 +746,18 @@ export const ProductForm = ({ open, onOpenChange, onSuccess, editProduct }: Prod
                 basePrice={getValues('price_cents') ? Math.round(getValues('price_cents') * 100) : 0}
                 onChange={setVariants}
               />
+              
+              {variants.length === 0 && (
+                <div className="mt-4 p-4 border border-dashed rounded-lg bg-muted/20">
+                  <h4 className="font-medium mb-2">💡 How to add variants:</h4>
+                  <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                    <li>Add an option name (e.g., "Size", "Color")</li>
+                    <li>Add values for that option (e.g., "Small", "Medium", "Large")</li>
+                    <li>Click "Generate Variants" to create all combinations</li>
+                    <li>Set price, SKU, and stock for each variant</li>
+                  </ol>
+                </div>
+              )}
             </div>
           )}
 

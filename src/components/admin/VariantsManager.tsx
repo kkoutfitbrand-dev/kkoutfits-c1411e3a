@@ -142,7 +142,7 @@ export const VariantsManager = ({ variants, basePrice, onChange }: VariantsManag
                     setCurrentOption(optionIndex);
                     setNewValue(e.target.value);
                   }}
-                  onKeyPress={(e) => {
+                  onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       addValue(optionIndex);
@@ -158,6 +158,12 @@ export const VariantsManager = ({ variants, basePrice, onChange }: VariantsManag
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground">
+                {option.values.length === 0 
+                  ? 'Add at least one value to enable variant generation'
+                  : `${option.values.length} value${option.values.length > 1 ? 's' : ''} added`
+                }
+              </p>
               
               <div className="flex flex-wrap gap-2 mt-2">
                 {option.values.map((value, valueIndex) => (
@@ -254,9 +260,17 @@ export const VariantsManager = ({ variants, basePrice, onChange }: VariantsManag
         </div>
       )}
 
-      {variants.length === 0 && (
+      {variants.length === 0 && options.some(opt => opt.name && opt.values.length > 0) && (
         <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
-          <p>Configure variant options above and click "Generate Variants"</p>
+          <p className="font-medium mb-2">Ready to generate variants!</p>
+          <p className="text-sm">Click "Generate Variants" above to create all combinations</p>
+        </div>
+      )}
+      
+      {variants.length === 0 && !options.some(opt => opt.name && opt.values.length > 0) && (
+        <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+          <p className="font-medium mb-2">No variants configured yet</p>
+          <p className="text-sm">Add option names and values above, then click "Generate Variants"</p>
         </div>
       )}
     </div>
