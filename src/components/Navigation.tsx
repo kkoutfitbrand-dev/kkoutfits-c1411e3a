@@ -1,4 +1,4 @@
-import { Search, Heart, ShoppingBag, User, Menu, LogOut, User2, Users, Shirt, Briefcase, BadgePercent } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, LogOut } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,24 +31,19 @@ const moreLinks = [{
 }];
 const mainTabs = [{
   label: "MEN",
-  link: "/",
-  icon: User2
+  link: "/"
 }, {
   label: "WOMEN",
-  link: "/women",
-  icon: Users
+  link: "/women"
 }, {
   label: "CASUAL",
-  link: "/casual",
-  icon: Shirt
+  link: "/casual"
 }, {
   label: "FORMAL",
-  link: "/formal",
-  icon: Briefcase
+  link: "/formal"
 }, {
   label: "SALE",
-  link: "/sale",
-  icon: BadgePercent
+  link: "/sale"
 }];
 export const Navigation = () => {
   const {
@@ -165,19 +160,9 @@ export const Navigation = () => {
       <div className="border-t border-border bg-background">
         <div className="container px-4">
           <div className="flex items-center justify-center md:justify-start gap-4 md:gap-8 h-12 overflow-x-auto scrollbar-hide">
-            {mainTabs.map(tab => {
-              const IconComponent = tab.icon;
-              return (
-                <Link 
-                  key={tab.label} 
-                  to={tab.link} 
-                  className={`flex items-center gap-2 text-sm md:text-base font-medium whitespace-nowrap transition-colors ${tab.label === "MEN" ? "text-foreground border-b-2 border-accent" : "text-muted-foreground hover:text-accent"}`}
-                >
-                  <IconComponent className="h-4 w-4" />
-                  {tab.label}
-                </Link>
-              );
-            })}
+            {mainTabs.map(tab => <Link key={tab.label} to={tab.link} className={`text-sm md:text-base font-medium whitespace-nowrap transition-colors ${tab.label === "MEN" ? "text-foreground border-b-2 border-accent" : "text-muted-foreground hover:text-accent"}`}>
+                {tab.label}
+              </Link>)}
           </div>
         </div>
       </div>
