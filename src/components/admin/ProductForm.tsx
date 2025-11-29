@@ -562,7 +562,7 @@ export const ProductForm = ({
                   <p>• Set to 0 to mark as "Out of Stock"</p>
                   <p>• Low stock alerts trigger at &lt; 10 units</p>
                   <p>• Track inventory automatically on orders</p>
-                  <p>• Use SKU for multi-variant products</p>
+                  
                 </div>
               </div>
             </div>}
