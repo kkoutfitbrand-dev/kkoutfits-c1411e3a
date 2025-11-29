@@ -542,17 +542,9 @@ export const ProductForm = ({
           {/* Step 3: Inventory */}
           {currentStep === 3 && <div className="space-y-4 animate-fade-in">
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sku">SKU (Stock Keeping Unit)</Label>
-                  <Input id="sku" {...register('sku')} placeholder="KRT-001-BLU-M" />
-                  <p className="text-xs text-muted-foreground">Unique identifier for inventory tracking</p>
-                </div>
+                
 
-                <div className="space-y-2">
-                  <Label htmlFor="barcode">Barcode</Label>
-                  <Input id="barcode" {...register('barcode')} placeholder="1234567890123" />
-                  <p className="text-xs text-muted-foreground">UPC, EAN, or ISBN</p>
-                </div>
+                
               </div>
 
               <div className="space-y-2">
