@@ -4,8 +4,8 @@ import heroStore from "@/assets/hero-store.png";
 
 export const HeroCarousel = () => {
   return (
-    <div className="relative h-[300px] md:h-[400px] overflow-hidden bg-muted">
-      <img src={heroStore} alt="Our Store" className="w-full h-full object-cover" />
+    <div className="relative h-[200px] md:h-[280px] lg:h-[320px] overflow-hidden bg-muted">
+      <img src={heroStore} alt="Our Store" className="w-full h-full object-cover object-center" />
       <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
       <div className="absolute inset-0 flex items-center">
         <div className="container px-4">
