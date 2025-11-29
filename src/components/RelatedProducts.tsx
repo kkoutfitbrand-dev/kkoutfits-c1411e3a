@@ -1,41 +1,48 @@
 import { ProductCard } from "@/components/ProductCard";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
-import product6 from "@/assets/product-6.jpg";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
-const relatedProducts = [
-  {
-    id: "2",
-    name: "Royal Black Sherwani with Golden Embroidery",
-    price: 24999,
-    originalPrice: 34999,
-    image: product2,
-  },
-  {
-    id: "3",
-    name: "Burgundy Velvet Bandhgala Jacket",
-    price: 12999,
-    originalPrice: 17999,
-    image: product3,
-  },
-  {
-    id: "4",
-    name: "Emerald Green Silk Kurta with Gold Details",
-    price: 7999,
-    originalPrice: 11999,
-    image: product4,
-  },
-  {
-    id: "6",
-    name: "Grey Indo-Western Kurta",
-    price: 6999,
-    originalPrice: 9999,
-    image: product6,
-  },
-];
+interface Product {
+  id: string;
+  title: string;
+  price_cents: number;
+  images: Json;
+  slug: string;
+}
+
+const getFirstImage = (images: Json): string => {
+  if (Array.isArray(images) && images.length > 0) {
+    return images[0] as string;
+  }
+  return '/placeholder.svg';
+};
 
 export const RelatedProducts = () => {
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchRelatedProducts();
+  }, []);
+
+  const fetchRelatedProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, title, price_cents, images, slug')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(4);
+
+      if (error) throw error;
+      setRelatedProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching related products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <section className="container px-4 py-12 md:py-16 border-t border-border">
       <div className="text-center mb-8 md:mb-12">
@@ -47,11 +54,29 @@ export const RelatedProducts = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {relatedProducts.map((product) => (
-          <ProductCard key={product.id} {...product} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="animate-pulse">
+              <div className="bg-muted aspect-[3/4] rounded-lg mb-2" />
+              <div className="bg-muted h-4 rounded mb-2" />
+              <div className="bg-muted h-4 w-2/3 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {relatedProducts.map((product) => (
+            <ProductCard 
+              key={product.id}
+              id={product.slug}
+              name={product.title}
+              price={product.price_cents / 100}
+              image={getFirstImage(product.images)}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 };

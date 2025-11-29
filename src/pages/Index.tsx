@@ -11,6 +11,9 @@ import { DealsBanner } from "@/components/DealsBanner";
 import { BrandShowcase } from "@/components/BrandShowcase";
 import { PromotionalBanner } from "@/components/PromotionalBanner";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import categoryShirts from "@/assets/category-shirts.jpg";
 import categoryPants from "@/assets/category-pants.jpg";
 import categoryTshirts from "@/assets/category-tshirts.jpg";
@@ -19,12 +22,7 @@ import categorySalwar from "@/assets/category-salwar.jpg";
 import categoryKurta from "@/assets/category-kurta.jpg";
 import categoryLehenga from "@/assets/category-lehenga.jpg";
 import categoryJeans from "@/assets/category-jeans.jpg";
-import productShirt from "@/assets/product-shirt-1.jpg";
-import productTshirt from "@/assets/product-tshirt-1.jpg";
-import productPants from "@/assets/product-pants-1.jpg";
-import productJeans from "@/assets/product-jeans-1.jpg";
-import productCasual from "@/assets/product-casual-1.jpg";
-import productFormal from "@/assets/product-formal-1.jpg";
+
 const categories = [{
   title: "Shirts",
   image: categoryShirts,
@@ -58,48 +56,47 @@ const categories = [{
   image: categorySalwar,
   link: "/category/churidar"
 }];
-const featuredProducts = [{
-  id: "shirt-1",
-  name: "Classic Oxford Cotton Shirt",
-  price: 1999,
-  originalPrice: 2999,
-  image: productShirt,
-  badge: "Bestseller"
-}, {
-  id: "tshirt-1",
-  name: "Premium Cotton Crew Neck T-Shirt",
-  price: 899,
-  originalPrice: 1499,
-  image: productTshirt,
-  badge: "New"
-}, {
-  id: "pants-1",
-  name: "Slim Fit Chino Pants",
-  price: 2499,
-  originalPrice: 3499,
-  image: productPants
-}, {
-  id: "jeans-1",
-  name: "Dark Wash Stretch Denim Jeans",
-  price: 2999,
-  originalPrice: 4499,
-  image: productJeans
-}, {
-  id: "casual-1",
-  name: "Relaxed Fit Casual Jacket",
-  price: 3999,
-  originalPrice: 5999,
-  image: productCasual,
-  badge: "Trending"
-}, {
-  id: "formal-1",
-  name: "Tailored Business Suit",
-  price: 8999,
-  originalPrice: 12999,
-  image: productFormal,
-  badge: "Premium"
-}];
+
+interface Product {
+  id: string;
+  title: string;
+  price_cents: number;
+  images: Json;
+  slug: string;
+}
+
+const getFirstImage = (images: Json): string => {
+  if (Array.isArray(images) && images.length > 0) {
+    return images[0] as string;
+  }
+  return '/placeholder.svg';
+};
+
 const Index = () => {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, title, price_cents, images, slug')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(6);
+
+      if (error) throw error;
+      setFeaturedProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return <div className="min-h-screen bg-background">
       <Navigation />
       
@@ -124,9 +121,29 @@ const Index = () => {
         <h2 className="text-xl md:text-2xl font-bold mb-4 font-sans uppercase">
           Deals of the Day
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {featuredProducts.map(product => <ProductCard key={product.id} {...product} />)}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="bg-muted aspect-[3/4] rounded-lg mb-2" />
+                <div className="bg-muted h-4 rounded mb-2" />
+                <div className="bg-muted h-4 w-2/3 rounded" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {featuredProducts.map(product => (
+              <ProductCard 
+                key={product.id} 
+                id={product.slug}
+                name={product.title}
+                price={product.price_cents / 100}
+                image={getFirstImage(product.images)}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Brand Showcase */}

@@ -7,113 +7,71 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Slider } from "@/components/ui/slider";
 import { Filter, Grid2x2, List, Check } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { useState, useMemo } from "react";
-import { FilterPanel } from "@/components/FilterPanel";
-import productShirt from "@/assets/product-shirt-1.jpg";
-import productTshirt from "@/assets/product-tshirt-1.jpg";
-import productPants from "@/assets/product-pants-1.jpg";
-import productJeans from "@/assets/product-jeans-1.jpg";
-import productCasual from "@/assets/product-casual-1.jpg";
-import productFormal from "@/assets/product-formal-1.jpg";
+import { useState, useMemo, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 
-// Color mapping for visual swatches
-const colorMap: Record<string, string> = {
-  "Blue": "bg-blue-500",
-  "White": "bg-white border-2 border-border",
-  "Light Blue": "bg-blue-300",
-  "Black": "bg-black",
-  "Navy": "bg-blue-900",
-  "Khaki": "bg-yellow-700",
-  "Grey": "bg-gray-500",
-  "Beige": "bg-amber-200",
-  "Olive": "bg-green-700",
-  "Red": "bg-red-600",
-  "Gold": "bg-yellow-500",
-  "Green": "bg-green-600",
-  "Pink": "bg-pink-400",
-  "Maroon": "bg-red-900",
-};
+interface Product {
+  id: string;
+  title: string;
+  price_cents: number;
+  images: Json;
+  slug: string;
+}
 
-// Category-specific products
-const categoryProducts = {
-  "shirts": [
-    { id: "shirt-1", name: "Classic Oxford Dress Shirt", price: 1999, originalPrice: 2999, image: productShirt, badge: "Bestseller", category: "shirts", color: "Blue", size: ["S", "M", "L", "XL", "XXL"] },
-    { id: "shirt-2", name: "Premium Cotton Formal Shirt", price: 2499, originalPrice: 3499, image: productShirt, category: "shirts", color: "White", size: ["M", "L", "XL"] },
-    { id: "shirt-3", name: "Slim Fit Business Shirt", price: 2199, originalPrice: 3199, image: productShirt, category: "shirts", color: "Light Blue", size: ["S", "M", "L", "XL"] },
-  ],
-  "tshirt": [
-    { id: "tshirt-1", name: "Graphic Print T-Shirt", price: 799, originalPrice: 1299, image: productTshirt, badge: "New", category: "tshirt", color: "Black", size: ["S", "M", "L", "XL"] },
-    { id: "tshirt-2", name: "Plain Cotton T-Shirt", price: 599, originalPrice: 999, image: productTshirt, category: "tshirt", color: "White", size: ["S", "M", "L", "XL", "XXL"] },
-    { id: "tshirt-3", name: "V-Neck Basic Tee", price: 699, originalPrice: 1099, image: productTshirt, category: "tshirt", color: "Navy", size: ["M", "L", "XL"] },
-  ],
-  "pants-shorts": [
-    { id: "pants-1", name: "Premium Chino Pants", price: 2499, originalPrice: 3499, image: productPants, badge: "Bestseller", category: "pants-shorts", color: "Khaki", size: ["30", "32", "34", "36"] },
-    { id: "pants-2", name: "Slim Fit Trousers", price: 2799, originalPrice: 3999, image: productPants, category: "pants-shorts", color: "Grey", size: ["30", "32", "34", "36", "38"] },
-    { id: "pants-3", name: "Casual Cotton Pants", price: 1999, originalPrice: 2999, image: productPants, category: "pants-shorts", color: "Beige", size: ["32", "34", "36"] },
-    { id: "shorts-1", name: "Summer Cargo Shorts", price: 1499, originalPrice: 2199, image: productPants, category: "pants-shorts", color: "Olive", size: ["30", "32", "34", "36"] },
-    { id: "shorts-2", name: "Classic Denim Shorts", price: 1299, originalPrice: 1899, image: productJeans, category: "pants-shorts", color: "Blue", size: ["30", "32", "34"] },
-  ],
-  "sarees": [
-    { id: "saree-1", name: "Silk Banarasi Saree", price: 8999, originalPrice: 12999, image: productFormal, badge: "Premium", category: "sarees", color: "Red", size: ["One Size"] },
-    { id: "saree-2", name: "Cotton Printed Saree", price: 2499, originalPrice: 3499, image: productCasual, category: "sarees", color: "Blue", size: ["One Size"] },
-    { id: "saree-3", name: "Designer Party Wear Saree", price: 6999, originalPrice: 9999, image: productFormal, badge: "Bestseller", category: "sarees", color: "Gold", size: ["One Size"] },
-    { id: "saree-4", name: "Traditional Handloom Saree", price: 3999, originalPrice: 5999, image: productCasual, category: "sarees", color: "Green", size: ["One Size"] },
-  ],
-  "churidar": [
-    { id: "churidar-1", name: "Anarkali Churidar Set", price: 3999, originalPrice: 5999, image: productCasual, badge: "New", category: "churidar", color: "Pink", size: ["S", "M", "L", "XL"] },
-    { id: "churidar-2", name: "Cotton Churidar Suit", price: 2499, originalPrice: 3499, image: productCasual, category: "churidar", color: "Blue", size: ["S", "M", "L", "XL", "XXL"] },
-    { id: "churidar-3", name: "Embroidered Party Wear Churidar", price: 5999, originalPrice: 8999, image: productFormal, badge: "Premium", category: "churidar", color: "Maroon", size: ["M", "L", "XL"] },
-    { id: "churidar-4", name: "Casual Daily Wear Churidar", price: 1999, originalPrice: 2999, image: productCasual, category: "churidar", color: "White", size: ["S", "M", "L", "XL"] },
-  ],
+const getFirstImage = (images: Json): string => {
+  if (Array.isArray(images) && images.length > 0) {
+    return images[0] as string;
+  }
+  return '/placeholder.svg';
 };
 
 const CategoryPage = () => {
   const { category } = useParams();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 20000]);
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState("popularity");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   
-  // Get products for current category
-  const categoryKey = category?.toLowerCase() || "";
-  const products = categoryProducts[categoryKey as keyof typeof categoryProducts] || [];
+  useEffect(() => {
+    fetchProducts();
+  }, [category]);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, title, price_cents, images, slug')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
   
-  // Get unique colors and sizes for current category
-  const availableColors = useMemo(() => {
-    const colors = new Set<string>();
-    products.forEach(product => {
-      if (product.color) colors.add(product.color);
-    });
-    return Array.from(colors);
-  }, [products]);
-
-  const availableSizes = useMemo(() => {
-    const sizes = new Set<string>();
-    products.forEach(product => {
-      product.size?.forEach(s => sizes.add(s));
-    });
-    return Array.from(sizes);
-  }, [products]);
-
-  // Filter products
+  // Filter products based on price
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
-      const matchesColor = selectedColors.length === 0 || selectedColors.includes(product.color || "");
-      const matchesSize = selectedSizes.length === 0 || product.size?.some(s => selectedSizes.includes(s));
-      return matchesPrice && matchesColor && matchesSize;
+      const price = product.price_cents / 100;
+      return price >= priceRange[0] && price <= priceRange[1];
     });
-  }, [products, priceRange, selectedColors, selectedSizes]);
+  }, [products, priceRange]);
 
   // Sort products
   const sortedProducts = useMemo(() => {
     const sorted = [...filteredProducts];
     switch (sortBy) {
       case "price-low":
-        return sorted.sort((a, b) => a.price - b.price);
+        return sorted.sort((a, b) => a.price_cents - b.price_cents);
       case "price-high":
-        return sorted.sort((a, b) => b.price - a.price);
+        return sorted.sort((a, b) => b.price_cents - a.price_cents);
       case "newest":
         return sorted.reverse();
       default:
@@ -123,8 +81,6 @@ const CategoryPage = () => {
 
   const handleClearFilters = () => {
     setPriceRange([0, 20000]);
-    setSelectedColors([]);
-    setSelectedSizes([]);
   };
 
   const getCategoryTitle = () => {
@@ -176,70 +132,8 @@ const CategoryPage = () => {
                 </div>
 
                 {/* Colors */}
-                {availableColors.length > 0 && (
-                  <div className="mb-6 pb-6 border-b border-border">
-                    <h3 className="font-semibold mb-4">Color</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {availableColors.map(color => (
-                        <button
-                          key={color}
-                          onClick={() => {
-                            if (selectedColors.includes(color)) {
-                              setSelectedColors(selectedColors.filter(c => c !== color));
-                            } else {
-                              setSelectedColors([...selectedColors, color]);
-                            }
-                          }}
-                          className="group relative"
-                          title={color}
-                        >
-                          <div
-                            className={`w-10 h-10 rounded-full ${colorMap[color] || "bg-gray-400"} 
-                              transition-all duration-200 
-                              ${selectedColors.includes(color) 
-                                ? "ring-2 ring-primary ring-offset-2 ring-offset-background scale-110" 
-                                : "hover:scale-105 hover:ring-2 hover:ring-muted ring-offset-2 ring-offset-background"
-                              }`}
-                          >
-                            {selectedColors.includes(color) && (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Check className="w-5 h-5 text-primary-foreground drop-shadow-md" strokeWidth={3} />
-                              </div>
-                            )}
-                          </div>
-                          <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                            {color}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
 
                 {/* Sizes */}
-                {availableSizes.length > 0 && (
-                  <div className="mb-6">
-                    <h3 className="font-semibold mb-4">Size</h3>
-                    <div className="grid grid-cols-3 gap-2">
-                      {availableSizes.map(size => (
-                        <Button
-                          key={size}
-                          variant={selectedSizes.includes(size) ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => {
-                            if (selectedSizes.includes(size)) {
-                              setSelectedSizes(selectedSizes.filter(s => s !== size));
-                            } else {
-                              setSelectedSizes([...selectedSizes, size]);
-                            }
-                          }}
-                        >
-                          {size}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </SheetContent>
           </Sheet>
@@ -290,18 +184,26 @@ const CategoryPage = () => {
             </div>
 
             {/* Products Display */}
-            {sortedProducts.length > 0 ? (
+            {loading ? (
+              <div className="grid grid-cols-2 gap-4 md:gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="bg-muted aspect-[3/4] rounded-lg mb-2" />
+                    <div className="bg-muted h-4 rounded mb-2" />
+                    <div className="bg-muted h-4 w-2/3 rounded" />
+                  </div>
+                ))}
+              </div>
+            ) : sortedProducts.length > 0 ? (
               viewMode === "grid" ? (
                 <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in">
                   {sortedProducts.map((product) => (
                     <ProductCard
                       key={product.id}
-                      id={product.id}
-                      name={product.name}
-                      price={product.price}
-                      originalPrice={product.originalPrice}
-                      image={product.image}
-                      badge={product.badge}
+                      id={product.slug}
+                      name={product.title}
+                      price={product.price_cents / 100}
+                      image={getFirstImage(product.images)}
                     />
                   ))}
                 </div>
@@ -310,35 +212,22 @@ const CategoryPage = () => {
                   {sortedProducts.map((product) => (
                     <div key={product.id} className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
                       <img
-                        src={product.image}
-                        alt={product.name}
+                        src={getFirstImage(product.images)}
+                        alt={product.title}
                         className="w-32 h-32 object-cover rounded-md flex-shrink-0"
                       />
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-semibold text-lg">{product.name}</h3>
-                            {product.badge && (
-                              <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full">
-                                {product.badge}
-                              </span>
-                            )}
+                            <h3 className="font-semibold text-lg">{product.title}</h3>
                           </div>
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xl font-bold">₹{product.price.toLocaleString()}</span>
-                            {product.originalPrice && (
-                              <span className="text-sm text-muted-foreground line-through">
-                                ₹{product.originalPrice.toLocaleString()}
-                              </span>
-                            )}
+                            <span className="text-xl font-bold">₹{(product.price_cents / 100).toLocaleString()}</span>
                           </div>
-                          {product.color && (
-                            <p className="text-sm text-muted-foreground">Color: {product.color}</p>
-                          )}
                         </div>
                         <div className="flex gap-2">
                           <Button 
-                            onClick={() => window.location.href = `/product/${product.id}`}
+                            onClick={() => window.location.href = `/product/${product.slug}`}
                             className="flex-1"
                           >
                             View Details
