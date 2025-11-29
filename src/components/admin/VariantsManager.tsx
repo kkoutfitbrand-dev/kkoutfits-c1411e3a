@@ -332,110 +332,78 @@ export const VariantsManager = ({ variants, basePrice, onChange, productCategory
                   </Button>
                 </div>
 
-                <div className="space-y-4">
-                  {/* Variant Image Upload - Always visible for better UX */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-semibold">Product Image for this Variant</Label>
-                      <span className="text-xs text-muted-foreground">Recommended</span>
-                    </div>
-                    {variant.image_url ? (
-                      <div className="relative w-full h-40 border-2 border-border rounded-lg overflow-hidden group hover:border-primary transition-all">
-                        <img 
-                          src={variant.image_url} 
-                          alt="Variant" 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => {
-                              const input = document.getElementById(`variant-image-${index}`) as HTMLInputElement;
-                              input?.click();
-                            }}
-                          >
-                            <Upload className="h-4 w-4 mr-2" />
-                            Change
-                          </Button>
+                <div className="space-y-3">
+                  {/* Variant Image Upload for Color variants */}
+                  {variant.option1_name?.toLowerCase().includes('color') || 
+                   variant.option2_name?.toLowerCase().includes('color') || 
+                   variant.option3_name?.toLowerCase().includes('color') ? (
+                    <div className="space-y-2">
+                      <Label className="text-xs">Color Image</Label>
+                      {variant.image_url ? (
+                        <div className="relative w-full h-32 border rounded-lg overflow-hidden">
+                          <img 
+                            src={variant.image_url} 
+                            alt="Variant" 
+                            className="w-full h-full object-cover"
+                          />
                           <Button
                             type="button"
                             variant="destructive"
                             size="sm"
+                            className="absolute top-2 right-2"
                             onClick={() => removeVariantImage(index)}
                           >
-                            <X className="h-4 w-4 mr-2" />
-                            Remove
+                            <X className="h-3 w-3" />
                           </Button>
                         </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          id={`variant-image-${index}`}
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleVariantImageUpload(index, file);
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors bg-muted/30">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          id={`variant-image-${index}`}
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleVariantImageUpload(index, file);
-                          }}
-                        />
-                        <label htmlFor={`variant-image-${index}`} className="cursor-pointer block">
-                          <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                          <p className="text-sm font-medium mb-1">
-                            {uploadingImages.has(index) ? 'Uploading...' : 'Upload Image'}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Click to upload image for this {variant.option1_value || 'variant'}
-                          </p>
-                        </label>
-                      </div>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      📸 Upload a clear image showing this specific variant (color/size combination)
-                    </p>
-                  </div>
+                      ) : (
+                        <div className="border-2 border-dashed rounded-lg p-4 text-center">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            id={`variant-image-${index}`}
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleVariantImageUpload(index, file);
+                            }}
+                          />
+                          <label htmlFor={`variant-image-${index}`} className="cursor-pointer">
+                            <Upload className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-xs text-muted-foreground">
+                              {uploadingImages.has(index) ? 'Uploading...' : 'Upload color image'}
+                            </p>
+                          </label>
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
 
-                  {/* Pricing and Inventory */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold">Selling Price (₹)</Label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="space-y-1">
+                      <Label className="text-xs">SKU</Label>
+                      <Input
+                        placeholder="SKU"
+                        value={variant.sku || ''}
+                        onChange={(e) => updateVariant(index, 'sku', e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Price (₹)</Label>
                       <Input
                         type="number"
                         step="0.01"
-                        placeholder="999.00"
                         value={variant.price_cents ? variant.price_cents / 100 : basePrice / 100}
                         onChange={(e) => updateVariant(index, 'price_cents', Math.round(parseFloat(e.target.value) * 100))}
-                        className="text-base font-medium"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Customer pays this price
-                      </p>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold">Stock Quantity</Label>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Stock</Label>
                       <Input
                         type="number"
-                        placeholder="100"
                         value={variant.inventory_count}
                         onChange={(e) => updateVariant(index, 'inventory_count', parseInt(e.target.value) || 0)}
-                        className="text-base font-medium"
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Available units in stock
-                      </p>
                     </div>
                   </div>
                 </div>
