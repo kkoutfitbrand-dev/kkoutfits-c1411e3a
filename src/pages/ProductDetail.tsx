@@ -5,7 +5,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight } from "lucide-react";
+import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { ProductReviews } from "@/components/ProductReviews";
 import { ProductQA } from "@/components/ProductQA";
@@ -128,12 +128,20 @@ const ProductDetail = () => {
 
   // Get sizes for selected color
   const availableSizes = variants
-    .filter(v => 
-      !selectedColor || 
-      v.option1_value?.toLowerCase() === selectedColor.toLowerCase() ||
-      v.option2_value?.toLowerCase() === selectedColor.toLowerCase()
-    )
-    .map(v => v.option2_name?.toLowerCase() === 'size' ? v.option2_value : v.option1_name?.toLowerCase() === 'size' ? v.option1_value : null)
+    .filter(v => {
+      // If no color selected or no colors exist, show all sizes
+      if (!selectedColor || colorVariants.length === 0) return true;
+      
+      // Filter by selected color
+      return v.option1_value?.toLowerCase() === selectedColor.toLowerCase() ||
+             v.option2_value?.toLowerCase() === selectedColor.toLowerCase();
+    })
+    .map(v => {
+      // Find the size value
+      if (v.option1_name?.toLowerCase() === 'size') return v.option1_value;
+      if (v.option2_name?.toLowerCase() === 'size') return v.option2_value;
+      return null;
+    })
     .filter((v, i, arr) => v && arr.indexOf(v) === i) as string[];
 
   // Update main image when color changes
@@ -311,29 +319,43 @@ const ProductDetail = () => {
 
             {/* Size Selection */}
             {availableSizes.length > 0 && (
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <label className="font-semibold">Select Size</label>
-                  <Link to="/size-guide" className="text-sm text-accent hover:underline">
-                    Size Guide
+              <div className="mb-8 p-6 bg-muted/30 rounded-lg border">
+                <div className="flex items-center justify-between mb-4">
+                  <label className="text-lg font-semibold">Select Size</label>
+                  <Link to="/size-guide" className="text-sm text-accent hover:underline font-medium flex items-center gap-1">
+                    <span>Size Guide</span>
+                    <ChevronRight className="h-3 w-3" />
                   </Link>
                 </div>
                 
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 mb-3">
                   {availableSizes.map(size => (
                     <button 
                       key={size} 
                       onClick={() => setSelectedSize(size)} 
-                      className={`px-6 py-3 rounded-lg border-2 font-medium transition-colors ${
+                      className={`min-w-[70px] h-12 px-5 rounded-lg border-2 font-semibold text-base transition-all hover:scale-105 ${
                         selectedSize === size 
-                          ? "border-accent bg-accent text-accent-foreground" 
-                          : "border-border hover:border-accent"
+                          ? "border-primary bg-primary text-primary-foreground shadow-lg scale-105" 
+                          : "border-border bg-background hover:border-primary hover:bg-primary/5"
                       }`}
                     >
                       {size}
                     </button>
                   ))}
                 </div>
+
+                {selectedSize && (
+                  <p className="text-sm text-muted-foreground mt-3 flex items-center gap-2">
+                    <Check className="h-4 w-4 text-primary" />
+                    <span>Size selected: <span className="font-bold text-foreground">{selectedSize}</span></span>
+                  </p>
+                )}
+
+                {!selectedSize && (
+                  <p className="text-sm text-muted-foreground/70 mt-3">
+                    Please select your size to continue
+                  </p>
+                )}
               </div>
             )}
 
