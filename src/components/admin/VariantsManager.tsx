@@ -60,87 +60,77 @@ const SIZE_TEMPLATES = {
 };
 
 export const VariantsManager = ({ variants, basePrice, onChange, productCategory }: VariantsManagerProps) => {
-  const [options, setOptions] = useState<VariantOption[]>([
-    { name: '', values: [] },
-  ]);
-  const [currentOption, setCurrentOption] = useState(0);
-  const [newValue, setNewValue] = useState('');
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState<Set<number>>(new Set());
 
-  const addOption = () => {
-    if (options.length < 3) {
-      setOptions([...options, { name: '', values: [] }]);
+  // Get available sizes based on category
+  const availableSizes = productCategory 
+    ? SIZE_TEMPLATES[productCategory.toLowerCase().replace(/\s+/g, '-') as keyof typeof SIZE_TEMPLATES] || []
+    : [];
+
+  const toggleSize = (size: string) => {
+    setSelectedSizes(prev => {
+      const newSizes = prev.includes(size)
+        ? prev.filter(s => s !== size)
+        : [...prev, size];
+      
+      // Auto-generate variants when sizes change
+      generateVariants(newSizes, selectedColors);
+      return newSizes;
+    });
+  };
+
+  const addColor = (color: string) => {
+    if (!color.trim() || selectedColors.includes(color.trim())) return;
+    
+    const newColors = [...selectedColors, color.trim()];
+    setSelectedColors(newColors);
+    generateVariants(selectedSizes, newColors);
+  };
+
+  const removeColor = (color: string) => {
+    const newColors = selectedColors.filter(c => c !== color);
+    setSelectedColors(newColors);
+    generateVariants(selectedSizes, newColors);
+  };
+
+  const generateVariants = (sizes: string[], colors: string[]) => {
+    if (sizes.length === 0) {
+      onChange([]);
+      return;
     }
-  };
-
-  const applySizeTemplate = (optionIndex: number) => {
-    if (!productCategory) return;
-    
-    const categoryKey = productCategory.toLowerCase().replace(/\s+/g, '-');
-    const sizes = SIZE_TEMPLATES[categoryKey as keyof typeof SIZE_TEMPLATES];
-    
-    if (sizes) {
-      const newOptions = [...options];
-      newOptions[optionIndex].values = sizes;
-      setOptions(newOptions);
-      toast({
-        title: 'Size Template Applied',
-        description: `Added ${sizes.length} sizes for ${productCategory}`,
-      });
-    }
-  };
-
-  const updateOptionName = (index: number, name: string) => {
-    const newOptions = [...options];
-    newOptions[index].name = name;
-    setOptions(newOptions);
-  };
-
-  const addValue = (optionIndex: number) => {
-    if (!newValue.trim()) return;
-    
-    const newOptions = [...options];
-    newOptions[optionIndex].values.push(newValue.trim());
-    setOptions(newOptions);
-    setNewValue('');
-  };
-
-  const removeValue = (optionIndex: number, valueIndex: number) => {
-    const newOptions = [...options];
-    newOptions[optionIndex].values.splice(valueIndex, 1);
-    setOptions(newOptions);
-  };
-
-  const generateVariants = () => {
-    const filledOptions = options.filter(opt => opt.name && opt.values.length > 0);
-    
-    if (filledOptions.length === 0) return;
 
     const combinations: Variant[] = [];
-    
-    const generate = (current: Partial<Variant>, depth: number) => {
-      if (depth === filledOptions.length) {
+
+    if (colors.length === 0) {
+      // Size only variants
+      sizes.forEach(size => {
         combinations.push({
-          ...current,
+          option1_name: 'Size',
+          option1_value: size,
           inventory_count: 0,
           is_available: true,
           price_cents: basePrice,
-        } as Variant);
-        return;
-      }
-
-      const option = filledOptions[depth];
-      option.values.forEach(value => {
-        const optionKey = `option${depth + 1}` as 'option1' | 'option2' | 'option3';
-        generate({
-          ...current,
-          [`${optionKey}_name`]: option.name,
-          [`${optionKey}_value`]: value,
-        }, depth + 1);
+        });
       });
-    };
+    } else {
+      // Size + Color variants
+      colors.forEach(color => {
+        sizes.forEach(size => {
+          combinations.push({
+            option1_name: 'Color',
+            option1_value: color,
+            option2_name: 'Size',
+            option2_value: size,
+            inventory_count: 0,
+            is_available: true,
+            price_cents: basePrice,
+          });
+        });
+      });
+    }
 
-    generate({}, 0);
     onChange(combinations);
   };
 
@@ -196,103 +186,118 @@ export const VariantsManager = ({ variants, basePrice, onChange, productCategory
     updateVariant(index, 'image_url', undefined);
   };
 
+  const [newColor, setNewColor] = useState('');
+
   return (
     <div className="space-y-6">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">Variant Options</h3>
-          {options.length < 3 && (
-            <Button type="button" variant="outline" size="sm" onClick={addOption}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Option
-            </Button>
-          )}
-        </div>
+      {/* Size Selection */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-1">Select Available Sizes</h3>
+            <p className="text-sm text-muted-foreground">
+              Click on sizes to add them to your product
+            </p>
+          </div>
 
-        {options.map((option, optionIndex) => (
-          <Card key={optionIndex} className="p-4 space-y-3">
-            <div className="space-y-2">
-              <Label>Option Name (e.g., Size, Color)</Label>
-              <Input
-                placeholder="Size"
-                value={option.name}
-                onChange={(e) => updateOptionName(optionIndex, e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Values</Label>
-                {option.name.toLowerCase() === 'size' && productCategory && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => applySizeTemplate(optionIndex)}
-                  >
-                    Use {productCategory} sizes
-                  </Button>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="e.g., Small, Medium, Large"
-                  value={currentOption === optionIndex ? newValue : ''}
-                  onChange={(e) => {
-                    setCurrentOption(optionIndex);
-                    setNewValue(e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      addValue(optionIndex);
-                    }
-                  }}
-                />
+          {availableSizes.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {availableSizes.map((size) => (
                 <Button
+                  key={size}
                   type="button"
-                  variant="secondary"
-                  onClick={() => addValue(optionIndex)}
-                  disabled={!newValue.trim()}
+                  variant={selectedSizes.includes(size) ? "default" : "outline"}
+                  size="lg"
+                  onClick={() => toggleSize(size)}
+                  className="min-w-[60px] h-12 font-semibold transition-all"
                 >
-                  <Plus className="h-4 w-4" />
+                  {selectedSizes.includes(size) && (
+                    <Check className="h-4 w-4 mr-2" />
+                  )}
+                  {size}
                 </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                {option.values.length === 0 
-                  ? 'Add at least one value to enable variant generation'
-                  : `${option.values.length} value${option.values.length > 1 ? 's' : ''} added`
-                }
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 border-2 border-dashed rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                Please select a category first to see available sizes
               </p>
-              
+            </div>
+          )}
+
+          {selectedSizes.length > 0 && (
+            <div className="pt-4 border-t">
+              <p className="text-sm font-medium text-muted-foreground">
+                Selected: {selectedSizes.length} size{selectedSizes.length > 1 ? 's' : ''}
+              </p>
               <div className="flex flex-wrap gap-2 mt-2">
-                {option.values.map((value, valueIndex) => (
-                  <Badge key={valueIndex} variant="secondary" className="gap-2">
-                    {value}
-                    <button
-                      type="button"
-                      onClick={() => removeValue(optionIndex, valueIndex)}
-                      className="hover:text-destructive"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </button>
+                {selectedSizes.map((size) => (
+                  <Badge key={size} variant="secondary" className="text-sm py-1 px-3">
+                    {size}
                   </Badge>
                 ))}
               </div>
             </div>
-          </Card>
-        ))}
+          )}
+        </div>
+      </Card>
 
-        <Button
-          type="button"
-          onClick={generateVariants}
-          disabled={!options.some(opt => opt.name && opt.values.length > 0)}
-          className="w-full"
-        >
-          <Check className="h-4 w-4 mr-2" />
-          Generate Variants
-        </Button>
-      </div>
+      {/* Color Selection (Optional) */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-1">Colors (Optional)</h3>
+            <p className="text-sm text-muted-foreground">
+              Add colors if your product comes in different colors
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+            <Input
+              placeholder="Enter color name (e.g., Red, Blue)"
+              value={newColor}
+              onChange={(e) => setNewColor(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addColor(newColor);
+                  setNewColor('');
+                }
+              }}
+            />
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                addColor(newColor);
+                setNewColor('');
+              }}
+              disabled={!newColor.trim()}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add
+            </Button>
+          </div>
+
+          {selectedColors.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {selectedColors.map((color) => (
+                <Badge key={color} variant="default" className="gap-2 py-1 px-3">
+                  {color}
+                  <button
+                    type="button"
+                    onClick={() => removeColor(color)}
+                    className="hover:text-destructive-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+            </div>
+          )}
+        </div>
+      </Card>
 
       {variants.length > 0 && (
         <div className="space-y-3">
@@ -408,17 +413,10 @@ export const VariantsManager = ({ variants, basePrice, onChange, productCategory
         </div>
       )}
 
-      {variants.length === 0 && options.some(opt => opt.name && opt.values.length > 0) && (
+      {variants.length === 0 && selectedSizes.length === 0 && (
         <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
-          <p className="font-medium mb-2">Ready to generate variants!</p>
-          <p className="text-sm">Click "Generate Variants" above to create all combinations</p>
-        </div>
-      )}
-      
-      {variants.length === 0 && !options.some(opt => opt.name && opt.values.length > 0) && (
-        <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
-          <p className="font-medium mb-2">No variants configured yet</p>
-          <p className="text-sm">Add option names and values above, then click "Generate Variants"</p>
+          <p className="font-medium mb-2">No sizes selected</p>
+          <p className="text-sm">Click on sizes above to create variants</p>
         </div>
       )}
     </div>

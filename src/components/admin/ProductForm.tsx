@@ -571,16 +571,18 @@ export const ProductForm = ({
           {currentStep === 4 && <div className="animate-fade-in">
               <VariantsManager variants={variants} basePrice={getValues('price_cents') ? Math.round(getValues('price_cents') * 100) : 0} onChange={setVariants} productCategory={getValues('category')} />
               
-              {variants.length === 0 && <div className="mt-4 p-4 border border-dashed rounded-lg bg-muted/20">
-                  <h4 className="font-medium mb-2">💡 How to add variants:</h4>
+              {variants.length === 0 && (
+                <div className="mt-4 p-4 border border-dashed rounded-lg bg-muted/20">
+                  <h4 className="font-medium mb-2">💡 How to add sizes:</h4>
                   <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
-                    <li>Add option name "Size" and click "Use {getValues('category')} sizes" for auto-fill</li>
-                    <li>Add option name "Color" and add color values (e.g., "Red", "White", "Black")</li>
-                    <li>Click "Generate Variants" to create all combinations</li>
-                    <li>Upload color images, set price, SKU, and stock for each variant</li>
-                    <li>⚠️ Product will only be published after completing variants setup</li>
+                    <li>Select a category first (Step 1) to see available sizes</li>
+                    <li>Click on the sizes you want to offer for this product</li>
+                    <li>Optionally add colors if your product comes in different colors</li>
+                    <li>Set inventory and price for each variant below</li>
+                    <li>Click "Publish Product" when ready</li>
                   </ol>
-                </div>}
+                </div>
+              )}
             </div>}
 
           {/* Navigation Buttons */}
@@ -608,7 +610,7 @@ export const ProductForm = ({
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Button> : <Button type="submit" disabled={isSubmitting || uploading || variants.length === 0} className="min-w-[140px]">
                   {(isSubmitting || uploading) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  {variants.length === 0 ? 'Add Variants First' : editProduct ? 'Update Product' : 'Publish Product'}
+                  {variants.length === 0 ? 'Select Sizes First' : editProduct ? 'Update Product' : 'Publish Product'}
                 </Button>}
             </div>
           </div>
