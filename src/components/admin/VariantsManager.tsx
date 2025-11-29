@@ -332,110 +332,137 @@ export const VariantsManager = ({ variants, basePrice, onChange, productCategory
                   </Button>
                 </div>
 
-                <div className="space-y-4">
-                  {/* Variant Image Upload - Always visible for better UX */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-semibold">Product Image for this Variant</Label>
-                      <span className="text-xs text-muted-foreground">Recommended</span>
-                    </div>
-                    {variant.image_url ? (
-                      <div className="relative w-full h-40 border-2 border-border rounded-lg overflow-hidden group hover:border-primary transition-all">
-                        <img 
-                          src={variant.image_url} 
-                          alt="Variant" 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => {
-                              const input = document.getElementById(`variant-image-${index}`) as HTMLInputElement;
-                              input?.click();
-                            }}
-                          >
-                            <Upload className="h-4 w-4 mr-2" />
-                            Change
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => removeVariantImage(index)}
-                          >
-                            <X className="h-4 w-4 mr-2" />
-                            Remove
-                          </Button>
-                        </div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          id={`variant-image-${index}`}
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleVariantImageUpload(index, file);
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors bg-muted/30">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          id={`variant-image-${index}`}
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleVariantImageUpload(index, file);
-                          }}
-                        />
-                        <label htmlFor={`variant-image-${index}`} className="cursor-pointer block">
-                          <Upload className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
-                          <p className="text-sm font-medium mb-1">
-                            {uploadingImages.has(index) ? 'Uploading...' : 'Upload Image'}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Click to upload image for this {variant.option1_value || 'variant'}
-                          </p>
-                        </label>
+                <div className="space-y-6">
+                  {/* Color & Image Section */}
+                  <div className="p-4 bg-primary/5 rounded-lg border-2 border-primary/20">
+                    <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                      🎨 Color & Product Image
+                    </h4>
+                    
+                    {/* Show color if this variant has one */}
+                    {variant.option1_name?.toLowerCase() === 'color' && (
+                      <div className="mb-4 p-3 bg-background rounded-md border">
+                        <Label className="text-xs text-muted-foreground">Color</Label>
+                        <p className="font-semibold text-lg capitalize">{variant.option1_value}</p>
                       </div>
                     )}
-                    <p className="text-xs text-muted-foreground">
-                      📸 Upload a clear image showing this specific variant (color/size combination)
-                    </p>
-                  </div>
 
-                  {/* Pricing and Inventory */}
-                  <div className="grid grid-cols-2 gap-4">
+                    {/* Image Upload */}
                     <div className="space-y-2">
-                      <Label className="text-sm font-semibold">Selling Price (₹)</Label>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        placeholder="999.00"
-                        value={variant.price_cents ? variant.price_cents / 100 : basePrice / 100}
-                        onChange={(e) => updateVariant(index, 'price_cents', Math.round(parseFloat(e.target.value) * 100))}
-                        className="text-base font-medium"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Customer pays this price
+                      <Label className="text-sm font-medium">Upload Color Image</Label>
+                      {variant.image_url ? (
+                        <div className="relative w-full h-48 border-2 border-primary rounded-lg overflow-hidden group">
+                          <img 
+                            src={variant.image_url} 
+                            alt={`${variant.option1_value || 'Variant'} image`}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                const input = document.getElementById(`variant-image-${index}`) as HTMLInputElement;
+                                input?.click();
+                              }}
+                            >
+                              <Upload className="h-4 w-4 mr-2" />
+                              Change Image
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeVariantImage(index)}
+                            >
+                              <X className="h-4 w-4 mr-2" />
+                              Remove
+                            </Button>
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            id={`variant-image-${index}`}
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleVariantImageUpload(index, file);
+                            }}
+                          />
+                        </div>
+                      ) : (
+                        <div className="border-2 border-dashed border-primary/40 rounded-lg p-10 text-center hover:border-primary hover:bg-primary/5 transition-all bg-background">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            id={`variant-image-${index}`}
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleVariantImageUpload(index, file);
+                            }}
+                          />
+                          <label htmlFor={`variant-image-${index}`} className="cursor-pointer block">
+                            <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Upload className="h-8 w-8 text-primary" />
+                            </div>
+                            <p className="text-sm font-semibold mb-1">
+                              {uploadingImages.has(index) ? 'Uploading...' : 'Click to Upload Image'}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Show this color variant to customers
+                            </p>
+                          </label>
+                        </div>
+                      )}
+                      <p className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                        💡 <strong>Tip:</strong> Upload a clear photo showing the actual color. This helps customers make better decisions!
                       </p>
                     </div>
-                    <div className="space-y-2">
-                      <Label className="text-sm font-semibold">Stock Quantity</Label>
-                      <Input
-                        type="number"
-                        placeholder="100"
-                        value={variant.inventory_count}
-                        onChange={(e) => updateVariant(index, 'inventory_count', parseInt(e.target.value) || 0)}
-                        className="text-base font-medium"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Available units in stock
-                      </p>
+                  </div>
+
+                  {/* Pricing Section */}
+                  <div className="p-4 bg-secondary/5 rounded-lg border-2 border-secondary/20">
+                    <h4 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                      💰 Pricing & Inventory
+                    </h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">Market Selling Price (₹)</Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          placeholder="Enter price (e.g., 999.00)"
+                          value={variant.price_cents ? (variant.price_cents / 100).toFixed(2) : ''}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '') {
+                              updateVariant(index, 'price_cents', null);
+                            } else {
+                              updateVariant(index, 'price_cents', Math.round(parseFloat(value) * 100));
+                            }
+                          }}
+                          className="text-lg font-bold"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          💵 This is the final price customers will pay
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-semibold">Available Stock</Label>
+                        <Input
+                          type="number"
+                          placeholder="Enter quantity"
+                          value={variant.inventory_count || ''}
+                          onChange={(e) => updateVariant(index, 'inventory_count', parseInt(e.target.value) || 0)}
+                          className="text-lg font-bold"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          📦 Total units available for sale
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
