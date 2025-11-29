@@ -74,7 +74,7 @@ const ProductDetail = () => {
         const { data: productData, error: productError } = await supabase
           .from('products')
           .select('*')
-          .eq('id', id)
+          .eq('slug', id)
           .single();
 
         if (productError) throw productError;
@@ -82,7 +82,7 @@ const ProductDetail = () => {
         const { data: variantsData, error: variantsError } = await supabase
           .from('product_variants')
           .select('*')
-          .eq('product_id', id);
+          .eq('product_id', productData.id);
 
         if (variantsError) throw variantsError;
 
