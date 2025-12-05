@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -54,10 +55,13 @@ interface Product {
 const ProductDetail = () => {
   const { id } = useParams();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<Variant[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addingToCart, setAddingToCart] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState("");
@@ -188,7 +192,18 @@ const ProductDetail = () => {
 
   const displayPrice = product.price_cents / 100;
   const productImages = product.images.length > 0 ? product.images : [product1];
-  const handleAddToCart = () => {
+  
+  const handleAddToCart = async () => {
+    if (!user) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to add items to cart",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (availableSizes.length > 0 && !selectedSize) {
       toast({
         title: "Please select a size",
@@ -205,10 +220,79 @@ const ProductDetail = () => {
       });
       return;
     }
-    toast({
-      title: "Added to cart!",
-      description: `${product.title} ${selectedColor ? `(Color: ${selectedColor})` : ''} ${selectedSize ? `(Size: ${selectedSize})` : ''} (Qty: ${quantity})`
-    });
+
+    setAddingToCart(true);
+    try {
+      // Get the selected variant's image if available
+      const selectedVariant = variants.find(v => 
+        v.option1_value === selectedColor && v.option2_value === selectedSize
+      );
+      const variantImage = selectedVariant?.image_url || productImages[0];
+      const variantPrice = selectedVariant?.price_cents || product.price_cents;
+
+      const newItem = {
+        id: `${product.id}-${selectedColor}-${selectedSize}-${Date.now()}`,
+        productId: product.id,
+        name: product.title,
+        price: variantPrice / 100,
+        image: variantImage,
+        quantity: quantity,
+        size: selectedSize,
+        color: selectedColor
+      };
+
+      // Fetch existing cart
+      const { data: existingCart } = await supabase
+        .from('carts')
+        .select('items')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      let updatedItems;
+      if (existingCart?.items && Array.isArray(existingCart.items)) {
+        // Check if same product with same size/color already exists
+        const existingIndex = (existingCart.items as any[]).findIndex(
+          (item: any) => item.productId === product.id && item.size === selectedSize && item.color === selectedColor
+        );
+        
+        if (existingIndex > -1) {
+          // Update quantity
+          updatedItems = [...(existingCart.items as any[])];
+          updatedItems[existingIndex].quantity += quantity;
+        } else {
+          // Add new item
+          updatedItems = [...(existingCart.items as any[]), newItem];
+        }
+      } else {
+        updatedItems = [newItem];
+      }
+
+      // Save cart
+      if (existingCart) {
+        await supabase
+          .from('carts')
+          .update({ items: JSON.parse(JSON.stringify(updatedItems)), updated_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('carts')
+          .insert({ user_id: user.id, items: JSON.parse(JSON.stringify(updatedItems)) });
+      }
+
+      toast({
+        title: "Added to cart!",
+        description: `${product.title} ${selectedColor ? `(${selectedColor})` : ''} ${selectedSize ? `(${selectedSize})` : ''} x ${quantity}`
+      });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart",
+        variant: "destructive"
+      });
+    } finally {
+      setAddingToCart(false);
+    }
   };
   
   const handleAddToWishlist = () => {
@@ -375,8 +459,8 @@ const ProductDetail = () => {
 
             {/* Action Buttons */}
             <div className="flex gap-3 mb-6">
-              <Button size="lg" className="flex-1" onClick={handleAddToCart}>
-                Add to Cart
+              <Button size="lg" className="flex-1" onClick={handleAddToCart} disabled={addingToCart}>
+                {addingToCart ? "Adding..." : "Add to Cart"}
               </Button>
               <Button size="lg" variant="outline" onClick={handleAddToWishlist}>
                 <Heart className="h-5 w-5" />
