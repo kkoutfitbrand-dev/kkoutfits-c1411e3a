@@ -3,14 +3,13 @@ import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Minus, Plus, Trash2, ShoppingBag, Tag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SavedForLater } from "@/components/SavedForLater";
 import { toast } from "sonner";
-import product1 from "@/assets/product-1.jpg";
-import product3 from "@/assets/product-3.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface CartItem {
   id: string;
@@ -19,61 +18,110 @@ interface CartItem {
   image: string;
   quantity: number;
   size: string;
+  color?: string;
 }
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: "1",
-      name: "Cream Embroidered Kurta Pajama Set",
-      price: 5999,
-      image: product1,
-      quantity: 1,
-      size: "M",
-    },
-    {
-      id: "3",
-      name: "Burgundy Velvet Bandhgala Jacket",
-      price: 12999,
-      image: product3,
-      quantity: 1,
-      size: "L",
-    },
-  ]);
+  const { user } = useAuth();
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [savedItems, setSavedItems] = useState<CartItem[]>([]);
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
 
-  const updateQuantity = (id: string, delta: number) => {
-    setCartItems(items =>
-      items.map(item =>
-        item.id === id
-          ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-          : item
-      )
-    );
+  // Fetch cart items from database
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('carts')
+          .select('items')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data?.items && Array.isArray(data.items)) {
+          setCartItems(data.items as unknown as CartItem[]);
+        }
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, [user]);
+
+  // Save cart to database
+  const saveCartToDb = async (items: CartItem[]) => {
+    if (!user) return;
+
+    try {
+      // Check if cart exists
+      const { data: existingCart } = await supabase
+        .from('carts')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (existingCart) {
+        await supabase
+          .from('carts')
+          .update({ items: JSON.parse(JSON.stringify(items)), updated_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('carts')
+          .insert({ user_id: user.id, items: JSON.parse(JSON.stringify(items)) });
+      }
+    } catch (error) {
+      console.error('Error saving cart:', error);
+    }
   };
 
-  const removeItem = (id: string) => {
-    setCartItems(items => items.filter(item => item.id !== id));
+  const updateQuantity = async (id: string, delta: number) => {
+    const newItems = cartItems.map(item =>
+      item.id === id
+        ? { ...item, quantity: Math.max(1, item.quantity + delta) }
+        : item
+    );
+    setCartItems(newItems);
+    await saveCartToDb(newItems);
+  };
+
+  const removeItem = async (id: string) => {
+    const newItems = cartItems.filter(item => item.id !== id);
+    setCartItems(newItems);
+    await saveCartToDb(newItems);
     toast.success("Item removed from cart");
   };
 
-  const saveForLater = (id: string) => {
+  const saveForLater = async (id: string) => {
     const item = cartItems.find(item => item.id === id);
     if (item) {
       setSavedItems(prev => [...prev, item]);
-      setCartItems(items => items.filter(item => item.id !== id));
+      const newItems = cartItems.filter(item => item.id !== id);
+      setCartItems(newItems);
+      await saveCartToDb(newItems);
       toast.success("Item saved for later");
     }
   };
 
-  const moveToCart = (id: string) => {
+  const moveToCart = async (id: string) => {
     const item = savedItems.find(item => item.id === id);
     if (item) {
-      setCartItems(prev => [...prev, item]);
+      const newItems = [...cartItems, item];
+      setCartItems(newItems);
       setSavedItems(items => items.filter(item => item.id !== id));
+      await saveCartToDb(newItems);
       toast.success("Item moved to cart");
     }
   };
@@ -95,6 +143,19 @@ const Cart = () => {
   const discount = appliedCoupon === "SAVE200" ? 200 : appliedCoupon === "SAVE10" ? Math.floor(subtotal * 0.1) : 0;
   const total = subtotal + shipping - discount;
   const savings = discount + (shipping === 0 ? 99 : 0);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navigation />
+        <div className="flex-1 container px-4 py-16 flex flex-col items-center justify-center">
+          <Loader2 className="w-12 h-12 animate-spin text-primary" />
+          <p className="text-muted-foreground mt-4">Loading your cart...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (cartItems.length === 0) {
     return (
