@@ -67,6 +67,7 @@ const ProductDetail = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [manualImageSelect, setManualImageSelect] = useState(false);
 
   // Fetch product and variants
   useEffect(() => {
@@ -148,9 +149,9 @@ const ProductDetail = () => {
     })
     .filter((v, i, arr) => v && arr.indexOf(v) === i) as string[];
 
-  // Update main image when color changes
+  // Update main image when color changes (but not when user manually selects)
   useEffect(() => {
-    if (selectedColor) {
+    if (selectedColor && !manualImageSelect) {
       const colorVariant = colorVariants.find(v => v.option1_value?.toLowerCase() === selectedColor.toLowerCase());
       if (colorVariant?.image_url) {
         const images = product?.images || [];
@@ -162,7 +163,11 @@ const ProductDetail = () => {
         }
       }
     }
-  }, [selectedColor, colorVariants, product?.images]);
+    // Reset manual select flag after color change is processed
+    if (manualImageSelect) {
+      setManualImageSelect(false);
+    }
+  }, [selectedColor]);
 
   if (loading) {
     return (
@@ -340,9 +345,10 @@ const ProductDetail = () => {
                 <button 
                   key={index} 
                   onClick={() => {
+                    setManualImageSelect(true);
                     setSelectedImage(index);
                     setIsZoomed(false);
-                  }} 
+                  }}
                   className={`rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-accent" : "border-border"}`}
                 >
                   <img src={image} alt={`${product.title} ${index + 1}`} className="w-full aspect-[3/4] object-cover" />
