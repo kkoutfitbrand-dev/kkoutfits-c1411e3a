@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface CartItem {
   id: string;
@@ -55,6 +56,8 @@ interface SavedAddress {
 const Checkout = () => {
   const [step, setStep] = useState(1);
   const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [placingOrder, setPlacingOrder] = useState(false);
+  const navigate = useNavigate();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([
@@ -206,8 +209,58 @@ const Checkout = () => {
   }, [user]);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = cartItems.length > 0 ? 299 : 0;
+  const shipping = 0; // Free shipping
   const total = subtotal + shipping;
+
+  const selectedAddress = savedAddresses.find(addr => addr.id === selectedAddressId) || savedAddresses.find(addr => addr.isDefault);
+
+  const handlePlaceOrder = async () => {
+    if (!user || cartItems.length === 0) return;
+    
+    setPlacingOrder(true);
+    try {
+      const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
+      
+      // Create order in database
+      const { error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          user_id: user.id,
+          order_items: cartItems as unknown as import('@/integrations/supabase/types').Json,
+          total_cents: total * 100,
+          shipping_address: (selectedAddress || {}) as unknown as import('@/integrations/supabase/types').Json,
+          status: 'pending'
+        }]);
+
+      if (orderError) throw orderError;
+
+      // Clear cart
+      await supabase
+        .from('carts')
+        .update({ items: [] })
+        .eq('user_id', user.id);
+
+      // Navigate to confirmation
+      navigate('/order-confirmation', {
+        state: {
+          orderId,
+          items: cartItems,
+          total,
+          shippingAddress: selectedAddress,
+          paymentMethod
+        }
+      });
+    } catch (error) {
+      console.error('Error placing order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to place order. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setPlacingOrder(false);
+    }
+  };
 
   return (
     <ProtectedRoute>
@@ -398,7 +451,13 @@ const Checkout = () => {
                   <Button onClick={() => setStep(2)} variant="outline" className="flex-1">
                     Back
                   </Button>
-                  <Button className="flex-1" size="lg">
+                  <Button 
+                    className="flex-1" 
+                    size="lg" 
+                    onClick={handlePlaceOrder}
+                    disabled={placingOrder || cartItems.length === 0}
+                  >
+                    {placingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Place Order
                   </Button>
                 </div>
@@ -433,7 +492,7 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className="font-medium">₹{shipping}</span>
+                  <span className="font-medium text-green-600">FREE</span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between text-lg font-bold">
@@ -465,7 +524,8 @@ const Checkout = () => {
             </Button>
           )}
           {step === 3 && (
-            <Button size="lg">
+            <Button size="lg" onClick={handlePlaceOrder} disabled={placingOrder || cartItems.length === 0}>
+              {placingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Place Order
             </Button>
           )}

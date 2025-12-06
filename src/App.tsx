@@ -24,6 +24,7 @@ import FAQ from "./pages/FAQ";
 import Search from "./pages/Search";
 import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import AdminCategories from "./pages/admin/Categories";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
             <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
             <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-confirmation" element={<ProtectedRoute><OrderConfirmation /></ProtectedRoute>} />
             <Route path="/account" element={<Account />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/about" element={<About />} />
