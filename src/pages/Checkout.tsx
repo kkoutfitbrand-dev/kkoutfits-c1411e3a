@@ -211,7 +211,7 @@ const Checkout = () => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-20 lg:pb-0">
         <Navigation />
       
       <div className="container px-4 py-8 md:py-12">
@@ -259,7 +259,7 @@ const Checkout = () => {
             {step === 1 && (
               <div className="bg-card border border-border rounded-lg p-6">
                 <h2 className="text-xl font-serif font-bold mb-6">Delivery Address</h2>
-                <form onSubmit={handleSubmit(onAddressSubmit)} className="space-y-4">
+                <form id="checkout-form" onSubmit={handleSubmit(onAddressSubmit)} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
@@ -443,6 +443,32 @@ const Checkout = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Sticky Mobile Order Summary */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 lg:hidden z-50">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-muted-foreground">{cartItems.length} item{cartItems.length !== 1 ? 's' : ''}</p>
+            <p className="text-lg font-bold">₹{total.toLocaleString()}</p>
+          </div>
+          {step === 1 && (
+            <Button type="submit" form="checkout-form" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Continue
+            </Button>
+          )}
+          {step === 2 && (
+            <Button onClick={() => setStep(3)}>
+              Review Order
+            </Button>
+          )}
+          {step === 3 && (
+            <Button size="lg">
+              Place Order
+            </Button>
+          )}
         </div>
       </div>
 
