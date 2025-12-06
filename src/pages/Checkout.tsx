@@ -182,37 +182,37 @@ const Checkout = () => {
         <h1 className="text-3xl md:text-4xl font-serif font-bold mb-8">Checkout</h1>
         
         {/* Progress Steps */}
-        <div className="flex items-center justify-center mb-12">
-          <div className="flex items-center gap-4 max-w-2xl w-full">
-            <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+        <div className="flex items-center justify-center mb-8 md:mb-12">
+          <div className="flex items-center gap-2 sm:gap-4 max-w-2xl w-full">
+            <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+              <div className={`w-8 h-8 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-sm sm:text-base ${
                 step >= 1 ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
               }`}>
-                {step > 1 ? <Check className="w-5 h-5" /> : "1"}
+                {step > 1 ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : "1"}
               </div>
-              <span className={step >= 1 ? "font-medium" : "text-muted-foreground"}>Address</span>
+              <span className={`text-xs sm:text-base ${step >= 1 ? "font-medium" : "text-muted-foreground"}`}>Address</span>
             </div>
             
             <div className="flex-1 h-0.5 bg-border" />
             
-            <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+              <div className={`w-8 h-8 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-sm sm:text-base ${
                 step >= 2 ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
               }`}>
-                {step > 2 ? <Check className="w-5 h-5" /> : "2"}
+                {step > 2 ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : "2"}
               </div>
-              <span className={step >= 2 ? "font-medium" : "text-muted-foreground"}>Payment</span>
+              <span className={`text-xs sm:text-base ${step >= 2 ? "font-medium" : "text-muted-foreground"}`}>Payment</span>
             </div>
             
             <div className="flex-1 h-0.5 bg-border" />
             
-            <div className="flex items-center gap-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+            <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2">
+              <div className={`w-8 h-8 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-sm sm:text-base ${
                 step >= 3 ? "bg-accent text-accent-foreground" : "bg-muted text-muted-foreground"
               }`}>
                 3
               </div>
-              <span className={step >= 3 ? "font-medium" : "text-muted-foreground"}>Review</span>
+              <span className={`text-xs sm:text-base ${step >= 3 ? "font-medium" : "text-muted-foreground"}`}>Review</span>
             </div>
           </div>
         </div>
