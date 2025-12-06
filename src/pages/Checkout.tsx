@@ -7,14 +7,25 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Check, Loader2, Plus, Pencil, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import product1 from "@/assets/product-1.jpg";
-import product3 from "@/assets/product-3.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+
+interface CartItem {
+  id: string;
+  productId: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+  size?: string;
+  color?: string;
+}
 
 const addressSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required").max(100, "Name must be less than 100 characters"),
@@ -164,13 +175,38 @@ const Checkout = () => {
     }
   });
 
-  const cartItems = [
-    { id: "1", name: "Cream Embroidered Kurta Pajama Set", price: 5999, image: product1, quantity: 1 },
-    { id: "3", name: "Burgundy Velvet Bandhgala Jacket", price: 12999, image: product3, quantity: 1 },
-  ];
+  const { user } = useAuth();
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartLoading, setCartLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!user) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('carts')
+          .select('items')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data?.items && Array.isArray(data.items)) {
+          setCartItems(data.items as unknown as CartItem[]);
+        }
+      } catch (error) {
+        console.error('Error fetching cart:', error);
+      } finally {
+        setCartLoading(false);
+      }
+    };
+
+    fetchCart();
+  }, [user]);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = 299;
+  const shipping = cartItems.length > 0 ? 299 : 0;
   const total = subtotal + shipping;
 
   return (
