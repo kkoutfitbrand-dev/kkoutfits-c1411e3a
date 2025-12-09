@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -10,34 +11,128 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { Link } from "react-router-dom";
 
 const profileSchema = z.object({
-  firstName: z.string().trim().min(1, "First name is required").max(100, "Name must be less than 100 characters"),
-  lastName: z.string().trim().min(1, "Last name is required").max(100, "Name must be less than 100 characters"),
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
-  phone: z.string().trim().regex(/^(\+91)?[6-9]\d{9}$/, "Invalid Indian phone number")
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
 
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
+interface Order {
+  id: string;
+  created_at: string;
+  status: string | null;
+  total_cents: number;
+  order_items: unknown;
+}
+
 const Account = () => {
   const { toast } = useToast();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileFormData>({
+  const { user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
-      firstName: "John",
-      lastName: "Doe",
-      email: "john.doe@example.com",
-      phone: "+919876543210"
+      name: "",
+      email: ""
     }
   });
 
+  useEffect(() => {
+    if (user) {
+      fetchProfile();
+      fetchOrders();
+    }
+  }, [user]);
+
+  const fetchProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name')
+        .eq('id', user?.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      reset({
+        name: data?.name || "",
+        email: user?.email || ""
+      });
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setOrders(data || []);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
   const onSubmit = async (data: ProfileFormData) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been saved successfully."
-    });
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ name: data.name })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile information has been saved successfully."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case 'delivered':
+        return 'bg-green-500/10 text-green-600';
+      case 'shipped':
+      case 'in transit':
+        return 'bg-blue-500/10 text-blue-600';
+      case 'processing':
+        return 'bg-yellow-500/10 text-yellow-600';
+      case 'cancelled':
+        return 'bg-red-500/10 text-red-600';
+      default:
+        return 'bg-muted text-muted-foreground';
+    }
   };
 
   return (
@@ -72,82 +167,83 @@ const Account = () => {
             <div className="bg-card border border-border rounded-lg p-6">
               <h2 className="text-xl font-serif font-bold mb-6">My Orders</h2>
               
-              <div className="space-y-4">
-                <div className="border border-border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <p className="font-semibold">Order #KK12345</p>
-                      <p className="text-sm text-muted-foreground">Placed on 15 Nov 2024</p>
-                    </div>
-                    <span className="px-3 py-1 bg-accent/10 text-accent text-sm font-medium rounded-full">
-                      Delivered
-                    </span>
-                  </div>
-                  <p className="text-sm mb-2">Cream Embroidered Kurta Pajama Set</p>
-                  <p className="font-semibold mb-4">₹5,999</p>
-                  <Button variant="outline" size="sm">View Details</Button>
+              {loadingOrders ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
-
-                <div className="border border-border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <p className="font-semibold">Order #KK12344</p>
-                      <p className="text-sm text-muted-foreground">Placed on 10 Nov 2024</p>
-                    </div>
-                    <span className="px-3 py-1 bg-secondary/20 text-secondary-foreground text-sm font-medium rounded-full">
-                      In Transit
-                    </span>
-                  </div>
-                  <p className="text-sm mb-2">Burgundy Velvet Bandhgala Jacket</p>
-                  <p className="font-semibold mb-4">₹12,999</p>
-                  <Button variant="outline" size="sm">Track Order</Button>
+              ) : orders.length === 0 ? (
+                <div className="text-center py-8">
+                  <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground mb-4">You haven't placed any orders yet.</p>
+                  <Button asChild>
+                    <Link to="/">Start Shopping</Link>
+                  </Button>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  {orders.map((order) => {
+                    const items = (Array.isArray(order.order_items) ? order.order_items : []) as OrderItem[];
+                    const firstItem = items?.[0];
+                    const itemCount = items?.length || 0;
+                    
+                    return (
+                      <div key={order.id} className="border border-border rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <p className="font-semibold">Order #{order.id.slice(0, 8).toUpperCase()}</p>
+                            <p className="text-sm text-muted-foreground">
+                              Placed on {format(new Date(order.created_at), 'dd MMM yyyy')}
+                            </p>
+                          </div>
+                          <span className={`px-3 py-1 text-sm font-medium rounded-full capitalize ${getStatusColor(order.status)}`}>
+                            {order.status || 'Pending'}
+                          </span>
+                        </div>
+                        <p className="text-sm mb-2">
+                          {firstItem?.name || 'Order items'}
+                          {itemCount > 1 && ` + ${itemCount - 1} more item${itemCount > 2 ? 's' : ''}`}
+                        </p>
+                        <p className="font-semibold mb-4">₹{(order.total_cents / 100).toLocaleString('en-IN')}</p>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to={`/order-confirmation`} state={{ order }}>View Details</Link>
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </TabsContent>
 
           <TabsContent value="profile">
             <div className="bg-card border border-border rounded-lg p-6">
               <h2 className="text-xl font-serif font-bold mb-6">Profile Information</h2>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
-                <div className="grid sm:grid-cols-2 gap-4">
+              {loadingProfile ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
                   <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" {...register('firstName')} className="mt-2" />
-                    {errors.firstName && (
-                      <p className="text-sm text-destructive mt-1">{errors.firstName.message}</p>
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input id="name" {...register('name')} className="mt-2" />
+                    {errors.name && (
+                      <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
                     )}
                   </div>
+                  
                   <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" {...register('lastName')} className="mt-2" />
-                    {errors.lastName && (
-                      <p className="text-sm text-destructive mt-1">{errors.lastName.message}</p>
-                    )}
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input id="email" type="email" {...register('email')} disabled className="mt-2 bg-muted" />
+                    <p className="text-xs text-muted-foreground mt-1">Email cannot be changed</p>
                   </div>
-                </div>
-                
-                <div>
-                  <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" {...register('email')} className="mt-2" />
-                  {errors.email && (
-                    <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
-                  )}
-                </div>
-                
-                <div>
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" {...register('phone')} className="mt-2" />
-                  {errors.phone && (
-                    <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>
-                  )}
-                </div>
-                
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save Changes
-                </Button>
-              </form>
+                  
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Changes
+                  </Button>
+                </form>
+              )}
             </div>
           </TabsContent>
 
@@ -158,37 +254,10 @@ const Account = () => {
                 <Button>Add New Address</Button>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="border border-border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold">Home</h3>
-                    <span className="px-2 py-1 bg-accent/10 text-accent text-xs font-medium rounded">
-                      Default
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    123 Street Name<br />
-                    City Name, State - 123456<br />
-                    Phone: +91 98765 43210
-                  </p>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">Edit</Button>
-                    <Button variant="ghost" size="sm">Delete</Button>
-                  </div>
-                </div>
-
-                <div className="border border-border rounded-lg p-4">
-                  <h3 className="font-semibold mb-2">Office</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    456 Business Park<br />
-                    City Name, State - 654321<br />
-                    Phone: +91 98765 43210
-                  </p>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">Edit</Button>
-                    <Button variant="ghost" size="sm">Delete</Button>
-                  </div>
-                </div>
+              <div className="text-center py-8">
+                <MapPin className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <p className="text-muted-foreground">No saved addresses yet.</p>
+                <p className="text-sm text-muted-foreground mt-1">Add an address during checkout and it will appear here.</p>
               </div>
             </div>
           </TabsContent>
