@@ -57,7 +57,9 @@ export const Navigation = () => {
     user,
     signOut
   } = useAuth();
-  const { isAdmin } = useUserRole();
+  const {
+    isAdmin
+  } = useUserRole();
   const navigate = useNavigate();
   const handleSignOut = async () => {
     await signOut();
@@ -98,7 +100,7 @@ export const Navigation = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <h1 className="text-base md:text-xl lg:text-2xl font-serif font-bold tracking-wider">KK OUTFITS</h1>
+          <h1 className="md:text-xl lg:text-2xl font-serif font-bold tracking-wider text-sm">KK OUTFITS</h1>
         </Link>
 
         {/* Desktop Navigation */}
@@ -137,8 +139,7 @@ export const Navigation = () => {
                   <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                 </div>
                 <DropdownMenuSeparator />
-                {isAdmin && (
-                  <>
+                {isAdmin && <>
                     <DropdownMenuItem asChild>
                       <Link to="/admin/dashboard" className="cursor-pointer">
                         <Shield className="mr-2 h-4 w-4" />
@@ -146,8 +147,7 @@ export const Navigation = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                  </>
-                )}
+                  </>}
                 <DropdownMenuItem asChild>
                   <Link to="/account" className="cursor-pointer">
                     <User className="mr-2 h-4 w-4" />
@@ -173,18 +173,12 @@ export const Navigation = () => {
         <div className="container px-4">
           <div className="flex items-center justify-center md:justify-start gap-4 md:gap-8 h-12 overflow-x-auto scrollbar-hide">
             {mainTabs.map(tab => {
-              const Icon = tab.icon;
-              return (
-                <Link 
-                  key={tab.label} 
-                  to={tab.link} 
-                  className={`flex items-center gap-2 text-sm md:text-base font-medium whitespace-nowrap transition-colors ${tab.label === "MEN" ? "text-foreground border-b-2 border-accent" : "text-muted-foreground hover:text-accent"}`}
-                >
+            const Icon = tab.icon;
+            return <Link key={tab.label} to={tab.link} className={`flex items-center gap-2 text-sm md:text-base font-medium whitespace-nowrap transition-colors ${tab.label === "MEN" ? "text-foreground border-b-2 border-accent" : "text-muted-foreground hover:text-accent"}`}>
                   <Icon className="h-4 w-4" />
                   {tab.label}
-                </Link>
-              );
-            })}
+                </Link>;
+          })}
           </div>
         </div>
       </div>
