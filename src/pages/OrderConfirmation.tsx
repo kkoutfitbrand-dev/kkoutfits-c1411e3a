@@ -30,11 +30,29 @@ interface OrderDetails {
 
 const OrderConfirmation = () => {
   const location = useLocation();
-  const orderDetails = location.state as OrderDetails | null;
+  const stateOrderDetails = location.state as OrderDetails | null;
 
-  if (!orderDetails) {
-    return <Navigate to="/" replace />;
-  }
+  // Fallback sample data for testing/demo purposes
+  const sampleOrderDetails: OrderDetails = {
+    orderId: "ORD-" + Math.random().toString(36).substring(2, 10).toUpperCase(),
+    items: [
+      { id: "1", name: "Royal Silk Sherwani", price: 12999, quantity: 1, image: "/placeholder.svg" },
+      { id: "2", name: "Designer Kurta Set", price: 4999, quantity: 2, image: "/placeholder.svg" },
+    ],
+    total: 22997,
+    shippingAddress: {
+      firstName: "Rahul",
+      lastName: "Sharma",
+      address: "123 Main Street, Sector 15",
+      city: "Mumbai",
+      state: "Maharashtra",
+      pincode: "400001",
+      phone: "+91 98765 43210",
+    },
+    paymentMethod: "upi",
+  };
+
+  const orderDetails = stateOrderDetails || sampleOrderDetails;
 
   const estimatedDelivery = new Date();
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
