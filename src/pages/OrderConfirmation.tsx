@@ -105,7 +105,7 @@ const OrderConfirmation = () => {
           <div className="mb-6">
             <h3 className="font-semibold mb-4">Order Items</h3>
             <div className="space-y-4">
-              {orderDetails.items.map(item => (
+              {(orderDetails.items || []).map(item => (
                 <div key={item.id} className="flex gap-4">
                   <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
                   <div className="flex-1">
