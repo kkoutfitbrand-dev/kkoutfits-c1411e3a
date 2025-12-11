@@ -110,7 +110,9 @@ const OrderConfirmation = () => {
                   <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
                   <div className="flex-1">
                     <p className="font-medium line-clamp-1">{item.name}</p>
-                    <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+                    <p className="text-sm text-muted-foreground">
+                      ₹{item.price.toLocaleString()} × {item.quantity}
+                    </p>
                   </div>
                   <p className="font-semibold">₹{(item.price * item.quantity).toLocaleString()}</p>
                 </div>
