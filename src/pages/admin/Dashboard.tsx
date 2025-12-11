@@ -352,7 +352,7 @@ export default function AdminDashboard() {
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground font-medium">Top Product</p>
                     <p className="text-lg font-bold truncate">
-                      {topProducts[0]?.title.split(' ').slice(0, 2).join(' ')}
+                      {topProducts[0]?.title?.split(' ').slice(0, 2).join(' ') || 'N/A'}
                     </p>
                   </div>
                 </div>
