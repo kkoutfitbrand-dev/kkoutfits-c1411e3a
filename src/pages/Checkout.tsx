@@ -104,6 +104,8 @@ const Checkout = () => {
   const onAddressSubmit = async (data: AddressFormData) => {
     await new Promise(resolve => setTimeout(resolve, 500));
     
+    let newAddressId: string;
+    
     if (selectedAddressId) {
       // Editing existing address
       setSavedAddresses(prev =>
@@ -113,11 +115,13 @@ const Checkout = () => {
             : addr
         )
       );
+      newAddressId = selectedAddressId;
       toast({ title: "Address updated successfully" });
     } else {
       // Adding new address
+      newAddressId = Date.now().toString();
       const newAddress: SavedAddress = {
-        id: Date.now().toString(),
+        id: newAddressId,
         type: "Home",
         firstName: data.firstName,
         lastName: data.lastName,
@@ -133,7 +137,8 @@ const Checkout = () => {
     }
     
     setShowAddressForm(false);
-    setSelectedAddressId(null);
+    setSelectedAddressId(newAddressId);
+    setStep(2); // Move to payment step
   };
 
   const handleSelectAddress = (id: string) => {
