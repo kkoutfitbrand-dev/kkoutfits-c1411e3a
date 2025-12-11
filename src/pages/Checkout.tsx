@@ -224,10 +224,8 @@ const Checkout = () => {
     
     setPlacingOrder(true);
     try {
-      const orderId = `ORD-${Date.now().toString(36).toUpperCase()}`;
-      
-      // Create order in database
-      const { error: orderError } = await supabase
+      // Create order in database and get the ID
+      const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert([{
           user_id: user.id,
@@ -235,7 +233,9 @@ const Checkout = () => {
           total_cents: total * 100,
           shipping_address: (selectedAddress || {}) as unknown as import('@/integrations/supabase/types').Json,
           status: 'pending'
-        }]);
+        }])
+        .select('id')
+        .single();
 
       if (orderError) throw orderError;
 
@@ -245,10 +245,10 @@ const Checkout = () => {
         .update({ items: [] })
         .eq('user_id', user.id);
 
-      // Navigate to confirmation
+      // Navigate to confirmation with real order ID
       navigate('/order-confirmation', {
         state: {
-          orderId,
+          orderId: orderData.id,
           items: cartItems,
           total,
           shippingAddress: selectedAddress,
