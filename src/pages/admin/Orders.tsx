@@ -32,10 +32,11 @@ export default function AdminOrders() {
     setLoading(true);
     const { data, error } = await supabase
       .from('orders')
-      .select('*, profiles(name)')
+      .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
+      console.error('Orders fetch error:', error);
       toast({
         title: 'Error',
         description: 'Failed to fetch orders',
