@@ -142,12 +142,14 @@ const OrderConfirmation = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className="text-green-600 font-medium">FREE</span>
+                  <span className={`font-medium ${orderDetails.total > 999 ? 'text-green-600' : ''}`}>
+                    {orderDetails.total > 999 ? "FREE" : "₹99"}
+                  </span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between font-bold text-base">
                   <span>Total</span>
-                  <span>₹{orderDetails.total.toLocaleString()}</span>
+                  <span>₹{(orderDetails.total + (orderDetails.total > 999 ? 0 : 99)).toLocaleString()}</span>
                 </div>
               </div>
               <p className="text-xs text-muted-foreground mt-2">
