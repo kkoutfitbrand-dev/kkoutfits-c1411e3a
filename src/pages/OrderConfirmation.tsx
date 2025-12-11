@@ -44,17 +44,34 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const stateOrderDetails = location.state as OrderDetails | null;
+  const stateData = location.state as any;
   const orderIdFromUrl = searchParams.get('orderId');
   
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(stateOrderDetails);
-  const [loading, setLoading] = useState(!stateOrderDetails && !!orderIdFromUrl);
+  // Normalize state data if present
+  const normalizedStateDetails: OrderDetails | null = stateData ? {
+    orderId: stateData.orderId || '',
+    items: stateData.items || [],
+    total: stateData.total || 0,
+    shippingAddress: {
+      firstName: stateData.shippingAddress?.firstName || stateData.shippingAddress?.first_name || '',
+      lastName: stateData.shippingAddress?.lastName || stateData.shippingAddress?.last_name || '',
+      address: stateData.shippingAddress?.address || stateData.shippingAddress?.street || '',
+      city: stateData.shippingAddress?.city || '',
+      state: stateData.shippingAddress?.state || '',
+      pincode: stateData.shippingAddress?.pincode || stateData.shippingAddress?.zip || '',
+      phone: stateData.shippingAddress?.phone || stateData.shippingAddress?.mobile || ''
+    },
+    paymentMethod: stateData.paymentMethod || 'cod'
+  } : null;
+  
+  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(normalizedStateDetails);
+  const [loading, setLoading] = useState(!normalizedStateDetails && !!orderIdFromUrl);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch order from database if not passed via state
   useEffect(() => {
     const fetchOrder = async () => {
-      if (stateOrderDetails || !orderIdFromUrl || !user) return;
+      if (normalizedStateDetails || !orderIdFromUrl || !user) return;
       
       setLoading(true);
       try {
@@ -69,14 +86,17 @@ const OrderConfirmation = () => {
         
         if (data) {
           const items = (data.order_items as unknown as OrderItem[]) || [];
-          const address = (data.shipping_address as unknown as ShippingAddress) || {
-            firstName: '',
-            lastName: '',
-            address: '',
-            city: '',
-            state: '',
-            pincode: '',
-            phone: ''
+          const rawAddress = data.shipping_address as Record<string, any> || {};
+          
+          // Map database address format to our interface
+          const address: ShippingAddress = {
+            firstName: rawAddress.firstName || rawAddress.first_name || '',
+            lastName: rawAddress.lastName || rawAddress.last_name || '',
+            address: rawAddress.address || rawAddress.street || '',
+            city: rawAddress.city || '',
+            state: rawAddress.state || '',
+            pincode: rawAddress.pincode || rawAddress.zip || '',
+            phone: rawAddress.phone || rawAddress.mobile || ''
           };
           
           setOrderDetails({
@@ -84,7 +104,7 @@ const OrderConfirmation = () => {
             items,
             total: data.total_cents / 100,
             shippingAddress: address,
-            paymentMethod: (data as any).payment_method || 'cod',
+            paymentMethod: data.payment_method || 'cod',
             status: data.status || 'pending',
             createdAt: data.created_at || undefined
           });
@@ -100,7 +120,7 @@ const OrderConfirmation = () => {
     };
 
     fetchOrder();
-  }, [orderIdFromUrl, user, stateOrderDetails]);
+  }, [orderIdFromUrl, user, normalizedStateDetails]);
 
   // Redirect if no order details and no order ID to fetch
   if (!loading && !orderDetails && !orderIdFromUrl) {
