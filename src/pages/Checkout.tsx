@@ -492,7 +492,9 @@ const Checkout = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span className="font-medium text-green-600">FREE</span>
+                  <span className={`font-medium ${shipping === 0 ? 'text-green-600' : ''}`}>
+                    {shipping === 0 ? "FREE" : `₹${shipping}`}
+                  </span>
                 </div>
                 <Separator className="my-2" />
                 <div className="flex justify-between text-lg font-bold">
