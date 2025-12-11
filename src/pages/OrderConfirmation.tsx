@@ -139,7 +139,8 @@ const OrderConfirmation = () => {
   const estimatedDelivery = new Date();
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
 
-  const subtotal = orderDetails.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const items = orderDetails.items || [];
+  const subtotal = items.reduce((sum, item) => sum + ((item.price || 0) * (item.quantity || 1)), 0);
   const shipping = subtotal > 999 ? 0 : 99;
   const finalTotal = subtotal + shipping;
 
@@ -227,9 +228,9 @@ const OrderConfirmation = () => {
 
           {/* Items */}
           <div className="mb-6">
-            <h3 className="font-semibold mb-4">Order Items ({orderDetails.items.length})</h3>
+            <h3 className="font-semibold mb-4">Order Items ({items.length})</h3>
             <div className="space-y-4">
-              {orderDetails.items.map((item, index) => (
+              {items.map((item, index) => (
                 <div key={item.id || index} className="flex gap-4">
                   <img 
                     src={item.image || '/placeholder.svg'} 
