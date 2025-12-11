@@ -84,6 +84,7 @@ export type Database = {
           created_at: string | null
           id: string
           order_items: Json
+          payment_method: string | null
           shipping_address: Json
           status: string | null
           stripe_payment_intent_id: string | null
@@ -94,6 +95,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           order_items: Json
+          payment_method?: string | null
           shipping_address: Json
           status?: string | null
           stripe_payment_intent_id?: string | null
@@ -104,6 +106,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           order_items?: Json
+          payment_method?: string | null
           shipping_address?: Json
           status?: string | null
           stripe_payment_intent_id?: string | null

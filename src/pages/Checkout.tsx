@@ -232,7 +232,8 @@ const Checkout = () => {
           order_items: cartItems as unknown as import('@/integrations/supabase/types').Json,
           total_cents: total * 100,
           shipping_address: (selectedAddress || {}) as unknown as import('@/integrations/supabase/types').Json,
-          status: 'pending'
+          status: 'pending',
+          payment_method: paymentMethod
         }])
         .select('id')
         .single();

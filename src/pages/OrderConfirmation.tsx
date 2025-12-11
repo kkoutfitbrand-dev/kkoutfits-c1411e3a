@@ -84,7 +84,7 @@ const OrderConfirmation = () => {
             items,
             total: data.total_cents / 100,
             shippingAddress: address,
-            paymentMethod: 'cod', // Default, as we don't store this in DB yet
+            paymentMethod: (data as any).payment_method || 'cod',
             status: data.status || 'pending',
             createdAt: data.created_at || undefined
           });
