@@ -127,10 +127,10 @@ const OrderConfirmation = () => {
             <div>
               <h3 className="font-semibold mb-2">Shipping Address</h3>
               <p className="text-sm text-muted-foreground">
-                {orderDetails.shippingAddress.firstName} {orderDetails.shippingAddress.lastName}<br />
-                {orderDetails.shippingAddress.address}<br />
-                {orderDetails.shippingAddress.city}, {orderDetails.shippingAddress.state} - {orderDetails.shippingAddress.pincode}<br />
-                Phone: {orderDetails.shippingAddress.phone}
+                {orderDetails.shippingAddress?.firstName} {orderDetails.shippingAddress?.lastName}<br />
+                {orderDetails.shippingAddress?.address}<br />
+                {orderDetails.shippingAddress?.city}, {orderDetails.shippingAddress?.state} - {orderDetails.shippingAddress?.pincode}<br />
+                Phone: {orderDetails.shippingAddress?.phone}
               </p>
             </div>
 
