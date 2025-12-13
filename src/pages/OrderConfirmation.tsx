@@ -47,38 +47,47 @@ const OrderConfirmation = () => {
   const stateData = location.state as any;
   const orderIdFromUrl = searchParams.get('orderId');
   
-  // Normalize state data if present
-  const normalizedStateDetails: OrderDetails | null = stateData ? {
-    orderId: stateData.orderId || '',
-    items: stateData.items || [],
+  // Check if state data is valid (has orderId and items)
+  const hasValidStateData = stateData && stateData.orderId && Array.isArray(stateData.items) && stateData.items.length > 0;
+  
+  // Normalize state data if present and valid
+  const normalizedStateDetails: OrderDetails | null = hasValidStateData ? {
+    orderId: stateData.orderId,
+    items: stateData.items,
     total: stateData.total || 0,
     shippingAddress: {
-      firstName: stateData.shippingAddress?.firstName || stateData.shippingAddress?.first_name || '',
-      lastName: stateData.shippingAddress?.lastName || stateData.shippingAddress?.last_name || '',
-      address: stateData.shippingAddress?.address || stateData.shippingAddress?.street || '',
+      firstName: stateData.shippingAddress?.firstName || '',
+      lastName: stateData.shippingAddress?.lastName || '',
+      address: stateData.shippingAddress?.address || '',
       city: stateData.shippingAddress?.city || '',
       state: stateData.shippingAddress?.state || '',
-      pincode: stateData.shippingAddress?.pincode || stateData.shippingAddress?.zip || '',
-      phone: stateData.shippingAddress?.phone || stateData.shippingAddress?.mobile || ''
+      pincode: stateData.shippingAddress?.pincode || '',
+      phone: stateData.shippingAddress?.phone || ''
     },
     paymentMethod: stateData.paymentMethod || 'cod'
   } : null;
   
+  // Get order ID from state or URL
+  const orderId = stateData?.orderId || orderIdFromUrl;
+  
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(normalizedStateDetails);
-  const [loading, setLoading] = useState(!normalizedStateDetails && !!orderIdFromUrl);
+  const [loading, setLoading] = useState(!!orderId && !normalizedStateDetails);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch order from database if not passed via state
+  // Always fetch order from database to ensure we have the latest data
   useEffect(() => {
     const fetchOrder = async () => {
-      if (normalizedStateDetails || !orderIdFromUrl || !user) return;
+      if (!orderId || !user) return;
+      
+      // If we have valid state data, don't fetch
+      if (normalizedStateDetails) return;
       
       setLoading(true);
       try {
         const { data, error: fetchError } = await supabase
           .from('orders')
           .select('*')
-          .eq('id', orderIdFromUrl)
+          .eq('id', orderId)
           .eq('user_id', user.id)
           .maybeSingle();
 
@@ -90,13 +99,13 @@ const OrderConfirmation = () => {
           
           // Map database address format to our interface
           const address: ShippingAddress = {
-            firstName: rawAddress.firstName || rawAddress.first_name || '',
-            lastName: rawAddress.lastName || rawAddress.last_name || '',
-            address: rawAddress.address || rawAddress.street || '',
+            firstName: rawAddress.firstName || '',
+            lastName: rawAddress.lastName || '',
+            address: rawAddress.address || '',
             city: rawAddress.city || '',
             state: rawAddress.state || '',
-            pincode: rawAddress.pincode || rawAddress.zip || '',
-            phone: rawAddress.phone || rawAddress.mobile || ''
+            pincode: rawAddress.pincode || '',
+            phone: rawAddress.phone || ''
           };
           
           setOrderDetails({
@@ -120,10 +129,10 @@ const OrderConfirmation = () => {
     };
 
     fetchOrder();
-  }, [orderIdFromUrl, user, normalizedStateDetails]);
+  }, [orderId, user, normalizedStateDetails]);
 
   // Redirect if no order details and no order ID to fetch
-  if (!loading && !orderDetails && !orderIdFromUrl) {
+  if (!loading && !orderDetails && !orderId) {
     return <Navigate to="/" replace />;
   }
 
