@@ -86,14 +86,14 @@ export const Navigation = () => {
     await signOut();
     navigate('/');
   };
-  return <header className={`w-full border-b border-border bg-background/95 backdrop-blur-md sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
-      {/* Top Bar */}
-      <div className="border-b border-border bg-primary text-primary-foreground">
+  return <header className={`w-full border-b border-border bg-background/95 backdrop-blur-md sticky top-0 z-50 transition-all duration-500 ${isScrolled ? 'shadow-lg py-0' : 'py-1'}`}>
+      {/* Top Bar - hidden on scroll */}
+      <div className={`border-b border-border bg-primary text-primary-foreground transition-all duration-300 overflow-hidden ${isScrolled ? 'h-0 opacity-0' : 'h-auto opacity-100'}`}>
         
       </div>
 
       {/* Main Navigation */}
-      <div className={`container flex items-center justify-between px-4 transition-all duration-300 ${isScrolled ? 'h-14' : 'h-20'}`}>
+      <div className={`container flex items-center justify-between px-4 transition-all duration-500 ${isScrolled ? 'h-12' : 'h-16 md:h-20'}`}>
         {/* Mobile Menu */}
         <Sheet>
           <SheetTrigger asChild className="lg:hidden">
