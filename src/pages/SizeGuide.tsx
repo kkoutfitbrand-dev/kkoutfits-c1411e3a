@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SizeCalculator } from "@/components/SizeCalculator";
 
 const SizeGuide = () => {
   return (
@@ -12,6 +13,11 @@ const SizeGuide = () => {
         <p className="text-lg text-muted-foreground mb-8">
           Find your perfect fit with our comprehensive size guide
         </p>
+
+        {/* Size Calculator */}
+        <div className="mb-12">
+          <SizeCalculator />
+        </div>
 
         <Tabs defaultValue="shirt" className="space-y-8">
           <TabsList className="grid w-full grid-cols-4">
