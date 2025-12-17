@@ -63,8 +63,11 @@ const Wishlist = () => {
   const [sizeDialogOpen, setSizeDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<WishlistItem | null>(null);
   const [availableSizes, setAvailableSizes] = useState<string[]>([]);
+  const [availableColors, setAvailableColors] = useState<string[]>([]);
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const [loadingSizes, setLoadingSizes] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [loadingOptions, setLoadingOptions] = useState(false);
+  const [productVariants, setProductVariants] = useState<ProductVariant[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -112,7 +115,8 @@ const Wishlist = () => {
   const openSizeDialog = async (item: WishlistItem) => {
     setSelectedItem(item);
     setSelectedSize("");
-    setLoadingSizes(true);
+    setSelectedColor("");
+    setLoadingOptions(true);
     setSizeDialogOpen(true);
 
     try {
@@ -123,8 +127,20 @@ const Wishlist = () => {
 
       if (error) throw error;
 
+      const variantsData = variants as ProductVariant[];
+      setProductVariants(variantsData);
+
+      // Extract unique colors from variants
+      const colors = variantsData
+        .map(v => {
+          if (v.option1_name?.toLowerCase() === 'color') return v.option1_value;
+          if (v.option2_name?.toLowerCase() === 'color') return v.option2_value;
+          return null;
+        })
+        .filter((v, i, arr) => v && arr.indexOf(v) === i) as string[];
+
       // Extract unique sizes from variants
-      const sizes = (variants as ProductVariant[])
+      const sizes = variantsData
         .map(v => {
           if (v.option1_name?.toLowerCase() === 'size') return v.option1_value;
           if (v.option2_name?.toLowerCase() === 'size') return v.option2_value;
@@ -132,19 +148,43 @@ const Wishlist = () => {
         })
         .filter((v, i, arr) => v && arr.indexOf(v) === i) as string[];
 
+      setAvailableColors(colors);
       setAvailableSizes(sizes);
     } catch (error) {
-      console.error("Error fetching sizes:", error);
+      console.error("Error fetching options:", error);
       setAvailableSizes([]);
+      setAvailableColors([]);
     } finally {
-      setLoadingSizes(false);
+      setLoadingOptions(false);
     }
+  };
+
+  const getAvailableSizesForColor = (color: string): string[] => {
+    if (!color) return availableSizes;
+    return productVariants
+      .filter(v => {
+        const variantColor = v.option1_name?.toLowerCase() === 'color' ? v.option1_value : v.option2_value;
+        return variantColor === color;
+      })
+      .map(v => {
+        if (v.option1_name?.toLowerCase() === 'size') return v.option1_value;
+        if (v.option2_name?.toLowerCase() === 'size') return v.option2_value;
+        return null;
+      })
+      .filter((v, i, arr) => v && arr.indexOf(v) === i) as string[];
   };
 
   const moveToCart = async () => {
     if (!user || !selectedItem) return;
 
-    if (availableSizes.length > 0 && !selectedSize) {
+    const sizesForColor = selectedColor ? getAvailableSizesForColor(selectedColor) : availableSizes;
+    
+    if (availableColors.length > 0 && !selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
+
+    if (sizesForColor.length > 0 && !selectedSize) {
       toast.error("Please select a size");
       return;
     }
@@ -157,14 +197,14 @@ const Wishlist = () => {
       const price = salePrice || selectedItem.product.price_cents;
       
       const newCartItem = {
-        id: `${selectedItem.product.id}-${selectedSize}-${Date.now()}`,
+        id: `${selectedItem.product.id}-${selectedSize}-${selectedColor}-${Date.now()}`,
         productId: selectedItem.product.id,
         name: selectedItem.product.title,
         price: price / 100,
         image: getFirstImage(selectedItem.product.images),
         quantity: 1,
         size: selectedSize,
-        color: ""
+        color: selectedColor
       };
 
       // Fetch existing cart
@@ -200,7 +240,8 @@ const Wishlist = () => {
         .eq("id", selectedItem.id);
 
       setWishlistItems(items => items.filter(i => i.id !== selectedItem.id));
-      toast.success(`Moved to cart${selectedSize ? ` (Size: ${selectedSize})` : ""}`);
+      const details = [selectedColor, selectedSize].filter(Boolean).join(", ");
+      toast.success(`Moved to cart${details ? ` (${details})` : ""}`);
     } catch (error) {
       console.error("Error moving to cart:", error);
       toast.error("Failed to move to cart");
@@ -308,11 +349,11 @@ const Wishlist = () => {
         </div>
         <Footer />
 
-        {/* Size Selection Dialog */}
+        {/* Size & Color Selection Dialog */}
         <Dialog open={sizeDialogOpen} onOpenChange={setSizeDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Select Size</DialogTitle>
+              <DialogTitle>Select Options</DialogTitle>
             </DialogHeader>
             
             {selectedItem && (
@@ -331,37 +372,71 @@ const Wishlist = () => {
                   </div>
                 </div>
 
-                {loadingSizes ? (
+                {loadingOptions ? (
                   <div className="flex justify-center py-4">
                     <Loader2 className="w-6 h-6 animate-spin" />
                   </div>
-                ) : availableSizes.length > 0 ? (
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Choose Size</label>
-                    <div className="flex flex-wrap gap-2">
-                      {availableSizes.map(size => (
-                        <button
-                          key={size}
-                          onClick={() => setSelectedSize(size)}
-                          className={`min-w-[50px] h-10 px-4 rounded-lg border-2 font-semibold transition-all ${
-                            selectedSize === size
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-border hover:border-primary"
-                          }`}
-                        >
-                          {size}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 ) : (
-                  <p className="text-sm text-muted-foreground">No sizes available for this product.</p>
+                  <>
+                    {availableColors.length > 0 && (
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Choose Color</label>
+                        <div className="flex flex-wrap gap-2">
+                          {availableColors.map(color => (
+                            <button
+                              key={color}
+                              onClick={() => {
+                                setSelectedColor(color);
+                                setSelectedSize(""); // Reset size when color changes
+                              }}
+                              className={`min-w-[60px] h-10 px-4 rounded-lg border-2 font-semibold transition-all ${
+                                selectedColor === color
+                                  ? "border-primary bg-primary text-primary-foreground"
+                                  : "border-border hover:border-primary"
+                              }`}
+                            >
+                              {color}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {(() => {
+                      const sizesForColor = selectedColor ? getAvailableSizesForColor(selectedColor) : availableSizes;
+                      return sizesForColor.length > 0 ? (
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Choose Size</label>
+                          <div className="flex flex-wrap gap-2">
+                            {sizesForColor.map(size => (
+                              <button
+                                key={size}
+                                onClick={() => setSelectedSize(size)}
+                                className={`min-w-[50px] h-10 px-4 rounded-lg border-2 font-semibold transition-all ${
+                                  selectedSize === size
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-border hover:border-primary"
+                                }`}
+                              >
+                                {size}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      ) : availableSizes.length === 0 && availableColors.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No options available for this product.</p>
+                      ) : null;
+                    })()}
+                  </>
                 )}
 
                 <Button 
                   className="w-full" 
                   onClick={moveToCart}
-                  disabled={availableSizes.length > 0 && !selectedSize}
+                  disabled={
+                    (availableColors.length > 0 && !selectedColor) ||
+                    ((selectedColor ? getAvailableSizesForColor(selectedColor) : availableSizes).length > 0 && !selectedSize)
+                  }
                 >
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Add to Cart
