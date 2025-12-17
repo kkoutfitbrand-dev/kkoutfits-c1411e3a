@@ -1,4 +1,5 @@
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { Flame } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,11 +63,7 @@ export const TrendingProducts = () => {
       {loading ? (
         <div className="grid grid-cols-2 gap-4 md:gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="bg-muted aspect-[3/4] rounded-lg mb-2" />
-              <div className="bg-muted h-4 rounded mb-2" />
-              <div className="bg-muted h-4 w-2/3 rounded" />
-            </div>
+            <ProductCardSkeleton key={i} index={i} />
           ))}
         </div>
       ) : (

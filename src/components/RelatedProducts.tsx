@@ -1,4 +1,5 @@
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
@@ -57,11 +58,7 @@ export const RelatedProducts = () => {
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="bg-muted aspect-[3/4] rounded-lg mb-2" />
-              <div className="bg-muted h-4 rounded mb-2" />
-              <div className="bg-muted h-4 w-2/3 rounded" />
-            </div>
+            <ProductCardSkeleton key={i} index={i} />
           ))}
         </div>
       ) : (
