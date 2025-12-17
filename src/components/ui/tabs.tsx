@@ -12,7 +12,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-14 items-center justify-center bg-gradient-to-r from-card to-card/80 p-2 text-muted-foreground overflow-x-auto scrollbar-hide gap-2 border-b-2 border-border/30 w-full",
+      "inline-flex h-12 items-center justify-center rounded-full bg-muted/80 p-1 text-muted-foreground overflow-x-auto scrollbar-hide gap-1 shadow-inner border border-border/20",
       className,
     )}
     {...props}
@@ -27,7 +27,7 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "relative inline-flex items-center justify-center whitespace-nowrap px-6 py-3 text-sm font-semibold tracking-wide uppercase ring-offset-background transition-all duration-300 ease-out data-[state=active]:text-primary data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:h-0.5 data-[state=active]:after:w-full data-[state=active]:after:bg-primary data-[state=active]:after:rounded-full data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-full min-h-[48px] rounded-t-lg",
+      "group inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full px-5 py-2 text-sm font-medium ring-offset-background transition-all duration-300 ease-out data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:scale-[1.02] data-[state=inactive]:hover:text-foreground/80 data-[state=inactive]:hover:bg-background/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 w-full min-h-[40px] [&>svg]:transition-all [&>svg]:duration-300 [&>svg]:data-[state=active]:scale-110 [&>svg]:data-[state=active]:text-primary",
       className,
     )}
     {...props}
