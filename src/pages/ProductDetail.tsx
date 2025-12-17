@@ -695,7 +695,7 @@ const ProductDetail = () => {
               </div>
             </TabsContent>
             <TabsContent value="reviews" className="py-6">
-              <ProductReviews />
+              <ProductReviews productId={id || ""} />
             </TabsContent>
             <TabsContent value="qa" className="py-6">
               <ProductQA />
