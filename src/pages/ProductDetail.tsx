@@ -328,7 +328,7 @@ const ProductDetail = () => {
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
-          <div>
+          <div id="product-image-gallery">
             <div className="mb-4 rounded-lg overflow-hidden bg-muted relative group cursor-zoom-in" onClick={() => setIsZoomed(!isZoomed)}>
               <img 
                 src={productImages[selectedImage]} 
@@ -560,6 +560,7 @@ const ProductDetail = () => {
       {/* Sticky Add to Cart Bar */}
       <StickyAddToCart 
         triggerId="product-price"
+        hideTriggerId="product-image-gallery"
         productName={product.title} 
         productImage={productImages[0]} 
         price={displayPrice} 

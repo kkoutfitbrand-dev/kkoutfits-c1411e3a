@@ -17,6 +17,8 @@ interface StickyAddToCartProps {
   onAddToCart: () => void;
   /** Element id that controls when the bar should appear (appears when this element scrolls out of view) */
   triggerId?: string;
+  /** Element id that controls when the bar should disappear (disappears when this element is in view) */
+  hideTriggerId?: string;
 }
 
 export const StickyAddToCart = ({
@@ -31,45 +33,68 @@ export const StickyAddToCart = ({
   onQuantityChange,
   onAddToCart,
   triggerId,
+  hideTriggerId,
 }: StickyAddToCartProps) => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [triggerPassed, setTriggerPassed] = useState(false);
+  const [hideVisible, setHideVisible] = useState(true);
   const [mounted, setMounted] = useState(false);
+
+  const isVisible = triggerPassed && !hideVisible;
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   useEffect(() => {
-    // Preferred: show sticky bar only when the main action buttons are NOT visible.
+    const observers: IntersectionObserver[] = [];
+
+    // Observer for trigger element (show when scrolled past)
     if (triggerId) {
-      const el = document.getElementById(triggerId);
-      if (!el) return;
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          // If user can't see the main Add to Cart area, show the sticky bar.
-          setIsVisible(!entry.isIntersecting);
-        },
-        {
-          // A little buffer so it doesn't flicker at the edge
-          root: null,
-          threshold: 0.2,
-        }
-      );
-
-      observer.observe(el);
-      return () => observer.disconnect();
+      const triggerEl = document.getElementById(triggerId);
+      if (triggerEl) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            setTriggerPassed(!entry.isIntersecting);
+          },
+          { root: null, threshold: 0.2 }
+        );
+        observer.observe(triggerEl);
+        observers.push(observer);
+      }
     }
 
-    // Fallback: pixel-based scroll threshold
-    const handleScroll = () => {
-      setIsVisible(window.scrollY > 300);
-    };
+    // Observer for hide element (hide when visible)
+    if (hideTriggerId) {
+      const hideEl = document.getElementById(hideTriggerId);
+      if (hideEl) {
+        const observer = new IntersectionObserver(
+          ([entry]) => {
+            setHideVisible(entry.isIntersecting);
+          },
+          { root: null, threshold: 0.1 }
+        );
+        observer.observe(hideEl);
+        observers.push(observer);
+      }
+    } else {
+      setHideVisible(false);
+    }
 
-    handleScroll();
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [triggerId]);
+    // Fallback if no triggerId
+    if (!triggerId) {
+      const handleScroll = () => {
+        setTriggerPassed(window.scrollY > 300);
+      };
+      handleScroll();
+      window.addEventListener("scroll", handleScroll);
+      return () => {
+        window.removeEventListener("scroll", handleScroll);
+        observers.forEach(o => o.disconnect());
+      };
+    }
+
+    return () => observers.forEach(o => o.disconnect());
+  }, [triggerId, hideTriggerId]);
 
   if (!mounted) return null;
 
