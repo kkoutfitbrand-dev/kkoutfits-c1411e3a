@@ -463,7 +463,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 mb-6">
+            <div id="product-actions" className="flex gap-3 mb-6">
               <Button size="lg" className="flex-1" onClick={handleAddToCart} disabled={addingToCart}>
                 {addingToCart ? "Adding..." : "Add to Cart"}
               </Button>
@@ -559,6 +559,7 @@ const ProductDetail = () => {
 
       {/* Sticky Add to Cart Bar */}
       <StickyAddToCart 
+        triggerId="product-actions"
         productName={product.title} 
         productImage={productImages[0]} 
         price={displayPrice} 
