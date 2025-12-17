@@ -43,14 +43,35 @@ const Shop = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 100);
+      
+      // Calculate scroll progress
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (window.scrollY / totalHeight) * 100;
+      setScrollProgress(progress);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleCategoryClick = (categoryId: string) => {
+    setActiveCategory(categoryId);
+    // Smooth scroll to all products section
+    const allProductsSection = document.getElementById("all-products-section");
+    if (allProductsSection) {
+      const headerOffset = isScrolled ? 100 : 140;
+      const elementPosition = allProductsSection.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.scrollY - headerOffset;
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: "smooth"
+      });
+    }
+  };
 
   useEffect(() => {
     fetchProducts();
@@ -88,6 +109,13 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Scroll Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-primary z-[60] origin-left"
+        style={{ scaleX: scrollProgress / 100 }}
+        initial={{ scaleX: 0 }}
+      />
+
       {/* Custom Header */}
       <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border transition-all duration-300 ${isScrolled ? 'shadow-sm' : ''}`}>
         <div className="container mx-auto px-4">
@@ -218,7 +246,7 @@ const Shop = () => {
                 variant={activeCategory === cat.id ? "default" : "outline"}
                 size="sm"
                 className={`rounded-full whitespace-nowrap transition-all duration-300 ${isScrolled ? 'h-7 text-xs px-3' : ''}`}
-                onClick={() => setActiveCategory(cat.id)}
+                onClick={() => handleCategoryClick(cat.id)}
               >
                 <cat.icon className={`mr-1 transition-all duration-300 ${isScrolled ? 'h-3 w-3' : 'h-4 w-4'}`} />
                 {cat.name}
@@ -327,7 +355,7 @@ const Shop = () => {
 
       {/* All Products */}
       <ScrollReveal>
-        <section className="py-12 md:py-16">
+        <section id="all-products-section" className="py-12 md:py-16">
           <div className="container mx-auto px-4">
             <div className="flex items-center justify-between mb-8">
               <div>
