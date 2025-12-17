@@ -174,20 +174,29 @@ const Index = () => {
               <ScrollReveal key={category.title} delay={index * 0.05} direction="up">
                 <Link 
                   to={category.link} 
-                  className="group relative overflow-hidden rounded-xl bg-card border border-border/50 hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:-translate-y-1"
+                  className="group relative overflow-hidden rounded-xl bg-card shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
                 >
                   <div className="aspect-square overflow-hidden">
                     <img
                       src={category.image}
                       alt={category.title}
-                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
-                    <span className="text-sm md:text-base font-semibold text-white drop-shadow-2xl tracking-wide uppercase">
-                      {category.title}
-                    </span>
+                  {/* Elegant gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-all duration-300" />
+                  {/* Professional text with border accent */}
+                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 border-t border-white/20">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm md:text-base font-bold text-white uppercase tracking-widest">
+                        {category.title}
+                      </h3>
+                      <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </span>
+                    </div>
                   </div>
                 </Link>
               </ScrollReveal>
