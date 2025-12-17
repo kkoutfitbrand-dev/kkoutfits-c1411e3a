@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useWishlist } from "@/hooks/useWishlist";
+import { useProductRating } from "@/hooks/useProductRatings";
 
 interface ProductCardProps {
   id: string;
@@ -12,7 +13,6 @@ interface ProductCardProps {
   originalPrice?: number;
   image: string;
   badge?: string;
-  rating?: number;
   category?: string | null;
   productId?: string;
 }
@@ -39,13 +39,13 @@ export const ProductCard = ({
   originalPrice,
   image,
   badge,
-  rating = 4.2,
   category,
   productId,
 }: ProductCardProps) => {
   const { isInWishlist, toggleWishlist, loading } = useWishlist();
   const actualProductId = productId || id;
   const inWishlist = isInWishlist(actualProductId);
+  const { rating: productRating } = useProductRating(actualProductId);
   
   const discount = originalPrice
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
@@ -108,13 +108,23 @@ export const ProductCard = ({
             <h3 className="font-medium text-sm mb-1 line-clamp-2 text-foreground">
               {name}
             </h3>
-            <div className="flex items-center gap-1 mb-2">
-              <div className="flex items-center gap-0.5 bg-myntra-green text-white text-xs font-bold px-1.5 py-0.5 rounded-sm">
-                <span>{rating}</span>
-                <Star className="h-2.5 w-2.5 fill-current" />
+            {productRating.review_count > 0 ? (
+              <div className="flex items-center gap-1 mb-2">
+                <div className="flex items-center gap-0.5 bg-myntra-green text-white text-xs font-bold px-1.5 py-0.5 rounded-sm">
+                  <span>{productRating.average_rating}</span>
+                  <Star className="h-2.5 w-2.5 fill-current" />
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  ({productRating.review_count >= 1000 
+                    ? `${(productRating.review_count / 1000).toFixed(1)}k` 
+                    : productRating.review_count})
+                </span>
               </div>
-              <span className="text-xs text-muted-foreground">(2.3k)</span>
-            </div>
+            ) : (
+              <div className="flex items-center gap-1 mb-2">
+                <span className="text-xs text-muted-foreground">No reviews yet</span>
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold text-foreground">
                 ₹{price.toLocaleString("en-IN")}
