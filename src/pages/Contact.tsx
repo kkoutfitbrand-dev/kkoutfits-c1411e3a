@@ -9,7 +9,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
@@ -17,12 +16,20 @@ const contactSchema = z.object({
   subject: z.string().trim().min(1, "Subject is required").max(200, "Subject must be less than 200 characters"),
   message: z.string().trim().min(10, "Message must be at least 10 characters").max(2000, "Message must be less than 2000 characters")
 });
-
 type ContactFormData = z.infer<typeof contactSchema>;
-
 const Contact = () => {
-  const { toast } = useToast();
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ContactFormData>({
+  const {
+    toast
+  } = useToast();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: {
+      errors,
+      isSubmitting
+    }
+  } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
       name: "",
@@ -32,20 +39,16 @@ const Contact = () => {
       message: ""
     }
   });
-
   const onSubmit = async (data: ContactFormData) => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
     toast({
       title: "Message Sent!",
-      description: "We'll get back to you within 24 hours.",
+      description: "We'll get back to you within 24 hours."
     });
     reset();
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Section */}
@@ -66,69 +69,32 @@ const Contact = () => {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  {...register('name')}
-                  placeholder="Enter your name"
-                  className="mt-2"
-                />
-                {errors.name && (
-                  <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
-                )}
+                <Input id="name" {...register('name')} placeholder="Enter your name" className="mt-2" />
+                {errors.name && <p className="text-sm text-destructive mt-1">{errors.name.message}</p>}
               </div>
 
               <div>
                 <Label htmlFor="email">Email Address *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register('email')}
-                  placeholder="your.email@example.com"
-                  className="mt-2"
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
-                )}
+                <Input id="email" type="email" {...register('email')} placeholder="your.email@example.com" className="mt-2" />
+                {errors.email && <p className="text-sm text-destructive mt-1">{errors.email.message}</p>}
               </div>
 
               <div>
                 <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  {...register('phone')}
-                  placeholder="+91 XXXXX XXXXX"
-                  className="mt-2"
-                />
-                {errors.phone && (
-                  <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>
-                )}
+                <Input id="phone" type="tel" {...register('phone')} placeholder="+91 XXXXX XXXXX" className="mt-2" />
+                {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>}
               </div>
 
               <div>
                 <Label htmlFor="subject">Subject *</Label>
-                <Input
-                  id="subject"
-                  {...register('subject')}
-                  placeholder="How can we help?"
-                  className="mt-2"
-                />
-                {errors.subject && (
-                  <p className="text-sm text-destructive mt-1">{errors.subject.message}</p>
-                )}
+                <Input id="subject" {...register('subject')} placeholder="How can we help?" className="mt-2" />
+                {errors.subject && <p className="text-sm text-destructive mt-1">{errors.subject.message}</p>}
               </div>
 
               <div>
                 <Label htmlFor="message">Message *</Label>
-                <Textarea
-                  id="message"
-                  {...register('message')}
-                  placeholder="Tell us more about your inquiry..."
-                  className="mt-2 min-h-[150px]"
-                />
-                {errors.message && (
-                  <p className="text-sm text-destructive mt-1">{errors.message.message}</p>
-                )}
+                <Textarea id="message" {...register('message')} placeholder="Tell us more about your inquiry..." className="mt-2 min-h-[150px]" />
+                {errors.message && <p className="text-sm text-destructive mt-1">{errors.message.message}</p>}
               </div>
 
               <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
@@ -149,8 +115,8 @@ const Contact = () => {
                 </div>
                 <div>
                   <h3 className="font-semibold mb-1">Phone</h3>
-                  <p className="text-muted-foreground">+91 98765 43210</p>
-                  <p className="text-muted-foreground">+91 98765 43211 (WhatsApp)</p>
+                  <p className="text-muted-foreground">+91 87146 59465</p>
+                  <p className="text-muted-foreground">+91 87146 59465 (WhatsApp)</p>
                 </div>
               </div>
 
@@ -198,8 +164,6 @@ const Contact = () => {
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Contact;
