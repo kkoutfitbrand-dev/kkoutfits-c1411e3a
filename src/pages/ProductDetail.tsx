@@ -487,7 +487,32 @@ const ProductDetail = () => {
               >
                 <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={async () => {
+                  const shareData = {
+                    title: product?.title || 'Check out this product',
+                    text: `Check out ${product?.title} at KK Outfits!`,
+                    url: window.location.href,
+                  };
+                  
+                  if (navigator.share) {
+                    try {
+                      await navigator.share(shareData);
+                    } catch (err) {
+                      // User cancelled or share failed
+                    }
+                  } else {
+                    // Fallback: copy URL to clipboard
+                    await navigator.clipboard.writeText(window.location.href);
+                    toast({
+                      title: "Link copied!",
+                      description: "Product link copied to clipboard",
+                    });
+                  }
+                }}
+              >
                 <Share2 className="h-5 w-5" />
               </Button>
             </div>
