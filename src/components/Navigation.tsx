@@ -1,5 +1,5 @@
 import { Search, Heart, ShoppingBag, User, Menu, LogOut, UserCircle, Users, Shirt, Briefcase, Tag, Shield, Home } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -65,6 +65,13 @@ export const Navigation = () => {
     isAdmin
   } = useUserRole();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const isActiveTab = (link: string) => {
+    if (link === '/') return location.pathname === '/';
+    return location.pathname.startsWith(link);
+  };
+  
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -178,16 +185,17 @@ export const Navigation = () => {
           <div className="flex items-center gap-1 md:gap-2 h-14 md:h-12 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-1 md:justify-center -mx-2 md:mx-0">
             {mainTabs.map(tab => {
             const Icon = tab.icon;
+            const isActive = isActiveTab(tab.link);
             return <Link 
               key={tab.label} 
               to={tab.link} 
               className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm font-medium whitespace-nowrap transition-all duration-300 snap-center shrink-0 px-3 md:px-5 py-2 md:py-2.5 rounded-full ${
-                tab.label === "MEN" 
-                  ? "bg-background/90 text-foreground shadow-lg shadow-primary/10 border border-white/30 scale-[1.02]" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+                isActive 
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
-              <Icon className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-all duration-300 ${tab.label === "MEN" ? "scale-110 text-primary" : ""}`} />
+              <Icon className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-all duration-300 ${isActive ? "scale-110" : ""}`} />
               {tab.label}
             </Link>;
           })}
