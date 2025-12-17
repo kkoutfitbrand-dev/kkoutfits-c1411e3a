@@ -147,7 +147,7 @@ const CategoryPage = () => {
                   <ProductCardSkeleton key={i} index={i} />
                 ))}
               </div> : sortedProducts.length > 0 ? viewMode === "grid" ? <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in">
-                  {sortedProducts.map(product => <ProductCard key={product.id} id={product.slug} name={product.title} price={product.price_cents / 100} image={getFirstImage(product.images)} category={product.category} />)}
+                  {sortedProducts.map(product => <ProductCard key={product.id} id={product.slug} productId={product.id} name={product.title} price={product.price_cents / 100} image={getFirstImage(product.images)} category={product.category} />)}
                 </div> : <div className="space-y-4 animate-fade-in">
                   {sortedProducts.map(product => <div key={product.id} className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
                       <img src={getFirstImage(product.images)} alt={product.title} className="w-32 h-32 object-cover rounded-md flex-shrink-0" />

@@ -116,7 +116,8 @@ const Sale = () => {
               {products.map((product) => (
                 <ProductCard
                   key={product.id}
-                  id={product.id}
+                  id={product.slug}
+                  productId={product.id}
                   name={product.title}
                   price={product.price_cents / 100}
                   originalPrice={getOriginalPrice(product.variants)}
