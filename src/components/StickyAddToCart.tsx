@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, Minus, Plus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +33,11 @@ export const StickyAddToCart = ({
   triggerId,
 }: StickyAddToCartProps) => {
   const [isVisible, setIsVisible] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // Preferred: show sticky bar only when the main action buttons are NOT visible.
@@ -65,7 +71,9 @@ export const StickyAddToCart = ({
     return () => window.removeEventListener("scroll", handleScroll);
   }, [triggerId]);
 
-  return (
+  if (!mounted) return null;
+
+  const stickyBar = (
     <AnimatePresence>
       {isVisible && (
         <motion.div
@@ -78,7 +86,7 @@ export const StickyAddToCart = ({
           <div className="container px-4 py-3">
             <div className="flex items-center gap-4">
               {/* Product Image & Name */}
-              <motion.div 
+              <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
@@ -101,7 +109,7 @@ export const StickyAddToCart = ({
               </motion.div>
 
               {/* Size Selector */}
-              <motion.div 
+              <motion.div
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.15 }}
@@ -131,7 +139,7 @@ export const StickyAddToCart = ({
               </motion.div>
 
               {/* Quantity Selector - Hidden on mobile */}
-              <motion.div 
+              <motion.div
                 initial={{ y: 10, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -162,9 +170,9 @@ export const StickyAddToCart = ({
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.25 }}
               >
-                <Button 
-                  onClick={onAddToCart} 
-                  className="gap-2 whitespace-nowrap shadow-lg hover:shadow-xl transition-all hover:scale-105" 
+                <Button
+                  onClick={onAddToCart}
+                  className="gap-2 whitespace-nowrap shadow-lg hover:shadow-xl transition-all hover:scale-105"
                   size="lg"
                 >
                   <ShoppingBag className="h-4 w-4" />
@@ -178,4 +186,6 @@ export const StickyAddToCart = ({
       )}
     </AnimatePresence>
   );
+
+  return createPortal(stickyBar, document.body);
 };
