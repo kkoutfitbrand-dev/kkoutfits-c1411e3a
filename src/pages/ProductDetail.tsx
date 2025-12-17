@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useWishlist } from "@/hooks/useWishlist";
 import { ProductReviews } from "@/components/ProductReviews";
 import { ProductQA } from "@/components/ProductQA";
 import { RelatedProducts } from "@/components/RelatedProducts";
@@ -58,6 +59,7 @@ const ProductDetail = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isInWishlist, toggleWishlist, loading: wishlistLoading } = useWishlist();
   
   const [product, setProduct] = useState<Product | null>(null);
   const [variants, setVariants] = useState<Variant[]>([]);
@@ -299,12 +301,21 @@ const ProductDetail = () => {
     }
   };
   
-  const handleAddToWishlist = () => {
-    toast({
-      title: "Added to wishlist!",
-      description: product.title
-    });
+  const handleAddToWishlist = async () => {
+    if (!user) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to add items to wishlist",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+    await toggleWishlist(product.id, product.title);
   };
+
+  const inWishlist = product ? isInWishlist(product.id) : false;
+
   return <div className="min-h-screen bg-background">
       <Navigation />
       
@@ -467,8 +478,14 @@ const ProductDetail = () => {
               <Button size="lg" className="flex-1" onClick={handleAddToCart} disabled={addingToCart}>
                 {addingToCart ? "Adding..." : "Add to Cart"}
               </Button>
-              <Button size="lg" variant="outline" onClick={handleAddToWishlist}>
-                <Heart className="h-5 w-5" />
+              <Button 
+                size="lg" 
+                variant="outline" 
+                onClick={handleAddToWishlist}
+                disabled={wishlistLoading}
+                className={inWishlist ? "bg-red-500 text-white border-red-500 hover:bg-red-600 hover:text-white" : ""}
+              >
+                <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
               </Button>
               <Button size="lg" variant="outline">
                 <Share2 className="h-5 w-5" />

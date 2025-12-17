@@ -1,8 +1,9 @@
-import { Star } from "lucide-react";
+import { Star, Heart } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { useWishlist } from "@/hooks/useWishlist";
 
 interface ProductCardProps {
   id: string;
@@ -13,6 +14,7 @@ interface ProductCardProps {
   badge?: string;
   rating?: number;
   category?: string | null;
+  productId?: string;
 }
 
 const getCategoryColor = (category: string | null | undefined): string => {
@@ -39,10 +41,21 @@ export const ProductCard = ({
   badge,
   rating = 4.2,
   category,
+  productId,
 }: ProductCardProps) => {
+  const { isInWishlist, toggleWishlist, loading } = useWishlist();
+  const actualProductId = productId || id;
+  const inWishlist = isInWishlist(actualProductId);
+  
   const discount = originalPrice
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : 0;
+
+  const handleWishlistClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    await toggleWishlist(actualProductId, name);
+  };
 
   return (
     <Link to={`/product/${id}`} className="group block">
@@ -65,8 +78,19 @@ export const ProductCard = ({
                 {badge}
               </Badge>
             )}
+            <button
+              onClick={handleWishlistClick}
+              disabled={loading}
+              className={`absolute top-2 right-2 p-2 rounded-full transition-all ${
+                inWishlist 
+                  ? "bg-red-500 text-white" 
+                  : "bg-background/80 text-foreground hover:bg-background"
+              }`}
+            >
+              <Heart className={`h-4 w-4 ${inWishlist ? "fill-current" : ""}`} />
+            </button>
             {category && (
-              <Badge className={`absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-sm border-0 ${getCategoryColor(category)}`}>
+              <Badge className={`absolute bottom-10 right-2 text-xs font-medium px-2 py-1 rounded-sm border-0 ${getCategoryColor(category)}`}>
                 {category.charAt(0).toUpperCase() + category.slice(1)}
               </Badge>
             )}
