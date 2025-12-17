@@ -114,15 +114,7 @@ export const Navigation = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          {categories.slice(0, 5).map(category => (
-            <Link 
-              key={category} 
-              to={`/category/${category.toLowerCase().replace(/\s+/g, '-')}`}
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              {category}
-            </Link>
-          ))}
+          {categories.slice(0, 5).map(category => {})}
         </nav>
 
         {/* Right Icons */}
