@@ -14,6 +14,8 @@ interface StickyAddToCartProps {
   quantity: number;
   onQuantityChange: (qty: number) => void;
   onAddToCart: () => void;
+  /** Element id that controls when the bar should appear (appears when this element scrolls out of view) */
+  triggerId?: string;
 }
 
 export const StickyAddToCart = ({
@@ -27,18 +29,41 @@ export const StickyAddToCart = ({
   quantity,
   onQuantityChange,
   onAddToCart,
+  triggerId,
 }: StickyAddToCartProps) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Preferred: show sticky bar only when the main action buttons are NOT visible.
+    if (triggerId) {
+      const el = document.getElementById(triggerId);
+      if (!el) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          // If user can't see the main Add to Cart area, show the sticky bar.
+          setIsVisible(!entry.isIntersecting);
+        },
+        {
+          // A little buffer so it doesn't flicker at the edge
+          root: null,
+          threshold: 0.2,
+        }
+      );
+
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
+
+    // Fallback: pixel-based scroll threshold
     const handleScroll = () => {
-      // Show sticky bar when scrolled past 300px
       setIsVisible(window.scrollY > 300);
     };
 
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [triggerId]);
 
   return (
     <AnimatePresence>
