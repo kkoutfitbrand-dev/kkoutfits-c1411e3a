@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Search, Heart, ShoppingBag, User, Menu, LogOut, UserCircle, Users, Shirt, Briefcase, Tag, Shield, Home } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,15 @@ export const Navigation = () => {
   } = useUserRole();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   const isActiveTab = (link: string) => {
     if (link === '/') return location.pathname === '/';
@@ -76,14 +86,14 @@ export const Navigation = () => {
     await signOut();
     navigate('/');
   };
-  return <header className="w-full border-b border-border bg-background">
+  return <header className={`w-full border-b border-border bg-background/95 backdrop-blur-md sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'shadow-md' : ''}`}>
       {/* Top Bar */}
       <div className="border-b border-border bg-primary text-primary-foreground">
         
       </div>
 
       {/* Main Navigation */}
-      <div className="container flex h-20 items-center justify-between px-4">
+      <div className={`container flex items-center justify-between px-4 transition-all duration-300 ${isScrolled ? 'h-14' : 'h-20'}`}>
         {/* Mobile Menu */}
         <Sheet>
           <SheetTrigger asChild className="lg:hidden">
