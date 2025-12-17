@@ -10,7 +10,6 @@ import { useParams } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
-
 interface Product {
   id: string;
   title: string;
@@ -19,42 +18,39 @@ interface Product {
   slug: string;
   category: string | null;
 }
-
 const getFirstImage = (images: Json): string => {
   if (Array.isArray(images) && images.length > 0) {
     return images[0] as string;
   }
   return '/placeholder.svg';
 };
-
 const CategoryPage = () => {
-  const { category } = useParams();
+  const {
+    category
+  } = useParams();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [sortBy, setSortBy] = useState("popularity");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  
   useEffect(() => {
     fetchProducts();
   }, [category]);
-
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      let query = supabase
-        .from('products')
-        .select('id, title, price_cents, images, slug, category')
-        .eq('status', 'published')
-        .order('created_at', { ascending: false });
+      let query = supabase.from('products').select('id, title, price_cents, images, slug, category').eq('status', 'published').order('created_at', {
+        ascending: false
+      });
 
       // Filter by category if provided
       if (category) {
         query = query.eq('category', category);
       }
-
-      const { data, error } = await query;
-
+      const {
+        data,
+        error
+      } = await query;
       if (error) throw error;
       setProducts(data || []);
     } catch (error) {
@@ -63,7 +59,7 @@ const CategoryPage = () => {
       setLoading(false);
     }
   };
-  
+
   // Filter products based on price
   const filteredProducts = useMemo(() => {
     return products.filter(product => {
@@ -86,19 +82,13 @@ const CategoryPage = () => {
         return sorted;
     }
   }, [filteredProducts, sortBy]);
-
   const handleClearFilters = () => {
     setPriceRange([0, 20000]);
   };
-
   const getCategoryTitle = () => {
-    return category?.split('-').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ') || 'Products';
+    return category?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') || 'Products';
   };
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container px-4 py-8 md:py-12">
@@ -126,13 +116,7 @@ const CategoryPage = () => {
                 {/* Price Range */}
                 <div className="mb-6 pb-6 border-b border-border">
                   <h3 className="font-semibold mb-4">Price Range</h3>
-                  <Slider
-                    value={priceRange}
-                    onValueChange={setPriceRange}
-                    max={20000}
-                    step={100}
-                    className="mb-4"
-                  />
+                  <Slider value={priceRange} onValueChange={setPriceRange} max={20000} step={100} className="mb-4" />
                   <div className="flex justify-between text-sm">
                     <span>₹{priceRange[0].toLocaleString()}</span>
                     <span>₹{priceRange[1].toLocaleString()}</span>
@@ -154,77 +138,20 @@ const CategoryPage = () => {
           {/* Products Grid */}
           <div>
             {/* Sort and View Options */}
-            <div className="flex items-center justify-between mb-6">
-              <p className="text-sm text-muted-foreground">
-                {sortedProducts.length} products found
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="flex border border-border rounded-lg p-1">
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("grid")}
-                    className="h-8 px-3"
-                  >
-                    <Grid2x2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("list")}
-                    className="h-8 px-3"
-                  >
-                    <List className="h-4 w-4" />
-                  </Button>
-                </div>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="popularity">Most Popular</SelectItem>
-                    <SelectItem value="newest">Newest First</SelectItem>
-                    <SelectItem value="price-low">Price: Low to High</SelectItem>
-                    <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            
 
             {/* Products Display */}
-            {loading ? (
-              <div className="grid grid-cols-2 gap-4 md:gap-6">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="animate-pulse">
+            {loading ? <div className="grid grid-cols-2 gap-4 md:gap-6">
+                {[...Array(6)].map((_, i) => <div key={i} className="animate-pulse">
                     <div className="bg-muted aspect-[3/4] rounded-lg mb-2" />
                     <div className="bg-muted h-4 rounded mb-2" />
                     <div className="bg-muted h-4 w-2/3 rounded" />
-                  </div>
-                ))}
-              </div>
-            ) : sortedProducts.length > 0 ? (
-              viewMode === "grid" ? (
-                <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in">
-                  {sortedProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      id={product.slug}
-                      name={product.title}
-                      price={product.price_cents / 100}
-                      image={getFirstImage(product.images)}
-                      category={product.category}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-4 animate-fade-in">
-                  {sortedProducts.map((product) => (
-                    <div key={product.id} className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
-                      <img
-                        src={getFirstImage(product.images)}
-                        alt={product.title}
-                        className="w-32 h-32 object-cover rounded-md flex-shrink-0"
-                      />
+                  </div>)}
+              </div> : sortedProducts.length > 0 ? viewMode === "grid" ? <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in">
+                  {sortedProducts.map(product => <ProductCard key={product.id} id={product.slug} name={product.title} price={product.price_cents / 100} image={getFirstImage(product.images)} category={product.category} />)}
+                </div> : <div className="space-y-4 animate-fade-in">
+                  {sortedProducts.map(product => <div key={product.id} className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
+                      <img src={getFirstImage(product.images)} alt={product.title} className="w-32 h-32 object-cover rounded-md flex-shrink-0" />
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <div className="flex items-start justify-between mb-2">
@@ -235,33 +162,23 @@ const CategoryPage = () => {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button 
-                            onClick={() => window.location.href = `/product/${product.slug}`}
-                            className="flex-1"
-                          >
+                          <Button onClick={() => window.location.href = `/product/${product.slug}`} className="flex-1">
                             View Details
                           </Button>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )
-            ) : (
-              <div className="text-center py-12">
+                    </div>)}
+                </div> : <div className="text-center py-12">
                 <p className="text-muted-foreground text-lg mb-4">
                   No products found matching your filters
                 </p>
                 <Button onClick={handleClearFilters}>Clear Filters</Button>
-              </div>
-            )}
+              </div>}
           </div>
         </div>
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default CategoryPage;
