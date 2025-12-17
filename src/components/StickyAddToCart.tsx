@@ -32,8 +32,8 @@ export const StickyAddToCart = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show sticky bar when scrolled past 600px (approximately past the main add to cart button)
-      setIsVisible(window.scrollY > 600);
+      // Show sticky bar when scrolled past 300px
+      setIsVisible(window.scrollY > 300);
     };
 
     window.addEventListener("scroll", handleScroll);
