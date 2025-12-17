@@ -8,6 +8,7 @@ import { DealsBanner } from "@/components/DealsBanner";
 import { BrandShowcase } from "@/components/BrandShowcase";
 import { PromotionalBanner } from "@/components/PromotionalBanner";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { BackToTop } from "@/components/BackToTop";
 import { ProductGridSkeleton, CategoryGridSkeleton } from "@/components/HomeSkeleton";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -229,6 +230,7 @@ const Index = () => {
       </ScrollReveal>
 
       <Footer />
+      <BackToTop />
     </div>
   );
 };
