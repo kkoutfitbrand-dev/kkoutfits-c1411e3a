@@ -6,7 +6,8 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check } from "lucide-react";
+import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check, Copy, MessageCircle } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { useWishlist } from "@/hooks/useWishlist";
 import { ProductReviews } from "@/components/ProductReviews";
@@ -487,34 +488,68 @@ const ProductDetail = () => {
               >
                 <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                onClick={async () => {
-                  const shareData = {
-                    title: product?.title || 'Check out this product',
-                    text: `Check out ${product?.title} at KK Outfits!`,
-                    url: window.location.href,
-                  };
-                  
-                  if (navigator.share) {
-                    try {
-                      await navigator.share(shareData);
-                    } catch (err) {
-                      // User cancelled or share failed
-                    }
-                  } else {
-                    // Fallback: copy URL to clipboard
-                    await navigator.clipboard.writeText(window.location.href);
-                    toast({
-                      title: "Link copied!",
-                      description: "Product link copied to clipboard",
-                    });
-                  }
-                }}
-              >
-                <Share2 className="h-5 w-5" />
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button size="lg" variant="outline">
+                    <Share2 className="h-5 w-5" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-56 p-2" align="end">
+                  <div className="grid gap-1">
+                    <p className="text-sm font-medium px-2 py-1.5 text-muted-foreground">Share via</p>
+                    <button
+                      onClick={() => {
+                        const url = encodeURIComponent(window.location.href);
+                        const text = encodeURIComponent(`Check out ${product?.title} at KK Outfits!`);
+                        window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+                      }}
+                      className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted transition-colors text-left"
+                    >
+                      <MessageCircle className="h-4 w-4 text-green-500" />
+                      <span className="text-sm">WhatsApp</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const url = encodeURIComponent(window.location.href);
+                        window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+                      }}
+                      className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted transition-colors text-left"
+                    >
+                      <svg className="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                      <span className="text-sm">Facebook</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const url = encodeURIComponent(window.location.href);
+                        const text = encodeURIComponent(`Check out ${product?.title} at KK Outfits!`);
+                        window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank', 'width=600,height=400');
+                      }}
+                      className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted transition-colors text-left"
+                    >
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                      </svg>
+                      <span className="text-sm">X (Twitter)</span>
+                    </button>
+                    <div className="border-t border-border my-1" />
+                    <button
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(window.location.href);
+                        toast({
+                          title: "Link copied!",
+                          description: "Product link copied to clipboard",
+                        });
+                      }}
+                      className="flex items-center gap-3 px-2 py-2 rounded-md hover:bg-muted transition-colors text-left"
+                    >
+                      <Copy className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">Copy link</span>
+                    </button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
 
             {/* Features */}
