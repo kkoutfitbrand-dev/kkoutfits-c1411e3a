@@ -25,6 +25,7 @@ import Search from "./pages/Search";
 import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import Sale from "./pages/Sale";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import AdminCategories from "./pages/admin/Categories";
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/faq" element={<FAQ />} />
             <Route path="/search" element={<Search />} />
             <Route path="/track-order" element={<TrackOrder />} />
+            <Route path="/sale" element={<Sale />} />
             <Route path="/admin/dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
             <Route path="/admin/products" element={<AdminRoute><AdminProducts /></AdminRoute>} />
             <Route path="/admin/categories" element={<AdminRoute><AdminCategories /></AdminRoute>} />

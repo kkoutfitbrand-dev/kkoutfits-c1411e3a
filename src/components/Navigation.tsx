@@ -1,4 +1,4 @@
-import { Search, Heart, ShoppingBag, User, Menu, LogOut, UserCircle, Users, Shirt, Briefcase, Tag, Shield } from "lucide-react";
+import { Search, Heart, ShoppingBag, User, Menu, LogOut, UserCircle, Users, Shirt, Briefcase, Tag, Shield, Home } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,10 @@ const moreLinks = [{
   link: "/track-order"
 }];
 const mainTabs = [{
+  label: "HOME",
+  link: "/",
+  icon: Home
+}, {
   label: "MEN",
   link: "/category/men",
   icon: UserCircle
