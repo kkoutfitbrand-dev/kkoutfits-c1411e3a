@@ -56,14 +56,14 @@ export const RelatedProducts = () => {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto">
           {[...Array(4)].map((_, i) => (
             <ProductCardSkeleton key={i} index={i} />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {relatedProducts.map((product) => (
+        <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto">
+          {relatedProducts.slice(0, 4).map((product) => (
             <ProductCard 
               key={product.id}
               id={product.slug}
