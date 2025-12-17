@@ -1,6 +1,7 @@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
@@ -142,11 +143,9 @@ const CategoryPage = () => {
 
             {/* Products Display */}
             {loading ? <div className="grid grid-cols-2 gap-4 md:gap-6">
-                {[...Array(6)].map((_, i) => <div key={i} className="animate-pulse">
-                    <div className="bg-muted aspect-[3/4] rounded-lg mb-2" />
-                    <div className="bg-muted h-4 rounded mb-2" />
-                    <div className="bg-muted h-4 w-2/3 rounded" />
-                  </div>)}
+                {[...Array(6)].map((_, i) => (
+                  <ProductCardSkeleton key={i} index={i} />
+                ))}
               </div> : sortedProducts.length > 0 ? viewMode === "grid" ? <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in">
                   {sortedProducts.map(product => <ProductCard key={product.id} id={product.slug} name={product.title} price={product.price_cents / 100} image={getFirstImage(product.images)} category={product.category} />)}
                 </div> : <div className="space-y-4 animate-fade-in">

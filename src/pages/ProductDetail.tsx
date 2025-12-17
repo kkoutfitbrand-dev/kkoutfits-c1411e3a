@@ -16,6 +16,7 @@ import { PincodeChecker } from "@/components/PincodeChecker";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
 import { ProductOffers } from "@/components/ProductOffers";
 import { RatingSummary } from "@/components/RatingSummary";
+import { ProductDetailSkeleton } from "@/components/ProductDetailSkeleton";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -173,9 +174,7 @@ const ProductDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container px-4 py-16 text-center">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+        <ProductDetailSkeleton />
         <Footer />
       </div>
     );
