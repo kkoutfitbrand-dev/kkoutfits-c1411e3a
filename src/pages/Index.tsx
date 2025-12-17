@@ -6,7 +6,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { TrendingProducts } from "@/components/TrendingProducts";
 import { OccasionShopping } from "@/components/OccasionShopping";
-import { NewsletterPopup } from "@/components/NewsletterPopup";
+
 import { DealsBanner } from "@/components/DealsBanner";
 import { BrandShowcase } from "@/components/BrandShowcase";
 import { PromotionalBanner } from "@/components/PromotionalBanner";
@@ -244,8 +244,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Newsletter Popup */}
-      <NewsletterPopup />
 
       <Footer />
     </div>;
