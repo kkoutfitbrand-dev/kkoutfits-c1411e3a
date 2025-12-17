@@ -6,9 +6,10 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check, Copy, MessageCircle } from "lucide-react";
+import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check, Copy, MessageCircle, Star } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
 import { useWishlist } from "@/hooks/useWishlist";
 import { ProductReviews } from "@/components/ProductReviews";
 import { ProductQA } from "@/components/ProductQA";
@@ -42,6 +43,7 @@ interface Variant {
   option2_value: string | null;
   image_url: string | null;
   price_cents: number | null;
+  compare_at_price_cents: number | null;
   inventory_count: number;
   is_available: boolean | null;
 }
@@ -53,6 +55,8 @@ interface Product {
   price_cents: number;
   images: string[];
   slug: string;
+  category: string | null;
+  inventory_count: number | null;
   variants?: Variant[];
 }
 const ProductDetail = () => {
@@ -199,6 +203,32 @@ const ProductDetail = () => {
 
   const displayPrice = product.price_cents / 100;
   const productImages = product.images.length > 0 ? product.images : [product1];
+  
+  // Calculate MRP (compare at price) from variants
+  const mrp = variants.reduce((max, v) => {
+    if (v.compare_at_price_cents && v.compare_at_price_cents > max) {
+      return v.compare_at_price_cents;
+    }
+    return max;
+  }, 0) / 100 || null;
+  
+  // Calculate discount percentage
+  const discountPercent = mrp && mrp > displayPrice 
+    ? Math.round(((mrp - displayPrice) / mrp) * 100) 
+    : 0;
+
+  // Calculate total inventory
+  const totalInventory = variants.length > 0 
+    ? variants.reduce((sum, v) => sum + (v.inventory_count || 0), 0)
+    : product.inventory_count || 0;
+
+  // Generate product tags
+  const productTags = [
+    product.category,
+    "Men's Fashion",
+    "Quality Fabric",
+    "Trending"
+  ].filter(Boolean) as string[];
   
   const handleAddToCart = async () => {
     if (!user) {
@@ -372,12 +402,64 @@ const ProductDetail = () => {
           <div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">{product.title}</h1>
             
-            <div id="product-price" className="flex items-center gap-4 mb-6">
-              <span className="text-3xl font-bold">₹{displayPrice.toLocaleString()}</span>
+            {/* Product Tags */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {product.category && (
+                <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0">
+                  {product.category}
+                </Badge>
+              )}
+              {productTags.slice(1).map((tag, index) => (
+                <Badge key={index} variant="outline" className="bg-background">
+                  {tag}
+                </Badge>
+              ))}
             </div>
 
+            {/* Rating */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex items-center">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+              <span className="text-sm text-muted-foreground">(0 reviews)</span>
+            </div>
+            
+            {/* Price Section */}
+            <div id="product-price" className="mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-4xl font-bold">₹{displayPrice.toLocaleString()}</span>
+                {mrp && mrp > displayPrice && (
+                  <>
+                    <span className="text-xl text-muted-foreground line-through">₹{mrp.toLocaleString()}</span>
+                    <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 text-sm">
+                      {discountPercent}% OFF
+                    </Badge>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Stock Status */}
+            <div className="mb-6">
+              {totalInventory > 0 ? (
+                <span className="text-green-600 font-medium border border-green-600 px-3 py-1 rounded-md text-sm">
+                  In Stock ({totalInventory} available)
+                </span>
+              ) : (
+                <span className="text-red-600 font-medium border border-red-600 px-3 py-1 rounded-md text-sm">
+                  Out of Stock
+                </span>
+              )}
+            </div>
+
+            {/* Description */}
             {product.description && (
-              <p className="text-muted-foreground mb-6">{product.description}</p>
+              <div className="mb-6">
+                <h3 className="font-semibold text-lg mb-2">Description</h3>
+                <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+              </div>
             )}
 
             {/* Color Selection */}
