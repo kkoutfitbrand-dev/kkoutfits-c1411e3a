@@ -8,18 +8,15 @@ interface PageTransitionProps {
 const pageVariants = {
   initial: {
     opacity: 0,
-    scale: 0.98,
-    filter: "blur(4px)",
+    filter: "blur(6px)",
   },
   in: {
     opacity: 1,
-    scale: 1,
     filter: "blur(0px)",
   },
   out: {
     opacity: 0,
-    scale: 1.02,
-    filter: "blur(4px)",
+    filter: "blur(6px)",
   },
 };
 
@@ -31,10 +28,9 @@ export const PageTransition = ({ children }: PageTransitionProps) => {
       exit="out"
       variants={pageVariants}
       transition={{
-        type: "spring",
-        stiffness: 260,
-        damping: 25,
-        duration: 0.4,
+        type: "tween",
+        ease: "easeOut",
+        duration: 0.25,
       }}
     >
       {children}
