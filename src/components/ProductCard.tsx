@@ -1,4 +1,4 @@
-import { Star, Heart } from "lucide-react";
+import { Star, Heart, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,18 +17,18 @@ interface ProductCardProps {
   productId?: string;
 }
 
-const getCategoryStyle = (category: string | null | undefined): string => {
+const getCategoryStyle = (category: string | null | undefined): { bg: string; text: string; border: string } => {
   switch (category?.toLowerCase()) {
     case 'men':
-      return 'bg-gradient-to-r from-blue-600 to-blue-400 shadow-blue-500/30';
+      return { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200' };
     case 'women':
-      return 'bg-gradient-to-r from-pink-600 to-pink-400 shadow-pink-500/30';
+      return { bg: 'bg-pink-50', text: 'text-pink-700', border: 'border-pink-200' };
     case 'casual':
-      return 'bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-emerald-500/30';
+      return { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200' };
     case 'formal':
-      return 'bg-gradient-to-r from-slate-700 to-slate-500 shadow-slate-500/30';
+      return { bg: 'bg-slate-100', text: 'text-slate-700', border: 'border-slate-300' };
     default:
-      return 'bg-gradient-to-r from-primary to-primary/70 shadow-primary/30';
+      return { bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/20' };
   }
 };
 
@@ -91,11 +91,12 @@ export const ProductCard = ({
             </button>
             {category && (
               <motion.div
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className={`absolute bottom-10 right-2 px-3 py-1 rounded-full text-white text-[10px] font-semibold uppercase tracking-wider shadow-lg backdrop-blur-sm ${getCategoryStyle(category)}`}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`absolute bottom-10 right-2 flex items-center gap-1 px-2.5 py-1 rounded-md border backdrop-blur-md ${getCategoryStyle(category).bg} ${getCategoryStyle(category).text} ${getCategoryStyle(category).border}`}
               >
-                {category}
+                <Tag className="h-3 w-3" />
+                <span className="text-[10px] font-semibold uppercase tracking-wide">{category}</span>
               </motion.div>
             )}
             {discount > 0 && (
