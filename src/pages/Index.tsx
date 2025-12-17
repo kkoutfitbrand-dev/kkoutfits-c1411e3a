@@ -134,6 +134,7 @@ const Index = () => {
                 <ScrollReveal key={product.id} delay={index * 0.05} direction="up">
                   <ProductCard 
                     id={product.slug}
+                    productId={product.id}
                     name={product.title}
                     price={product.price_cents / 100}
                     image={getFirstImage(product.images)}

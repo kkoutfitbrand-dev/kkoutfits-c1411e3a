@@ -72,6 +72,7 @@ export const TrendingProducts = () => {
             <ProductCard 
               key={product.id}
               id={product.slug}
+              productId={product.id}
               name={product.title}
               price={product.price_cents / 100}
               image={getFirstImage(product.images)}
