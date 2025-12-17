@@ -33,19 +33,19 @@ const moreLinks = [{
 }];
 const mainTabs = [{
   label: "MEN",
-  link: "/",
+  link: "/category/men",
   icon: UserCircle
 }, {
   label: "WOMEN",
-  link: "/women",
+  link: "/category/women",
   icon: Users
 }, {
   label: "CASUAL",
-  link: "/casual",
+  link: "/category/casual",
   icon: Shirt
 }, {
   label: "FORMAL",
-  link: "/formal",
+  link: "/category/formal",
   icon: Briefcase
 }, {
   label: "SALE",
