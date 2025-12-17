@@ -114,15 +114,9 @@ export const Navigation = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          {categories.slice(0, 5).map(category => (
-            <Link 
-              key={category} 
-              to={`/category/${category.toLowerCase().replace(" ", "-")}`}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
+          {categories.slice(0, 5).map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
               {category}
-            </Link>
-          ))}
+            </Link>)}
         </nav>
 
         {/* Right Icons */}
@@ -196,12 +190,7 @@ export const Navigation = () => {
 
       {/* Search Bar Section */}
       <div className="border-t border-border bg-muted/30">
-        <div className="container px-4 py-3">
-          <div className="max-w-2xl mx-auto relative">
-            
-            
-          </div>
-        </div>
+        
       </div>
 
       {/* Category Icons Section */}
