@@ -11,7 +11,23 @@ interface ProductCardProps {
   image: string;
   badge?: string;
   rating?: number;
+  category?: string | null;
 }
+
+const getCategoryColor = (category: string | null | undefined): string => {
+  switch (category?.toLowerCase()) {
+    case 'men':
+      return 'bg-blue-500/90 text-white';
+    case 'women':
+      return 'bg-pink-500/90 text-white';
+    case 'casual':
+      return 'bg-emerald-500/90 text-white';
+    case 'formal':
+      return 'bg-slate-700/90 text-white';
+    default:
+      return 'bg-muted text-muted-foreground';
+  }
+};
 
 export const ProductCard = ({
   id,
@@ -21,6 +37,7 @@ export const ProductCard = ({
   image,
   badge,
   rating = 4.2,
+  category,
 }: ProductCardProps) => {
   const discount = originalPrice
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
@@ -38,6 +55,11 @@ export const ProductCard = ({
           {badge && (
             <Badge className="absolute top-2 left-2 bg-foreground text-background border-0 text-xs font-bold uppercase rounded-sm px-2 py-1">
               {badge}
+            </Badge>
+          )}
+          {category && (
+            <Badge className={`absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-sm border-0 ${getCategoryColor(category)}`}>
+              {category.charAt(0).toUpperCase() + category.slice(1)}
             </Badge>
           )}
           {discount > 0 && (
