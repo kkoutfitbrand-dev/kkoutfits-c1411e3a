@@ -43,31 +43,29 @@ interface VariantsManagerProps {
   productCategory?: string;
 }
 
-const SIZE_TEMPLATES = {
-  'shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
-  'formal-shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
-  'casual-shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
-  'party-wear-shirts': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
-  't-shirt': ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
-  'pants-and-shorts': ['28', '30', '32', '34', '36', '38', '40', '42'],
-  'jeans': ['28', '30', '32', '34', '36', '38', '40', '42'],
-  'kurta': ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
-  'sherwani': ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
-  'bandhgala': ['S', 'M', 'L', 'XL', 'XXL', '3XL'],
-  'sarees': ['Free Size'],
-  'chudithar': ['S', 'M', 'L', 'XL', 'XXL'],
-  'lehenga': ['S', 'M', 'L', 'XL', 'XXL'],
+const SIZE_TYPE_OPTIONS = {
+  'shirt': {
+    label: 'Shirt / Top Sizes',
+    sizes: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
+  },
+  'pant': {
+    label: 'Pant / Bottom Sizes',
+    sizes: ['28', '30', '32', '34', '36', '38', '40', '42'],
+  },
+  'free': {
+    label: 'Free Size',
+    sizes: ['Free Size'],
+  },
 };
 
 export const VariantsManager = ({ variants, basePrice, onChange, productCategory }: VariantsManagerProps) => {
+  const [sizeType, setSizeType] = useState<keyof typeof SIZE_TYPE_OPTIONS | ''>('');
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [uploadingImages, setUploadingImages] = useState<Set<number>>(new Set());
 
-  // Get available sizes based on category
-  const availableSizes = productCategory 
-    ? SIZE_TEMPLATES[productCategory.toLowerCase().replace(/\s+/g, '-') as keyof typeof SIZE_TEMPLATES] || []
-    : [];
+  // Get available sizes based on selected size type
+  const availableSizes = sizeType ? SIZE_TYPE_OPTIONS[sizeType].sizes : [];
 
   const toggleSize = (size: string) => {
     setSelectedSizes(prev => {
@@ -190,6 +188,36 @@ export const VariantsManager = ({ variants, basePrice, onChange, productCategory
 
   return (
     <div className="space-y-6">
+      {/* Size Type Selection */}
+      <Card className="p-6">
+        <div className="space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold mb-1">Select Size Type</h3>
+            <p className="text-sm text-muted-foreground">
+              Choose the size format for your product
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {Object.entries(SIZE_TYPE_OPTIONS).map(([key, { label }]) => (
+              <Button
+                key={key}
+                type="button"
+                variant={sizeType === key ? "default" : "outline"}
+                onClick={() => {
+                  setSizeType(key as keyof typeof SIZE_TYPE_OPTIONS);
+                  setSelectedSizes([]);
+                  onChange([]);
+                }}
+                className="min-w-[140px]"
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </Card>
+
       {/* Size Selection */}
       <Card className="p-6">
         <div className="space-y-4">
@@ -221,7 +249,7 @@ export const VariantsManager = ({ variants, basePrice, onChange, productCategory
           ) : (
             <div className="text-center py-8 border-2 border-dashed rounded-lg">
               <p className="text-sm text-muted-foreground">
-                Please select a category first to see available sizes
+                Please select a size type above to see available sizes
               </p>
             </div>
           )}
