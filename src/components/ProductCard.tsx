@@ -17,18 +17,18 @@ interface ProductCardProps {
   productId?: string;
 }
 
-const getCategoryColor = (category: string | null | undefined): string => {
+const getCategoryStyle = (category: string | null | undefined): string => {
   switch (category?.toLowerCase()) {
     case 'men':
-      return 'bg-blue-500/90 text-white';
+      return 'bg-gradient-to-r from-blue-600 to-blue-400 shadow-blue-500/30';
     case 'women':
-      return 'bg-pink-500/90 text-white';
+      return 'bg-gradient-to-r from-pink-600 to-pink-400 shadow-pink-500/30';
     case 'casual':
-      return 'bg-emerald-500/90 text-white';
+      return 'bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-emerald-500/30';
     case 'formal':
-      return 'bg-slate-700/90 text-white';
+      return 'bg-gradient-to-r from-slate-700 to-slate-500 shadow-slate-500/30';
     default:
-      return 'bg-muted text-muted-foreground';
+      return 'bg-gradient-to-r from-primary to-primary/70 shadow-primary/30';
   }
 };
 
@@ -90,9 +90,13 @@ export const ProductCard = ({
               <Heart className={`h-4 w-4 ${inWishlist ? "fill-current" : ""}`} />
             </button>
             {category && (
-              <Badge className={`absolute bottom-10 right-2 text-xs font-medium px-2 py-1 rounded-sm border-0 ${getCategoryColor(category)}`}>
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </Badge>
+              <motion.div
+                initial={{ opacity: 0, x: 10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className={`absolute bottom-10 right-2 px-3 py-1 rounded-full text-white text-[10px] font-semibold uppercase tracking-wider shadow-lg backdrop-blur-sm ${getCategoryStyle(category)}`}
+              >
+                {category}
+              </motion.div>
             )}
             {discount > 0 && (
               <div className="absolute bottom-2 left-2 bg-myntra-pink text-white text-xs font-bold px-2 py-1 rounded-sm">
