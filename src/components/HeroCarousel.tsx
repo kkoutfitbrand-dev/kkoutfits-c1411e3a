@@ -25,14 +25,14 @@ export const HeroCarousel = () => {
       </motion.div>
 
       {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/30 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
       {/* Content with Parallax */}
       <motion.div style={{
       y: textY,
       opacity
-    }} className="absolute inset-0 flex items-center">
+    }} className="absolute inset-0 flex items-center z-10">
         <div className="container px-4">
           <motion.div initial={{
           opacity: 0,
@@ -108,6 +108,6 @@ export const HeroCarousel = () => {
     }} transition={{
       duration: 1,
       delay: 0.8
-    }} className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent" />
+    }} className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
     </div>;
 };
