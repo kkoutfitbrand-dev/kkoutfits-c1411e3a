@@ -59,7 +59,6 @@ export const Navigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -67,12 +66,10 @@ export const Navigation = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
   const isActiveTab = (link: string) => {
     if (link === '/') return location.pathname === '/';
     return location.pathname.startsWith(link);
   };
-  
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -117,9 +114,7 @@ export const Navigation = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          {categories.slice(0, 5).map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="text-sm font-medium hover:text-accent transition-colors">
-              {category}
-            </Link>)}
+          {categories.slice(0, 5).map(category => {})}
         </nav>
 
         {/* Right Icons */}
@@ -187,15 +182,7 @@ export const Navigation = () => {
             {mainTabs.map(tab => {
             const Icon = tab.icon;
             const isActive = isActiveTab(tab.link);
-            return <Link 
-              key={tab.label} 
-              to={tab.link} 
-              className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm font-medium whitespace-nowrap transition-all duration-300 snap-center shrink-0 px-3 md:px-5 py-2 md:py-2.5 rounded-full ${
-                isActive 
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-              }`}
-            >
+            return <Link key={tab.label} to={tab.link} className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm font-medium whitespace-nowrap transition-all duration-300 snap-center shrink-0 px-3 md:px-5 py-2 md:py-2.5 rounded-full ${isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}>
               <Icon className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-all duration-300 ${isActive ? "scale-110" : ""}`} />
               {tab.label}
             </Link>;
