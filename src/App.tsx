@@ -28,6 +28,14 @@ import TrackOrder from "./pages/TrackOrder";
 import NotFound from "./pages/NotFound";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Sale from "./pages/Sale";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import ReturnsExchange from "./pages/ReturnsExchange";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
+import Careers from "./pages/Careers";
+import Sustainability from "./pages/Sustainability";
+import StoreLocator from "./pages/StoreLocator";
+import PaymentOptions from "./pages/PaymentOptions";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import AdminCategories from "./pages/admin/Categories";
@@ -61,6 +69,14 @@ const AnimatedRoutes = () => {
         <Route path="/search" element={<PageTransition><Search /></PageTransition>} />
         <Route path="/track-order" element={<PageTransition><TrackOrder /></PageTransition>} />
         <Route path="/sale" element={<PageTransition><Sale /></PageTransition>} />
+        <Route path="/shipping-policy" element={<PageTransition><ShippingPolicy /></PageTransition>} />
+        <Route path="/returns-exchange" element={<PageTransition><ReturnsExchange /></PageTransition>} />
+        <Route path="/privacy-policy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
+        <Route path="/terms-conditions" element={<PageTransition><TermsConditions /></PageTransition>} />
+        <Route path="/careers" element={<PageTransition><Careers /></PageTransition>} />
+        <Route path="/sustainability" element={<PageTransition><Sustainability /></PageTransition>} />
+        <Route path="/store-locator" element={<PageTransition><StoreLocator /></PageTransition>} />
+        <Route path="/payment-options" element={<PageTransition><PaymentOptions /></PageTransition>} />
         <Route path="/admin/dashboard" element={<AdminRoute><PageTransition><AdminDashboard /></PageTransition></AdminRoute>} />
         <Route path="/admin/products" element={<AdminRoute><PageTransition><AdminProducts /></PageTransition></AdminRoute>} />
         <Route path="/admin/categories" element={<AdminRoute><PageTransition><AdminCategories /></PageTransition></AdminRoute>} />

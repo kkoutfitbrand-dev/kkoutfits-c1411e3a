@@ -4,10 +4,33 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 const footerLinks = {
-  "Shop": ["Sarees", "Lehengas", "Salwar Kameez", "Indo Western", "Bridal Collection"],
-  "Customer Care": ["Contact Us", "Track Order", "Shipping Policy", "Returns & Exchange", "Size Guide"],
-  "About": ["Our Story", "Blog", "Careers", "Sustainability", "Store Locator"],
-  "Legal": ["Privacy Policy", "Terms & Conditions", "Secure Shopping", "Payment Options"],
+  "Shop": [
+    { label: "Sarees", path: "/category/sarees" },
+    { label: "Lehengas", path: "/category/lehengas" },
+    { label: "Salwar Kameez", path: "/category/salwar-kameez" },
+    { label: "Indo Western", path: "/category/indo-western" },
+    { label: "Bridal Collection", path: "/category/bridal" },
+  ],
+  "Customer Care": [
+    { label: "Contact Us", path: "/contact" },
+    { label: "Track Order", path: "/track-order" },
+    { label: "Shipping Policy", path: "/shipping-policy" },
+    { label: "Returns & Exchange", path: "/returns-exchange" },
+    { label: "Size Guide", path: "/size-guide" },
+  ],
+  "About": [
+    { label: "Our Story", path: "/about" },
+    { label: "Blog", path: "/blog" },
+    { label: "Careers", path: "/careers" },
+    { label: "Sustainability", path: "/sustainability" },
+    { label: "Store Locator", path: "/store-locator" },
+  ],
+  "Legal": [
+    { label: "Privacy Policy", path: "/privacy-policy" },
+    { label: "Terms & Conditions", path: "/terms-conditions" },
+    { label: "FAQ", path: "/faq" },
+    { label: "Payment Options", path: "/payment-options" },
+  ],
 };
 
 export const Footer = () => {
@@ -43,12 +66,12 @@ export const Footer = () => {
               <h4 className="font-semibold mb-4">{title}</h4>
               <ul className="space-y-2">
                 {links.map((link) => (
-                  <li key={link}>
+                  <li key={link.label}>
                     <Link
-                      to="#"
+                      to={link.path}
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {link}
+                      {link.label}
                     </Link>
                   </li>
                 ))}
