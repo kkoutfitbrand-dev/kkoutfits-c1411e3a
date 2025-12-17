@@ -9,7 +9,7 @@ import { CategoryIconSection } from "@/components/CategoryIconSection";
 import { MiniCart } from "@/components/MiniCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
-const categories = ["Shirts", "T-Shirts", "Pants", "Jeans", "Casual Wear", "Formal Wear", "Accessories", "New Arrivals", "Sale"];
+const categories = ["Shirts", "T-Shirts", "Pants", "Jeans", "Casual Wear", "Formal Wear", "New Arrivals", "Sale"];
 const moreLinks = [{
   label: "About Us",
   link: "/about"
@@ -20,17 +20,8 @@ const moreLinks = [{
   label: "Size Guide",
   link: "/size-guide"
 }, {
-  label: "Custom Tailoring",
-  link: "/custom-tailoring"
-}, {
-  label: "Blog",
-  link: "/blog"
-}, {
   label: "FAQ",
   link: "/faq"
-}, {
-  label: "Track Order",
-  link: "/track-order"
 }];
 const mainTabs = [{
   label: "HOME",
