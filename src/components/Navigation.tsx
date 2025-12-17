@@ -175,14 +175,14 @@ export const Navigation = () => {
       </div>
 
       {/* Main Category Tabs */}
-      <div className="border-t border-border bg-background/40 backdrop-blur-xl">
+      <div className={`border-t border-border bg-background/40 backdrop-blur-xl transition-all duration-500 ${isScrolled ? 'py-0' : ''}`}>
         <div className="container px-2 md:px-4">
-          <div className="flex items-center gap-1 md:gap-2 h-14 md:h-12 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-1 md:justify-center -mx-2 md:mx-0">
+          <div className={`flex items-center gap-1 md:gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-1 md:justify-center -mx-2 md:mx-0 transition-all duration-500 ${isScrolled ? 'h-10 md:h-9' : 'h-14 md:h-12'}`}>
             {mainTabs.map(tab => {
             const Icon = tab.icon;
             const isActive = isActiveTab(tab.link);
-            return <Link key={tab.label} to={tab.link} className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm font-medium whitespace-nowrap transition-all duration-300 snap-center shrink-0 px-3 md:px-5 py-2 md:py-2.5 rounded-full ${isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}>
-              <Icon className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-all duration-300 ${isActive ? "scale-110" : ""}`} />
+            return <Link key={tab.label} to={tab.link} className={`flex items-center gap-1.5 md:gap-2 font-medium whitespace-nowrap transition-all duration-300 snap-center shrink-0 rounded-full ${isScrolled ? 'text-[10px] md:text-xs px-2 md:px-3 py-1 md:py-1.5' : 'text-xs md:text-sm px-3 md:px-5 py-2 md:py-2.5'} ${isActive ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-[1.02]" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"}`}>
+              <Icon className={`transition-all duration-300 ${isScrolled ? 'h-3 w-3 md:h-3.5 md:w-3.5' : 'h-3.5 w-3.5 md:h-4 md:w-4'} ${isActive ? "scale-110" : ""}`} />
               {tab.label}
             </Link>;
           })}
