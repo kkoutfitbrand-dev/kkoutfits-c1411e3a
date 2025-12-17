@@ -35,6 +35,8 @@ interface Order {
   status: string | null;
   total_cents: number;
   order_items: unknown;
+  shipping_address: unknown;
+  payment_method: string | null;
 }
 
 const Account = () => {
@@ -205,7 +207,20 @@ const Account = () => {
                         </p>
                         <p className="font-semibold mb-4">₹{(order.total_cents / 100).toLocaleString('en-IN')}</p>
                         <Button variant="outline" size="sm" asChild>
-                          <Link to={`/order-confirmation`} state={{ order }}>View Details</Link>
+                          <Link 
+                            to={`/order-confirmation?orderId=${order.id}`} 
+                            state={{ 
+                              orderId: order.id,
+                              items: items,
+                              total: order.total_cents / 100,
+                              shippingAddress: order.shipping_address,
+                              paymentMethod: order.payment_method,
+                              status: order.status,
+                              createdAt: order.created_at
+                            }}
+                          >
+                            View Details
+                          </Link>
                         </Button>
                       </div>
                     );
