@@ -169,15 +169,23 @@ export const Navigation = () => {
       </div>
 
       {/* Main Category Tabs */}
-      <div className="border-t border-border bg-background">
-        <div className="container px-4">
-          <div className="flex items-center justify-center md:justify-start gap-4 md:gap-8 h-12 overflow-x-auto scrollbar-hide">
+      <div className="border-t border-border bg-background/40 backdrop-blur-xl">
+        <div className="container px-2 md:px-4">
+          <div className="flex items-center gap-1 md:gap-2 h-14 md:h-12 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth px-1 md:justify-center -mx-2 md:mx-0">
             {mainTabs.map(tab => {
             const Icon = tab.icon;
-            return <Link key={tab.label} to={tab.link} className={`flex items-center gap-2 text-sm md:text-base font-medium whitespace-nowrap transition-colors ${tab.label === "MEN" ? "text-foreground border-b-2 border-accent" : "text-muted-foreground hover:text-accent"}`}>
-                  <Icon className="h-4 w-4" />
-                  {tab.label}
-                </Link>;
+            return <Link 
+              key={tab.label} 
+              to={tab.link} 
+              className={`flex items-center gap-1.5 md:gap-2 text-xs md:text-sm font-medium whitespace-nowrap transition-all duration-300 snap-center shrink-0 px-3 md:px-5 py-2 md:py-2.5 rounded-full ${
+                tab.label === "MEN" 
+                  ? "bg-background/90 text-foreground shadow-lg shadow-primary/10 border border-white/30 scale-[1.02]" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/10"
+              }`}
+            >
+              <Icon className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-all duration-300 ${tab.label === "MEN" ? "scale-110 text-primary" : ""}`} />
+              {tab.label}
+            </Link>;
           })}
           </div>
         </div>
