@@ -360,7 +360,7 @@ const ProductDetail = () => {
           <div>
             <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">{product.title}</h1>
             
-            <div className="flex items-center gap-4 mb-6">
+            <div id="product-price" className="flex items-center gap-4 mb-6">
               <span className="text-3xl font-bold">₹{displayPrice.toLocaleString()}</span>
             </div>
 
@@ -559,7 +559,7 @@ const ProductDetail = () => {
 
       {/* Sticky Add to Cart Bar */}
       <StickyAddToCart 
-        triggerId="product-actions"
+        triggerId="product-price"
         productName={product.title} 
         productImage={productImages[0]} 
         price={displayPrice} 
