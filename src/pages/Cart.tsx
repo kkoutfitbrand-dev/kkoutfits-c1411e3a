@@ -193,7 +193,10 @@ const Cart = () => {
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold mb-1">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">Size: {item.size}</p>
+                  <div className="flex flex-wrap gap-x-3 text-sm text-muted-foreground mb-2">
+                    {item.color && <span>Color: {item.color}</span>}
+                    {item.size && <span>Size: {item.size}</span>}
+                  </div>
                   <p className="font-semibold text-lg">₹{item.price.toLocaleString()}</p>
                   
                   <div className="flex items-center gap-4 mt-4">
