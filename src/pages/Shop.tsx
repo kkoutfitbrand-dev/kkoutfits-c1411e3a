@@ -226,11 +226,12 @@ const Shop = () => {
               Explore our curated collection of premium fashion for every occasion
             </p>
             <div className="flex items-center justify-center gap-4">
-              <Button size="lg" className="rounded-full">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Shop Trending
-              </Button>
-              
+              <Link to="/trending">
+                <Button size="lg" className="rounded-full">
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Shop Trending
+                </Button>
+              </Link>
             </div>
           </motion.div>
         </div>

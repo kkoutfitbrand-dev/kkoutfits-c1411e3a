@@ -29,6 +29,7 @@ import NotFound from "./pages/NotFound";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Sale from "./pages/Sale";
 import Shop from "./pages/Shop";
+import Trending from "./pages/Trending";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import ReturnsExchange from "./pages/ReturnsExchange";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -71,6 +72,7 @@ const AnimatedRoutes = () => {
         <Route path="/track-order" element={<PageTransition><TrackOrder /></PageTransition>} />
         <Route path="/sale" element={<PageTransition><Sale /></PageTransition>} />
         <Route path="/shop" element={<PageTransition><Shop /></PageTransition>} />
+        <Route path="/trending" element={<PageTransition><Trending /></PageTransition>} />
         <Route path="/shipping-policy" element={<PageTransition><ShippingPolicy /></PageTransition>} />
         <Route path="/returns-exchange" element={<PageTransition><ReturnsExchange /></PageTransition>} />
         <Route path="/privacy-policy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
