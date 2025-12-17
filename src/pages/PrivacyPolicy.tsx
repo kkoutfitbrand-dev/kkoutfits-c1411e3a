@@ -130,7 +130,7 @@ const PrivacyPolicy = () => {
                 please contact our privacy team.
               </p>
               <p className="text-muted-foreground">
-                Email: <a href="mailto:privacy@kkoutfit.com" className="text-primary hover:underline">privacy@kkoutfit.com</a>
+                Email: <a href="mailto:kkoutfitbrand@gmail.com" className="text-primary hover:underline">kkoutfitbrand@gmail.com</a>
               </p>
             </div>
           </ScrollReveal>
