@@ -41,6 +41,7 @@ const Wishlist = () => {
   const { user } = useAuth();
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [movingToCart, setMovingToCart] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -82,6 +83,67 @@ const Wishlist = () => {
     } catch (error) {
       console.error("Error removing from wishlist:", error);
       toast.error("Failed to remove item");
+    }
+  };
+
+  const moveToCart = async (item: WishlistItem) => {
+    if (!user) return;
+    
+    setMovingToCart(item.id);
+    try {
+      const salePrice = getSalePrice(item.product.variants);
+      const price = salePrice || item.product.price_cents;
+      
+      const newCartItem = {
+        id: `${item.product.id}-${Date.now()}`,
+        productId: item.product.id,
+        name: item.product.title,
+        price: price / 100,
+        image: getFirstImage(item.product.images),
+        quantity: 1,
+        size: "",
+        color: ""
+      };
+
+      // Fetch existing cart
+      const { data: existingCart } = await supabase
+        .from('carts')
+        .select('items')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      let updatedItems;
+      if (existingCart?.items && Array.isArray(existingCart.items)) {
+        updatedItems = [...(existingCart.items as any[]), newCartItem];
+      } else {
+        updatedItems = [newCartItem];
+      }
+
+      // Save cart
+      if (existingCart) {
+        await supabase
+          .from('carts')
+          .update({ items: JSON.parse(JSON.stringify(updatedItems)), updated_at: new Date().toISOString() })
+          .eq('user_id', user.id);
+      } else {
+        await supabase
+          .from('carts')
+          .insert({ user_id: user.id, items: JSON.parse(JSON.stringify(updatedItems)) });
+      }
+
+      // Remove from wishlist
+      await supabase
+        .from("wishlists")
+        .delete()
+        .eq("id", item.id);
+
+      setWishlistItems(items => items.filter(i => i.id !== item.id));
+      toast.success("Moved to cart");
+    } catch (error) {
+      console.error("Error moving to cart:", error);
+      toast.error("Failed to move to cart");
+    } finally {
+      setMovingToCart(null);
     }
   };
 
@@ -162,9 +224,18 @@ const Wishlist = () => {
                         </span>
                       )}
                     </div>
-                    <Button className="w-full" size="sm">
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Move to Cart
+                    <Button 
+                      className="w-full" 
+                      size="sm"
+                      onClick={() => moveToCart(item)}
+                      disabled={movingToCart === item.id}
+                    >
+                      {movingToCart === item.id ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                      )}
+                      {movingToCart === item.id ? "Moving..." : "Move to Cart"}
                     </Button>
                   </div>
                 </div>
