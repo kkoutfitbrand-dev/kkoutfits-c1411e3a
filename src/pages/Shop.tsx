@@ -22,6 +22,12 @@ interface Product {
   variants: Json;
 }
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
 const getFirstImage = (images: Json): string => {
   if (Array.isArray(images) && images.length > 0) {
     return images[0] as string;
@@ -39,6 +45,7 @@ const getOriginalPrice = (variants: Json): number | undefined => {
 
 const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -75,7 +82,20 @@ const Shop = () => {
 
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    const { data } = await supabase
+      .from("categories")
+      .select("id, name, slug")
+      .eq("is_active", true)
+      .order("display_order", { ascending: true });
+
+    if (data) {
+      setCategories(data);
+    }
+  };
 
   const fetchProducts = async () => {
     const { data } = await supabase
@@ -90,13 +110,9 @@ const Shop = () => {
     setLoading(false);
   };
 
-  const categories = [
-    { id: "all", name: "All Products", icon: Package },
-    { id: "shirts", name: "Shirts", icon: ShoppingBag },
-    { id: "pants", name: "Pants", icon: ShoppingBag },
-    { id: "kurta", name: "Kurta", icon: Sparkles },
-    { id: "saree", name: "Saree", icon: Star },
-    { id: "lehenga", name: "Lehenga", icon: Sparkles },
+  const allCategories = [
+    { id: "all", name: "All Products", slug: "all" },
+    ...categories
   ];
 
   const filteredProducts = activeCategory === "all" 
@@ -240,15 +256,19 @@ const Shop = () => {
       <section className={`border-b border-border sticky bg-background/95 backdrop-blur-md z-40 transition-all duration-300 ${isScrolled ? 'py-2 top-12 md:top-14' : 'py-6 top-16 md:top-20'}`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-            {categories.map((cat) => (
+            {allCategories.map((cat) => (
               <Button
                 key={cat.id}
-                variant={activeCategory === cat.id ? "default" : "outline"}
+                variant={activeCategory === cat.slug ? "default" : "outline"}
                 size="sm"
                 className={`rounded-full whitespace-nowrap transition-all duration-300 ${isScrolled ? 'h-7 text-xs px-3' : ''}`}
-                onClick={() => handleCategoryClick(cat.id)}
+                onClick={() => handleCategoryClick(cat.slug)}
               >
-                <cat.icon className={`mr-1 transition-all duration-300 ${isScrolled ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                {cat.slug === "all" ? (
+                  <Package className={`mr-1 transition-all duration-300 ${isScrolled ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                ) : (
+                  <ShoppingBag className={`mr-1 transition-all duration-300 ${isScrolled ? 'h-3 w-3' : 'h-4 w-4'}`} />
+                )}
                 {cat.name}
               </Button>
             ))}
@@ -360,7 +380,7 @@ const Shop = () => {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h2 className="text-2xl md:text-3xl font-bold mb-2">
-                  {activeCategory === "all" ? "All Products" : categories.find(c => c.id === activeCategory)?.name}
+                  {activeCategory === "all" ? "All Products" : allCategories.find(c => c.slug === activeCategory)?.name}
                 </h2>
                 <p className="text-muted-foreground">{filteredProducts.length} products found</p>
               </div>
