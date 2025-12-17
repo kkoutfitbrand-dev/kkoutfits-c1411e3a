@@ -90,7 +90,7 @@ export const HeroCarousel = () => {
             duration: 0.6,
             delay: 0.6
           }}>
-              <Link to="/search">
+              <Link to="/shop">
                 <Button size="lg" className="bg-white text-foreground hover:bg-white/90 font-bold rounded-full px-8 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
                   Shop Now
                 </Button>

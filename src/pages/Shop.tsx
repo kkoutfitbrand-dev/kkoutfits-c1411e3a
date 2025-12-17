@@ -1,0 +1,395 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Json } from "@/integrations/supabase/types";
+import { ProductCard } from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
+import { Footer } from "@/components/Footer";
+import { BackToTop } from "@/components/BackToTop";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Search, ShoppingBag, Heart, User, Menu, X, Sparkles, TrendingUp, Star, Percent, Package } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+interface Product {
+  id: string;
+  title: string;
+  price_cents: number;
+  images: Json;
+  slug: string;
+  category: string | null;
+  variants: Json;
+}
+
+const getFirstImage = (images: Json): string => {
+  if (Array.isArray(images) && images.length > 0) {
+    return images[0] as string;
+  }
+  return "/placeholder.svg";
+};
+
+const getOriginalPrice = (variants: Json): number | undefined => {
+  if (Array.isArray(variants) && variants.length > 0) {
+    const variant = variants[0] as { compareAtPrice?: number };
+    return variant.compareAtPrice;
+  }
+  return undefined;
+};
+
+const Shop = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState("all");
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    const { data } = await supabase
+      .from("products")
+      .select("id, title, price_cents, images, slug, category, variants")
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
+
+    if (data) {
+      setProducts(data);
+    }
+    setLoading(false);
+  };
+
+  const categories = [
+    { id: "all", name: "All Products", icon: Package },
+    { id: "shirts", name: "Shirts", icon: ShoppingBag },
+    { id: "pants", name: "Pants", icon: ShoppingBag },
+    { id: "kurta", name: "Kurta", icon: Sparkles },
+    { id: "saree", name: "Saree", icon: Star },
+    { id: "lehenga", name: "Lehenga", icon: Sparkles },
+  ];
+
+  const filteredProducts = activeCategory === "all" 
+    ? products 
+    : products.filter(p => p.category?.toLowerCase() === activeCategory);
+
+  const newArrivals = products.slice(0, 4);
+  const trending = products.slice(0, 6);
+  const saleProducts = products.filter(p => getOriginalPrice(p.variants));
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Custom Header */}
+      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            {/* Logo */}
+            <Link to="/shop" className="flex items-center gap-2">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-2xl md:text-3xl font-bold tracking-tight"
+              >
+                <span className="text-primary">KK</span>
+                <span className="text-foreground">Outfits</span>
+              </motion.div>
+            </Link>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-8">
+              <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Home
+              </Link>
+              <Link to="/shop" className="text-sm font-medium text-foreground">
+                Shop
+              </Link>
+              <Link to="/sale" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Sale
+              </Link>
+              <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                About
+              </Link>
+              <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Contact
+              </Link>
+            </nav>
+
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" className="hidden md:flex">
+                <Search className="h-5 w-5" />
+              </Button>
+              <Link to="/wishlist">
+                <Button variant="ghost" size="icon">
+                  <Heart className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/cart">
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingBag className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/account">
+                <Button variant="ghost" size="icon" className="hidden md:flex">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="md:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-border bg-background"
+            >
+              <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
+                <Link to="/" className="py-2 text-muted-foreground">Home</Link>
+                <Link to="/shop" className="py-2 font-medium">Shop</Link>
+                <Link to="/sale" className="py-2 text-muted-foreground">Sale</Link>
+                <Link to="/about" className="py-2 text-muted-foreground">About</Link>
+                <Link to="/contact" className="py-2 text-muted-foreground">Contact</Link>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* Hero Banner */}
+      <section className="relative bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-12 md:py-20">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto"
+          >
+            <Badge variant="secondary" className="mb-4">
+              <Sparkles className="h-3 w-3 mr-1" />
+              New Collection 2026
+            </Badge>
+            <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">
+              Discover Your <span className="text-primary">Perfect Style</span>
+            </h1>
+            <p className="text-muted-foreground text-lg mb-6">
+              Explore our curated collection of premium fashion for every occasion
+            </p>
+            <div className="flex items-center justify-center gap-4">
+              <Button size="lg" className="rounded-full">
+                <TrendingUp className="h-4 w-4 mr-2" />
+                Shop Trending
+              </Button>
+              <Button size="lg" variant="outline" className="rounded-full">
+                View Sale
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Category Filter */}
+      <section className="py-6 border-b border-border sticky top-16 md:top-20 bg-background/95 backdrop-blur-md z-40">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {categories.map((cat) => (
+              <Button
+                key={cat.id}
+                variant={activeCategory === cat.id ? "default" : "outline"}
+                size="sm"
+                className="rounded-full whitespace-nowrap"
+                onClick={() => setActiveCategory(cat.id)}
+              >
+                <cat.icon className="h-4 w-4 mr-1" />
+                {cat.name}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* New Arrivals Section */}
+      <ScrollReveal>
+        <section className="py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-2">New Arrivals</h2>
+                <p className="text-muted-foreground">Fresh styles just dropped</p>
+              </div>
+              <Badge variant="secondary" className="hidden md:flex">
+                <Sparkles className="h-3 w-3 mr-1" />
+                Just In
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {loading
+                ? Array.from({ length: 4 }).map((_, i) => (
+                    <ProductCardSkeleton key={i} index={i} />
+                  ))
+                : newArrivals.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.title}
+                      price={product.price_cents / 100}
+                      image={getFirstImage(product.images)}
+                      category={product.category || undefined}
+                      originalPrice={getOriginalPrice(product.variants)}
+                    />
+                  ))}
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* Sale Banner */}
+      {saleProducts.length > 0 && (
+        <ScrollReveal>
+          <section className="py-8">
+            <div className="container mx-auto px-4">
+              <div className="bg-gradient-to-r from-destructive/20 via-destructive/10 to-primary/10 rounded-2xl p-6 md:p-10">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div>
+                    <Badge variant="destructive" className="mb-2">
+                      <Percent className="h-3 w-3 mr-1" />
+                      Limited Time
+                    </Badge>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">Mega Sale Event</h3>
+                    <p className="text-muted-foreground">Up to 50% off on selected items</p>
+                  </div>
+                  <Link to="/sale">
+                    <Button size="lg" variant="destructive" className="rounded-full">
+                      Shop Sale Now
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+        </ScrollReveal>
+      )}
+
+      {/* Trending Products */}
+      <ScrollReveal>
+        <section className="py-12 md:py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-2">Trending Now</h2>
+                <p className="text-muted-foreground">Most popular this week</p>
+              </div>
+              <Badge variant="outline" className="hidden md:flex">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                Hot
+              </Badge>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+              {loading
+                ? Array.from({ length: 6 }).map((_, i) => (
+                    <ProductCardSkeleton key={i} index={i} />
+                  ))
+                : trending.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.title}
+                      price={product.price_cents / 100}
+                      image={getFirstImage(product.images)}
+                      category={product.category || undefined}
+                      originalPrice={getOriginalPrice(product.variants)}
+                    />
+                  ))}
+            </div>
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* All Products */}
+      <ScrollReveal>
+        <section className="py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold mb-2">
+                  {activeCategory === "all" ? "All Products" : categories.find(c => c.id === activeCategory)?.name}
+                </h2>
+                <p className="text-muted-foreground">{filteredProducts.length} products found</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+              {loading
+                ? Array.from({ length: 8 }).map((_, i) => (
+                    <ProductCardSkeleton key={i} index={i} />
+                  ))
+                : filteredProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.title}
+                      price={product.price_cents / 100}
+                      image={getFirstImage(product.images)}
+                      category={product.category || undefined}
+                      originalPrice={getOriginalPrice(product.variants)}
+                    />
+                  ))}
+            </div>
+
+            {!loading && filteredProducts.length === 0 && (
+              <div className="text-center py-16">
+                <Package className="h-16 w-16 mx-auto text-muted-foreground/50 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">No products found</h3>
+                <p className="text-muted-foreground mb-4">Try selecting a different category</p>
+                <Button onClick={() => setActiveCategory("all")}>View All Products</Button>
+              </div>
+            )}
+          </div>
+        </section>
+      </ScrollReveal>
+
+      {/* Features Section */}
+      <section className="py-12 md:py-16 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { icon: Package, title: "Free Shipping", desc: "On orders over ₹999" },
+              { icon: Star, title: "Premium Quality", desc: "100% authentic products" },
+              { icon: Heart, title: "Easy Returns", desc: "30-day return policy" },
+              { icon: ShoppingBag, title: "Secure Payment", desc: "100% secure checkout" },
+            ].map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="text-center p-4"
+              >
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <feature.icon className="h-6 w-6 text-primary" />
+                </div>
+                <h4 className="font-semibold mb-1">{feature.title}</h4>
+                <p className="text-sm text-muted-foreground">{feature.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Footer />
+      <BackToTop />
+    </div>
+  );
+};
+
+export default Shop;
