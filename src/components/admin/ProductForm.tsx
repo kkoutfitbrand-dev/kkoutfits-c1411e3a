@@ -130,7 +130,7 @@ export const ProductForm = ({
       setValue('inventory_count', editProduct.inventory_count || 0);
       setValue('sku', variantsData.sku || '');
       setValue('barcode', variantsData.barcode || '');
-      setValue('category', variantsData.category || '');
+      setValue('category', editProduct.category || variantsData.category || '');
       setValue('tags', variantsData.tags?.join(', ') || '');
       setValue('weight', variantsData.weight || 0);
 
@@ -263,10 +263,10 @@ export const ProductForm = ({
         inventory_count: data.inventory_count,
         images: imageUrls,
         status: 'published',
+        category: data.category || null,
         variants: {
           sku: data.sku,
           barcode: data.barcode,
-          category: data.category,
           tags: data.tags?.split(',').map(t => t.trim()).filter(Boolean),
           weight: data.weight,
           sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null
@@ -342,10 +342,10 @@ export const ProductForm = ({
         inventory_count: data.inventory_count || 0,
         images: imageUrls,
         status: 'draft',
+        category: data.category || null,
         variants: {
           sku: data.sku,
           barcode: data.barcode,
-          category: data.category,
           tags: data.tags?.split(',').map(t => t.trim()).filter(Boolean),
           weight: data.weight,
           sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null

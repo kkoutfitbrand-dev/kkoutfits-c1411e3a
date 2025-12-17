@@ -17,6 +17,7 @@ interface Product {
   price_cents: number;
   images: Json;
   slug: string;
+  category: string | null;
 }
 
 const getFirstImage = (images: Json): string => {
@@ -41,11 +42,18 @@ const CategoryPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('products')
-        .select('id, title, price_cents, images, slug')
+        .select('id, title, price_cents, images, slug, category')
         .eq('status', 'published')
         .order('created_at', { ascending: false });
+
+      // Filter by category if provided
+      if (category) {
+        query = query.eq('category', category);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setProducts(data || []);
