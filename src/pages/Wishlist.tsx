@@ -9,6 +9,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import type { Json } from "@/integrations/supabase/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface WishlistItem {
   id: string;
@@ -21,6 +27,18 @@ interface WishlistItem {
     slug: string;
     variants?: Json;
   };
+}
+
+interface ProductVariant {
+  id: string;
+  option1_name: string | null;
+  option1_value: string | null;
+  option2_name: string | null;
+  option2_value: string | null;
+  image_url: string | null;
+  price_cents: number | null;
+  inventory_count: number;
+  is_available: boolean | null;
 }
 
 const getFirstImage = (images: Json): string => {
@@ -42,6 +60,11 @@ const Wishlist = () => {
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [movingToCart, setMovingToCart] = useState<string | null>(null);
+  const [sizeDialogOpen, setSizeDialogOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<WishlistItem | null>(null);
+  const [availableSizes, setAvailableSizes] = useState<string[]>([]);
+  const [selectedSize, setSelectedSize] = useState<string>("");
+  const [loadingSizes, setLoadingSizes] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -86,22 +109,61 @@ const Wishlist = () => {
     }
   };
 
-  const moveToCart = async (item: WishlistItem) => {
-    if (!user) return;
-    
-    setMovingToCart(item.id);
+  const openSizeDialog = async (item: WishlistItem) => {
+    setSelectedItem(item);
+    setSelectedSize("");
+    setLoadingSizes(true);
+    setSizeDialogOpen(true);
+
     try {
-      const salePrice = getSalePrice(item.product.variants);
-      const price = salePrice || item.product.price_cents;
+      const { data: variants, error } = await supabase
+        .from("product_variants")
+        .select("*")
+        .eq("product_id", item.product.id);
+
+      if (error) throw error;
+
+      // Extract unique sizes from variants
+      const sizes = (variants as ProductVariant[])
+        .map(v => {
+          if (v.option1_name?.toLowerCase() === 'size') return v.option1_value;
+          if (v.option2_name?.toLowerCase() === 'size') return v.option2_value;
+          return null;
+        })
+        .filter((v, i, arr) => v && arr.indexOf(v) === i) as string[];
+
+      setAvailableSizes(sizes);
+    } catch (error) {
+      console.error("Error fetching sizes:", error);
+      setAvailableSizes([]);
+    } finally {
+      setLoadingSizes(false);
+    }
+  };
+
+  const moveToCart = async () => {
+    if (!user || !selectedItem) return;
+
+    if (availableSizes.length > 0 && !selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+    
+    setMovingToCart(selectedItem.id);
+    setSizeDialogOpen(false);
+    
+    try {
+      const salePrice = getSalePrice(selectedItem.product.variants);
+      const price = salePrice || selectedItem.product.price_cents;
       
       const newCartItem = {
-        id: `${item.product.id}-${Date.now()}`,
-        productId: item.product.id,
-        name: item.product.title,
+        id: `${selectedItem.product.id}-${selectedSize}-${Date.now()}`,
+        productId: selectedItem.product.id,
+        name: selectedItem.product.title,
         price: price / 100,
-        image: getFirstImage(item.product.images),
+        image: getFirstImage(selectedItem.product.images),
         quantity: 1,
-        size: "",
+        size: selectedSize,
         color: ""
       };
 
@@ -135,15 +197,16 @@ const Wishlist = () => {
       await supabase
         .from("wishlists")
         .delete()
-        .eq("id", item.id);
+        .eq("id", selectedItem.id);
 
-      setWishlistItems(items => items.filter(i => i.id !== item.id));
-      toast.success("Moved to cart");
+      setWishlistItems(items => items.filter(i => i.id !== selectedItem.id));
+      toast.success(`Moved to cart${selectedSize ? ` (Size: ${selectedSize})` : ""}`);
     } catch (error) {
       console.error("Error moving to cart:", error);
       toast.error("Failed to move to cart");
     } finally {
       setMovingToCart(null);
+      setSelectedItem(null);
     }
   };
 
@@ -227,7 +290,7 @@ const Wishlist = () => {
                     <Button 
                       className="w-full" 
                       size="sm"
-                      onClick={() => moveToCart(item)}
+                      onClick={() => openSizeDialog(item)}
                       disabled={movingToCart === item.id}
                     >
                       {movingToCart === item.id ? (
@@ -244,6 +307,69 @@ const Wishlist = () => {
           </div>
         </div>
         <Footer />
+
+        {/* Size Selection Dialog */}
+        <Dialog open={sizeDialogOpen} onOpenChange={setSizeDialogOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Select Size</DialogTitle>
+            </DialogHeader>
+            
+            {selectedItem && (
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <img
+                    src={getFirstImage(selectedItem.product.images)}
+                    alt={selectedItem.product.title}
+                    className="w-20 h-20 object-cover rounded-md"
+                  />
+                  <div>
+                    <h4 className="font-semibold line-clamp-2">{selectedItem.product.title}</h4>
+                    <p className="text-lg font-bold mt-1">
+                      ₹{((getSalePrice(selectedItem.product.variants) || selectedItem.product.price_cents) / 100).toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+
+                {loadingSizes ? (
+                  <div className="flex justify-center py-4">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
+                ) : availableSizes.length > 0 ? (
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Choose Size</label>
+                    <div className="flex flex-wrap gap-2">
+                      {availableSizes.map(size => (
+                        <button
+                          key={size}
+                          onClick={() => setSelectedSize(size)}
+                          className={`min-w-[50px] h-10 px-4 rounded-lg border-2 font-semibold transition-all ${
+                            selectedSize === size
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-border hover:border-primary"
+                          }`}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No sizes available for this product.</p>
+                )}
+
+                <Button 
+                  className="w-full" 
+                  onClick={moveToCart}
+                  disabled={availableSizes.length > 0 && !selectedSize}
+                >
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  Add to Cart
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </ProtectedRoute>
   );
