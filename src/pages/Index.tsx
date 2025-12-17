@@ -63,6 +63,7 @@ interface Product {
   price_cents: number;
   images: Json;
   slug: string;
+  category: string | null;
 }
 
 const getFirstImage = (images: Json): string => {
@@ -84,7 +85,7 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, title, price_cents, images, slug')
+        .select('id, title, price_cents, images, slug, category')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(6);
@@ -140,6 +141,7 @@ const Index = () => {
                 name={product.title}
                 price={product.price_cents / 100}
                 image={getFirstImage(product.images)}
+                category={product.category}
               />
             ))}
           </div>

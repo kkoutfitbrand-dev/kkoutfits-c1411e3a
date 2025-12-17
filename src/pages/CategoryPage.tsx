@@ -212,6 +212,7 @@ const CategoryPage = () => {
                       name={product.title}
                       price={product.price_cents / 100}
                       image={getFirstImage(product.images)}
+                      category={product.category}
                     />
                   ))}
                 </div>
