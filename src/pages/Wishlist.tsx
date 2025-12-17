@@ -2,49 +2,100 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import product2 from "@/assets/product-2.jpg";
-import product4 from "@/assets/product-4.jpg";
-import product5 from "@/assets/product-5.jpg";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import type { Json } from "@/integrations/supabase/types";
 
 interface WishlistItem {
   id: string;
-  name: string;
-  price: number;
-  originalPrice: number;
-  image: string;
+  product_id: string;
+  product: {
+    id: string;
+    title: string;
+    price_cents: number;
+    images: Json;
+    slug: string;
+    variants?: Json;
+  };
 }
 
-const Wishlist = () => {
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([
-    {
-      id: "2",
-      name: "Royal Black Sherwani with Golden Embroidery",
-      price: 24999,
-      originalPrice: 34999,
-      image: product2,
-    },
-    {
-      id: "4",
-      name: "Emerald Green Silk Kurta with Gold Details",
-      price: 7999,
-      originalPrice: 11999,
-      image: product4,
-    },
-    {
-      id: "5",
-      name: "Premium Ivory Wedding Sherwani",
-      price: 49999,
-      originalPrice: 69999,
-      image: product5,
-    },
-  ]);
+const getFirstImage = (images: Json): string => {
+  if (Array.isArray(images) && images.length > 0) {
+    return images[0] as string;
+  }
+  return "/placeholder.svg";
+};
 
-  const removeItem = (id: string) => {
-    setWishlistItems(items => items.filter(item => item.id !== id));
+const getSalePrice = (variants: Json): number | null => {
+  if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
+    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
+  }
+  return null;
+};
+
+const Wishlist = () => {
+  const { user } = useAuth();
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      fetchWishlist();
+    }
+  }, [user]);
+
+  const fetchWishlist = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("wishlists")
+        .select(`
+          id,
+          product_id,
+          product:products(id, title, price_cents, images, slug, variants)
+        `)
+        .eq("user_id", user?.id);
+
+      if (error) throw error;
+      setWishlistItems(data as unknown as WishlistItem[]);
+    } catch (error) {
+      console.error("Error fetching wishlist:", error);
+      toast.error("Failed to load wishlist");
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const removeItem = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("wishlists")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      setWishlistItems(items => items.filter(item => item.id !== id));
+      toast.success("Removed from wishlist");
+    } catch (error) {
+      console.error("Error removing from wishlist:", error);
+      toast.error("Failed to remove item");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <Navigation />
+        <div className="flex-1 container px-4 py-16 flex flex-col items-center justify-center">
+          <Loader2 className="w-12 h-12 animate-spin text-muted-foreground" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (wishlistItems.length === 0) {
     return (
@@ -67,52 +118,60 @@ const Wishlist = () => {
     <ProtectedRoute>
       <div className="min-h-screen bg-background">
         <Navigation />
-      <div className="container px-4 py-8 md:py-12">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl md:text-4xl font-serif font-bold">
-            My Wishlist ({wishlistItems.length})
-          </h1>
-        </div>
-        
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {wishlistItems.map(item => (
-            <div key={item.id} className="bg-card border border-border rounded-lg overflow-hidden group">
-              <div className="relative">
-                <Link to={`/product/${item.id}`}>
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </Link>
-                <button
-                  onClick={() => removeItem(item.id)}
-                  className="absolute top-4 right-4 p-2 bg-background/90 rounded-full hover:bg-destructive hover:text-destructive-foreground transition-colors"
-                >
-                  <Heart className="w-5 h-5 fill-current" />
-                </button>
-              </div>
-              <div className="p-4">
-                <Link to={`/product/${item.id}`}>
-                  <h3 className="font-semibold mb-2 hover:text-accent transition-colors line-clamp-2">
-                    {item.name}
-                  </h3>
-                </Link>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-lg font-bold">₹{item.price.toLocaleString()}</span>
-                  <span className="text-sm text-muted-foreground line-through">
-                    ₹{item.originalPrice.toLocaleString()}
-                  </span>
+        <div className="container px-4 py-8 md:py-12">
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-3xl md:text-4xl font-serif font-bold">
+              My Wishlist ({wishlistItems.length})
+            </h1>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {wishlistItems.map(item => {
+              const salePrice = getSalePrice(item.product.variants);
+              const displayPrice = salePrice || item.product.price_cents;
+              const originalPrice = salePrice ? item.product.price_cents : null;
+
+              return (
+                <div key={item.id} className="bg-card border border-border rounded-lg overflow-hidden group">
+                  <div className="relative">
+                    <Link to={`/product/${item.product.slug}`}>
+                      <img
+                        src={getFirstImage(item.product.images)}
+                        alt={item.product.title}
+                        className="w-full aspect-[3/4] object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </Link>
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      className="absolute top-4 right-4 p-2 bg-background/90 rounded-full hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                    >
+                      <Heart className="w-5 h-5 fill-current" />
+                    </button>
+                  </div>
+                  <div className="p-4">
+                    <Link to={`/product/${item.product.slug}`}>
+                      <h3 className="font-semibold mb-2 hover:text-accent transition-colors line-clamp-2">
+                        {item.product.title}
+                      </h3>
+                    </Link>
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-lg font-bold">₹{(displayPrice / 100).toLocaleString()}</span>
+                      {originalPrice && (
+                        <span className="text-sm text-muted-foreground line-through">
+                          ₹{(originalPrice / 100).toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    <Button className="w-full" size="sm">
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      Move to Cart
+                    </Button>
+                  </div>
                 </div>
-                <Button className="w-full" size="sm">
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  Move to Cart
-                </Button>
-              </div>
-            </div>
-          ))}
+              );
+            })}
+          </div>
         </div>
-      </div>
         <Footer />
       </div>
     </ProtectedRoute>
