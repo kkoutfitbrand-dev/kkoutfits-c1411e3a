@@ -93,10 +93,25 @@ export default {
             height: "0",
           },
         },
+        "spring-bounce": {
+          "0%": {
+            transform: "scale(0.95)",
+          },
+          "50%": {
+            transform: "scale(1.05)",
+          },
+          "75%": {
+            transform: "scale(0.98)",
+          },
+          "100%": {
+            transform: "scale(1)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "spring-bounce": "spring-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
       },
     },
   },
