@@ -42,6 +42,15 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState("all");
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -80,15 +89,15 @@ const Shop = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Custom Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+      <header className={`sticky top-0 z-50 bg-background/95 backdrop-blur-md border-b border-border transition-all duration-300 ${isScrolled ? 'shadow-sm' : ''}`}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 md:h-20">
+          <div className={`flex items-center justify-between transition-all duration-300 ${isScrolled ? 'h-12 md:h-14' : 'h-16 md:h-20'}`}>
             {/* Logo */}
             <Link to="/shop" className="flex items-center gap-2">
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                className="text-2xl md:text-3xl font-bold tracking-tight"
+                className={`font-bold tracking-tight transition-all duration-300 ${isScrolled ? 'text-xl md:text-2xl' : 'text-2xl md:text-3xl'}`}
               >
                 <span className="text-primary">KK</span>
                 <span className="text-foreground">Outfits</span>
@@ -97,50 +106,50 @@ const Shop = () => {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">
-              <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/" className={`font-medium text-muted-foreground hover:text-foreground transition-colors ${isScrolled ? 'text-xs' : 'text-sm'}`}>
                 Home
               </Link>
-              <Link to="/shop" className="text-sm font-medium text-foreground">
+              <Link to="/shop" className={`font-medium text-foreground transition-colors ${isScrolled ? 'text-xs' : 'text-sm'}`}>
                 Shop
               </Link>
-              <Link to="/sale" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/sale" className={`font-medium text-muted-foreground hover:text-foreground transition-colors ${isScrolled ? 'text-xs' : 'text-sm'}`}>
                 Sale
               </Link>
-              <Link to="/about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/about" className={`font-medium text-muted-foreground hover:text-foreground transition-colors ${isScrolled ? 'text-xs' : 'text-sm'}`}>
                 About
               </Link>
-              <Link to="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              <Link to="/contact" className={`font-medium text-muted-foreground hover:text-foreground transition-colors ${isScrolled ? 'text-xs' : 'text-sm'}`}>
                 Contact
               </Link>
             </nav>
 
             {/* Actions */}
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" size="icon" className="hidden md:flex">
-                <Search className="h-5 w-5" />
+            <div className={`flex items-center transition-all duration-300 ${isScrolled ? 'gap-1' : 'gap-3'}`}>
+              <Button variant="ghost" size="icon" className={`hidden md:flex transition-all duration-300 ${isScrolled ? 'h-8 w-8' : ''}`}>
+                <Search className={`transition-all duration-300 ${isScrolled ? 'h-4 w-4' : 'h-5 w-5'}`} />
               </Button>
               <Link to="/wishlist">
-                <Button variant="ghost" size="icon">
-                  <Heart className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className={`transition-all duration-300 ${isScrolled ? 'h-8 w-8' : ''}`}>
+                  <Heart className={`transition-all duration-300 ${isScrolled ? 'h-4 w-4' : 'h-5 w-5'}`} />
                 </Button>
               </Link>
               <Link to="/cart">
-                <Button variant="ghost" size="icon" className="relative">
-                  <ShoppingBag className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className={`relative transition-all duration-300 ${isScrolled ? 'h-8 w-8' : ''}`}>
+                  <ShoppingBag className={`transition-all duration-300 ${isScrolled ? 'h-4 w-4' : 'h-5 w-5'}`} />
                 </Button>
               </Link>
               <Link to="/account">
-                <Button variant="ghost" size="icon" className="hidden md:flex">
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className={`hidden md:flex transition-all duration-300 ${isScrolled ? 'h-8 w-8' : ''}`}>
+                  <User className={`transition-all duration-300 ${isScrolled ? 'h-4 w-4' : 'h-5 w-5'}`} />
                 </Button>
               </Link>
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden"
+                className={`md:hidden transition-all duration-300 ${isScrolled ? 'h-8 w-8' : ''}`}
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                {mobileMenuOpen ? <X className={`transition-all duration-300 ${isScrolled ? 'h-4 w-4' : 'h-5 w-5'}`} /> : <Menu className={`transition-all duration-300 ${isScrolled ? 'h-4 w-4' : 'h-5 w-5'}`} />}
               </Button>
             </div>
           </div>
@@ -200,18 +209,18 @@ const Shop = () => {
       </section>
 
       {/* Category Filter */}
-      <section className="py-6 border-b border-border sticky top-16 md:top-20 bg-background/95 backdrop-blur-md z-40">
+      <section className={`border-b border-border sticky bg-background/95 backdrop-blur-md z-40 transition-all duration-300 ${isScrolled ? 'py-2 top-12 md:top-14' : 'py-6 top-16 md:top-20'}`}>
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
             {categories.map((cat) => (
               <Button
                 key={cat.id}
                 variant={activeCategory === cat.id ? "default" : "outline"}
                 size="sm"
-                className="rounded-full whitespace-nowrap"
+                className={`rounded-full whitespace-nowrap transition-all duration-300 ${isScrolled ? 'h-7 text-xs px-3' : ''}`}
                 onClick={() => setActiveCategory(cat.id)}
               >
-                <cat.icon className="h-4 w-4 mr-1" />
+                <cat.icon className={`mr-1 transition-all duration-300 ${isScrolled ? 'h-3 w-3' : 'h-4 w-4'}`} />
                 {cat.name}
               </Button>
             ))}
