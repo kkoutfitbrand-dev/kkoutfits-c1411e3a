@@ -109,7 +109,7 @@ export const Navigation = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <h1 className="md:text-xl font-serif font-bold tracking-wider text-sm px-[10px] py-0 my-[50px] mx-[100px] lg:text-4xl">KK OUTFITS</h1>
+          <h1 className="md:text-xl font-serif font-bold tracking-wider text-sm px-[10px] py-0 my-[50px] mx-[100px] lg:text-2xl">KK OUTFITS</h1>
         </Link>
 
         {/* Desktop Navigation */}
