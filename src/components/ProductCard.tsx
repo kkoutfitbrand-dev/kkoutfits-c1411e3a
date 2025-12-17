@@ -2,6 +2,7 @@ import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { motion } from "framer-motion";
 
 interface ProductCardProps {
   id: string;
@@ -45,57 +46,65 @@ export const ProductCard = ({
 
   return (
     <Link to={`/product/${id}`} className="group block">
-      <Card className="overflow-hidden border border-border hover:shadow-md transition-shadow duration-200">
-        <div className="relative overflow-hidden aspect-[3/4]">
-          <img
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover"
-          />
-          {badge && (
-            <Badge className="absolute top-2 left-2 bg-foreground text-background border-0 text-xs font-bold uppercase rounded-sm px-2 py-1">
-              {badge}
-            </Badge>
-          )}
-          {category && (
-            <Badge className={`absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-sm border-0 ${getCategoryColor(category)}`}>
-              {category.charAt(0).toUpperCase() + category.slice(1)}
-            </Badge>
-          )}
-          {discount > 0 && (
-            <div className="absolute bottom-2 left-2 bg-myntra-pink text-white text-xs font-bold px-2 py-1 rounded-sm">
-              {discount}% OFF
-            </div>
-          )}
-        </div>
-        <CardContent className="p-3">
-          <h3 className="font-medium text-sm mb-1 line-clamp-2 text-foreground">
-            {name}
-          </h3>
-          <div className="flex items-center gap-1 mb-2">
-            <div className="flex items-center gap-0.5 bg-myntra-green text-white text-xs font-bold px-1.5 py-0.5 rounded-sm">
-              <span>{rating}</span>
-              <Star className="h-2.5 w-2.5 fill-current" />
-            </div>
-            <span className="text-xs text-muted-foreground">(2.3k)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold text-foreground">
-              ₹{price.toLocaleString("en-IN")}
-            </span>
-            {originalPrice && (
-              <>
-                <span className="text-xs text-muted-foreground line-through">
-                  ₹{originalPrice.toLocaleString("en-IN")}
-                </span>
-                <span className="text-xs text-myntra-orange font-semibold">
-                  ({discount}% OFF)
-                </span>
-              </>
+      <motion.div
+        whileHover={{ y: -4 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      >
+        <Card className="overflow-hidden border border-border hover:shadow-lg transition-shadow duration-300">
+          <div className="relative overflow-hidden aspect-[3/4]">
+            <motion.img
+              src={image}
+              alt={name}
+              className="w-full h-full object-cover"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+            {badge && (
+              <Badge className="absolute top-2 left-2 bg-foreground text-background border-0 text-xs font-bold uppercase rounded-sm px-2 py-1">
+                {badge}
+              </Badge>
+            )}
+            {category && (
+              <Badge className={`absolute top-2 right-2 text-xs font-medium px-2 py-1 rounded-sm border-0 ${getCategoryColor(category)}`}>
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </Badge>
+            )}
+            {discount > 0 && (
+              <div className="absolute bottom-2 left-2 bg-myntra-pink text-white text-xs font-bold px-2 py-1 rounded-sm">
+                {discount}% OFF
+              </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+          <CardContent className="p-3">
+            <h3 className="font-medium text-sm mb-1 line-clamp-2 text-foreground">
+              {name}
+            </h3>
+            <div className="flex items-center gap-1 mb-2">
+              <div className="flex items-center gap-0.5 bg-myntra-green text-white text-xs font-bold px-1.5 py-0.5 rounded-sm">
+                <span>{rating}</span>
+                <Star className="h-2.5 w-2.5 fill-current" />
+              </div>
+              <span className="text-xs text-muted-foreground">(2.3k)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-foreground">
+                ₹{price.toLocaleString("en-IN")}
+              </span>
+              {originalPrice && (
+                <>
+                  <span className="text-xs text-muted-foreground line-through">
+                    ₹{originalPrice.toLocaleString("en-IN")}
+                  </span>
+                  <span className="text-xs text-myntra-orange font-semibold">
+                    ({discount}% OFF)
+                  </span>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </Link>
   );
 };
