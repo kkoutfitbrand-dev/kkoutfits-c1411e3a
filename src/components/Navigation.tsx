@@ -9,7 +9,6 @@ import { CategoryIconSection } from "@/components/CategoryIconSection";
 import { MiniCart } from "@/components/MiniCart";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
-import { useWishlist } from "@/hooks/useWishlist";
 const categories = ["Shirts", "T-Shirts", "Pants", "Jeans", "Casual Wear", "Formal Wear", "New Arrivals", "Sale"];
 const moreLinks = [{
   label: "About Us",
@@ -57,7 +56,6 @@ export const Navigation = () => {
   const {
     isAdmin
   } = useUserRole();
-  const { wishlistIds } = useWishlist();
   const navigate = useNavigate();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -116,9 +114,7 @@ export const Navigation = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          {categories.slice(0, 5).map(category => <Link key={category} to={`/category/${category.toLowerCase().replace(" ", "-")}`} className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              {category}
-            </Link>)}
+          {categories.slice(0, 5).map(category => {})}
         </nav>
 
         {/* Right Icons */}
@@ -128,15 +124,10 @@ export const Navigation = () => {
               <Search className="h-5 w-5 text-foreground" />
             </Button>
           </Link>
-          <Link to="/wishlist" className="relative">
+          <Link to="/wishlist">
             <Button variant="ghost" size="icon" className="h-9 w-9">
               <Heart className="h-5 w-5 text-foreground" />
             </Button>
-            {wishlistIds.length > 0 && (
-              <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                {wishlistIds.length > 9 ? "9+" : wishlistIds.length}
-              </span>
-            )}
           </Link>
           {user ? <DropdownMenu>
               <DropdownMenuTrigger asChild>
