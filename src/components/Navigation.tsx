@@ -112,7 +112,7 @@ export const Navigation = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <h1 className="md:text-xl lg:text-2xl font-serif font-bold tracking-wider text-sm">KK OUTFITS</h1>
+          <h1 className="text-sm md:text-base lg:text-lg font-serif font-bold tracking-wider">KK OUTFITS</h1>
         </Link>
 
         {/* Desktop Navigation */}
@@ -123,26 +123,21 @@ export const Navigation = () => {
         </nav>
 
         {/* Right Icons */}
-        <div className="flex items-center gap-2">
-          <div className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="lg:hidden">
-              <Search className="h-5 w-5" />
-            </Button>
-          </div>
+        <div className="flex items-center gap-1 md:gap-2">
           <Link to="/search">
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Search className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Search className="h-5 w-5 text-foreground" />
             </Button>
           </Link>
           <Link to="/wishlist">
-            <Button variant="ghost" size="icon">
-              <Heart className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="h-9 w-9">
+              <Heart className="h-5 w-5 text-foreground" />
             </Button>
           </Link>
           {user ? <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <User className="h-5 w-5 text-foreground" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
@@ -172,8 +167,8 @@ export const Navigation = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu> : <Link to="/auth">
-              <Button variant="ghost" size="icon">
-                <User className="h-5 w-5" />
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <User className="h-5 w-5 text-foreground" />
               </Button>
             </Link>}
           <MiniCart />
