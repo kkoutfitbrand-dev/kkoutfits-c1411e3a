@@ -152,7 +152,7 @@ const OrderConfirmation = () => {
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
   const items = orderDetails.items || [];
   const subtotal = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-  const shipping = subtotal > 999 ? 0 : 99;
+  const shipping = 0; // Free shipping
   const finalTotal = subtotal + shipping;
   const getPaymentMethodLabel = (method: string) => {
     switch (method) {
