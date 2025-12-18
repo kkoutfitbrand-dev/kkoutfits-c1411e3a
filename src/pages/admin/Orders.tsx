@@ -32,7 +32,7 @@ export default function AdminOrders() {
     setLoading(true);
     const { data, error } = await supabase
       .from('orders')
-      .select('*')
+      .select('*, profiles:user_id(name)')
       .order('created_at', { ascending: false });
 
     if (error) {
