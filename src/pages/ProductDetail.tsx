@@ -271,13 +271,14 @@ const ProductDetail = () => {
         v.option1_value === selectedColor && v.option2_value === selectedSize
       );
       const variantImage = selectedVariant?.image_url || productImages[0];
-      const variantPrice = selectedVariant?.price_cents || product.price_cents;
+      // Use the display price (selling price) instead of MRP
+      const cartPrice = displayPrice;
 
       const newItem = {
         id: `${product.id}-${selectedColor}-${selectedSize}-${Date.now()}`,
         productId: product.id,
         name: product.title,
-        price: variantPrice / 100,
+        price: cartPrice,
         image: variantImage,
         quantity: quantity,
         size: selectedSize,
