@@ -396,26 +396,18 @@ const Checkout = () => {
                 <h2 className="text-xl font-serif font-bold mb-6">Payment Method</h2>
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
                   <div className="flex items-center space-x-3 border border-border rounded-lg p-4">
+                    <RadioGroupItem value="online" id="online" />
+                    <Label htmlFor="online" className="flex-1 cursor-pointer">
+                      <div className="font-medium">Online Payment</div>
+                      <div className="text-sm text-muted-foreground">UPI, Credit/Debit Card, Net Banking & more</div>
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-3 border border-border rounded-lg p-4">
                     <RadioGroupItem value="cod" id="cod" />
                     <Label htmlFor="cod" className="flex-1 cursor-pointer">
                       <div className="font-medium">Cash on Delivery</div>
-                      <div className="text-sm text-muted-foreground">Pay when you receive</div>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 border border-border rounded-lg p-4">
-                    <RadioGroupItem value="upi" id="upi" />
-                    <Label htmlFor="upi" className="flex-1 cursor-pointer">
-                      <div className="font-medium">UPI</div>
-                      <div className="text-sm text-muted-foreground">Google Pay, PhonePe, Paytm</div>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-3 border border-border rounded-lg p-4">
-                    <RadioGroupItem value="card" id="card" />
-                    <Label htmlFor="card" className="flex-1 cursor-pointer">
-                      <div className="font-medium">Credit / Debit Card</div>
-                      <div className="text-sm text-muted-foreground">Visa, Mastercard, Rupay</div>
+                      <div className="text-sm text-muted-foreground">Pay when you receive your order</div>
                     </Label>
                   </div>
                 </RadioGroup>
