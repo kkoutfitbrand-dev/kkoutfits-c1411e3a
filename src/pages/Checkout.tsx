@@ -60,85 +60,86 @@ const Checkout = () => {
   const navigate = useNavigate();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([
-    {
-      id: "1",
-      type: "Home",
-      firstName: "John",
-      lastName: "Doe",
-      phone: "9876543210",
-      address: "123 MG Road, Near City Mall",
-      city: "Mumbai",
-      state: "Maharashtra",
-      pincode: "400001",
-      isDefault: true,
-    },
-    {
-      id: "2",
-      type: "Office",
-      firstName: "John",
-      lastName: "Doe",
-      phone: "9876543210",
-      address: "456 Tech Park, Whitefield",
-      city: "Bangalore",
-      state: "Karnataka",
-      pincode: "560066",
-      isDefault: false,
-    },
-  ]);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
+  const [addressesLoading, setAddressesLoading] = useState(true);
   const { toast } = useToast();
   
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<AddressFormData>({
-    resolver: zodResolver(addressSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      address: "",
-      city: "",
-      state: "",
-      pincode: ""
-    }
-  });
 
   const onAddressSubmit = async (data: AddressFormData) => {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    if (!user) return;
     
-    let newAddressId: string;
-    
-    if (selectedAddressId) {
-      // Editing existing address
-      setSavedAddresses(prev =>
-        prev.map(addr =>
-          addr.id === selectedAddressId
-            ? { ...addr, ...data }
-            : addr
-        )
-      );
-      newAddressId = selectedAddressId;
-      toast({ title: "Address updated successfully" });
-    } else {
-      // Adding new address
-      newAddressId = Date.now().toString();
-      const newAddress: SavedAddress = {
-        id: newAddressId,
-        type: "Home",
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        address: data.address,
-        city: data.city,
-        state: data.state,
-        pincode: data.pincode,
-        isDefault: savedAddresses.length === 0,
-      };
-      setSavedAddresses(prev => [...prev, newAddress]);
-      toast({ title: "Address added successfully" });
+    try {
+      if (selectedAddressId && savedAddresses.find(a => a.id === selectedAddressId)) {
+        // Editing existing address
+        const { error } = await supabase
+          .from('addresses')
+          .update({
+            first_name: data.firstName,
+            last_name: data.lastName,
+            phone: data.phone,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+            pincode: data.pincode
+          })
+          .eq('id', selectedAddressId)
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+
+        setSavedAddresses(prev =>
+          prev.map(addr =>
+            addr.id === selectedAddressId
+              ? { ...addr, ...data }
+              : addr
+          )
+        );
+        toast({ title: "Address updated successfully" });
+      } else {
+        // Adding new address
+        const isFirst = savedAddresses.length === 0;
+        const { data: newAddr, error } = await supabase
+          .from('addresses')
+          .insert({
+            user_id: user.id,
+            type: 'Home',
+            first_name: data.firstName,
+            last_name: data.lastName,
+            phone: data.phone,
+            address: data.address,
+            city: data.city,
+            state: data.state,
+            pincode: data.pincode,
+            is_default: isFirst
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        const newAddress: SavedAddress = {
+          id: newAddr.id,
+          type: newAddr.type as "Home" | "Office" | "Other",
+          firstName: newAddr.first_name,
+          lastName: newAddr.last_name,
+          phone: newAddr.phone,
+          address: newAddr.address,
+          city: newAddr.city,
+          state: newAddr.state,
+          pincode: newAddr.pincode,
+          isDefault: newAddr.is_default,
+        };
+        setSavedAddresses(prev => [...prev, newAddress]);
+        setSelectedAddressId(newAddr.id);
+        toast({ title: "Address added successfully" });
+      }
+      
+      setShowAddressForm(false);
+      setStep(2);
+    } catch (error) {
+      console.error('Error saving address:', error);
+      toast({ title: "Failed to save address", variant: "destructive" });
     }
-    
-    setShowAddressForm(false);
-    setSelectedAddressId(newAddressId);
-    setStep(2); // Move to payment step
   };
 
   const handleSelectAddress = (id: string) => {
@@ -156,18 +157,56 @@ const Checkout = () => {
     setShowAddressForm(true);
   };
 
-  const handleDeleteAddress = (id: string) => {
-    setSavedAddresses(prev => prev.filter(addr => addr.id !== id));
-    toast({ title: "Address deleted" });
+  const handleDeleteAddress = async (id: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('addresses')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setSavedAddresses(prev => prev.filter(addr => addr.id !== id));
+      toast({ title: "Address deleted" });
+    } catch (error) {
+      console.error('Error deleting address:', error);
+      toast({ title: "Failed to delete address", variant: "destructive" });
+    }
   };
 
-  const handleSetDefault = (id: string) => {
-    setSavedAddresses(prev =>
-      prev.map(addr => ({
-        ...addr,
-        isDefault: addr.id === id,
-      }))
-    );
+  const handleSetDefault = async (id: string) => {
+    if (!user) return;
+    
+    try {
+      // First, unset all defaults
+      await supabase
+        .from('addresses')
+        .update({ is_default: false })
+        .eq('user_id', user.id);
+      
+      // Then set the new default
+      const { error } = await supabase
+        .from('addresses')
+        .update({ is_default: true })
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      setSavedAddresses(prev =>
+        prev.map(addr => ({
+          ...addr,
+          isDefault: addr.id === id,
+        }))
+      );
+      toast({ title: "Default address updated" });
+    } catch (error) {
+      console.error('Error setting default address:', error);
+      toast({ title: "Failed to update default address", variant: "destructive" });
+    }
   };
 
   const form = useForm<AddressFormData>({
@@ -211,6 +250,54 @@ const Checkout = () => {
     };
 
     fetchCart();
+  }, [user]);
+
+  // Fetch saved addresses from database
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (!user) {
+        setAddressesLoading(false);
+        return;
+      }
+      
+      try {
+        const { data, error } = await supabase
+          .from('addresses')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('is_default', { ascending: false });
+
+        if (error) throw error;
+
+        if (data) {
+          const addresses: SavedAddress[] = data.map(addr => ({
+            id: addr.id,
+            type: addr.type as "Home" | "Office" | "Other",
+            firstName: addr.first_name,
+            lastName: addr.last_name,
+            phone: addr.phone,
+            address: addr.address,
+            city: addr.city,
+            state: addr.state,
+            pincode: addr.pincode,
+            isDefault: addr.is_default || false,
+          }));
+          setSavedAddresses(addresses);
+          
+          // Auto-select default address
+          const defaultAddr = addresses.find(a => a.isDefault);
+          if (defaultAddr) {
+            setSelectedAddressId(defaultAddr.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching addresses:', error);
+      } finally {
+        setAddressesLoading(false);
+      }
+    };
+
+    fetchAddresses();
   }, [user]);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -318,53 +405,53 @@ const Checkout = () => {
             {step === 1 && (
               <div className="bg-card border border-border rounded-lg p-6">
                 <h2 className="text-xl font-serif font-bold mb-6">Delivery Address</h2>
-                <form id="checkout-form" onSubmit={handleSubmit(onAddressSubmit)} className="space-y-4">
+                <form id="checkout-form" onSubmit={form.handleSubmit(onAddressSubmit)} className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name *</Label>
-                      <Input id="firstName" {...register('firstName')} className="mt-2" />
-                      {errors.firstName && (
-                        <p className="text-sm text-destructive mt-1">{errors.firstName.message}</p>
+                      <Input id="firstName" {...form.register('firstName')} className="mt-2" />
+                      {form.formState.errors.firstName && (
+                        <p className="text-sm text-destructive mt-1">{form.formState.errors.firstName.message}</p>
                       )}
                     </div>
                     <div>
                       <Label htmlFor="lastName">Last Name *</Label>
-                      <Input id="lastName" {...register('lastName')} className="mt-2" />
-                      {errors.lastName && (
-                        <p className="text-sm text-destructive mt-1">{errors.lastName.message}</p>
+                      <Input id="lastName" {...form.register('lastName')} className="mt-2" />
+                      {form.formState.errors.lastName && (
+                        <p className="text-sm text-destructive mt-1">{form.formState.errors.lastName.message}</p>
                       )}
                     </div>
                   </div>
                   
                   <div>
                     <Label htmlFor="phone">Phone Number *</Label>
-                    <Input id="phone" type="tel" {...register('phone')} className="mt-2" />
-                    {errors.phone && (
-                      <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>
+                    <Input id="phone" type="tel" {...form.register('phone')} className="mt-2" />
+                    {form.formState.errors.phone && (
+                      <p className="text-sm text-destructive mt-1">{form.formState.errors.phone.message}</p>
                     )}
                   </div>
                   
                   <div>
                     <Label htmlFor="address">Street Address *</Label>
-                    <Input id="address" {...register('address')} className="mt-2" />
-                    {errors.address && (
-                      <p className="text-sm text-destructive mt-1">{errors.address.message}</p>
+                    <Input id="address" {...form.register('address')} className="mt-2" />
+                    {form.formState.errors.address && (
+                      <p className="text-sm text-destructive mt-1">{form.formState.errors.address.message}</p>
                     )}
                   </div>
                   
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="city">City *</Label>
-                      <Input id="city" {...register('city')} className="mt-2" />
-                      {errors.city && (
-                        <p className="text-sm text-destructive mt-1">{errors.city.message}</p>
+                      <Input id="city" {...form.register('city')} className="mt-2" />
+                      {form.formState.errors.city && (
+                        <p className="text-sm text-destructive mt-1">{form.formState.errors.city.message}</p>
                       )}
                     </div>
                     <div>
                       <Label htmlFor="state">State *</Label>
-                      <Input id="state" {...register('state')} className="mt-2" />
-                      {errors.state && (
-                        <p className="text-sm text-destructive mt-1">{errors.state.message}</p>
+                      <Input id="state" {...form.register('state')} className="mt-2" />
+                      {form.formState.errors.state && (
+                        <p className="text-sm text-destructive mt-1">{form.formState.errors.state.message}</p>
                       )}
                     </div>
                   </div>
@@ -372,9 +459,9 @@ const Checkout = () => {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="pincode">Pincode *</Label>
-                      <Input id="pincode" {...register('pincode')} className="mt-2" placeholder="e.g. 600001" />
-                      {errors.pincode && (
-                        <p className="text-sm text-destructive mt-1">{errors.pincode.message}</p>
+                      <Input id="pincode" {...form.register('pincode')} className="mt-2" placeholder="e.g. 600001" />
+                      {form.formState.errors.pincode && (
+                        <p className="text-sm text-destructive mt-1">{form.formState.errors.pincode.message}</p>
                       )}
                     </div>
                     <div>
@@ -383,8 +470,8 @@ const Checkout = () => {
                     </div>
                   </div>
                   
-                  <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
-                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     Continue to Payment
                   </Button>
                 </form>
@@ -519,8 +606,8 @@ const Checkout = () => {
             <p className="text-lg font-bold">₹{total.toLocaleString()}</p>
           </div>
           {step === 1 && (
-            <Button type="submit" form="checkout-form" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            <Button type="submit" form="checkout-form" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Continue
             </Button>
           )}
