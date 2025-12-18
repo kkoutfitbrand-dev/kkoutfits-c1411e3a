@@ -428,15 +428,24 @@ const ProductDetail = () => {
             
             {/* Price Section */}
             <div id="product-price" className="mb-4">
-              <div className="flex items-center gap-3">
-                <span className="text-4xl font-bold">₹{displayPrice.toLocaleString()}</span>
-                {mrp && mrp > displayPrice && (
-                  <>
-                    <span className="text-xl text-muted-foreground line-through">₹{mrp.toLocaleString()}</span>
-                    <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 text-sm">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-4xl font-bold text-primary">₹{displayPrice.toLocaleString()}</span>
+                  {mrp && mrp > displayPrice && (
+                    <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 text-sm px-3 py-1">
                       {discountPercent}% OFF
                     </Badge>
-                  </>
+                  )}
+                </div>
+                {mrp && mrp > displayPrice && (
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-muted-foreground">
+                      MRP: <span className="line-through">₹{mrp.toLocaleString()}</span>
+                    </span>
+                    <span className="text-green-600 dark:text-green-400 font-medium">
+                      You save ₹{(mrp - displayPrice).toLocaleString()}
+                    </span>
+                  </div>
                 )}
               </div>
             </div>
