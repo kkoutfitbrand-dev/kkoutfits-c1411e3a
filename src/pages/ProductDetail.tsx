@@ -57,7 +57,8 @@ interface Product {
   slug: string;
   category: string | null;
   inventory_count: number | null;
-  variants?: Variant[];
+  variants_meta?: unknown; // products.variants JSON (MRP/Selling meta)
+  variants?: Variant[]; // product_variants rows
 }
 const ProductDetail = () => {
   const { id } = useParams();
@@ -104,6 +105,7 @@ const ProductDetail = () => {
           images: Array.isArray(productData.images) 
             ? productData.images.filter((img): img is string => typeof img === 'string')
             : [],
+          variants_meta: productData.variants,
           variants: variantsData || []
         });
         setVariants(variantsData || []);
@@ -201,29 +203,30 @@ const ProductDetail = () => {
     );
   }
 
-  // Get sale price from product variants JSON field
+  // Get selling price from products.variants JSON field
   const getSalePrice = (): number | null => {
-    const productVariants = (product as any).variants;
-    if (productVariants && typeof productVariants === 'object' && 'sale_price_cents' in productVariants) {
-      return productVariants.sale_price_cents || null;
+    const meta = (product as any).variants_meta;
+    if (meta && typeof meta === 'object' && 'sale_price_cents' in meta) {
+      return (meta as { sale_price_cents?: number }).sale_price_cents || null;
     }
     return null;
   };
 
   const salePrice = getSalePrice();
-  const mrp = product.price_cents / 100; // MRP is the base price_cents
-  const displayPrice = salePrice ? salePrice / 100 : mrp; // Selling price is sale_price_cents if exists
+  const mrp = product.price_cents / 100; // MRP stored in products.price_cents
+  const displayPrice = salePrice && salePrice < product.price_cents ? salePrice / 100 : mrp;
   const productImages = product.images.length > 0 ? product.images : [product1];
-  
+
   // Calculate discount percentage
-  const discountPercent = salePrice && mrp > displayPrice 
-    ? Math.round(((mrp - displayPrice) / mrp) * 100) 
+  const discountPercent = salePrice && mrp > displayPrice
+    ? Math.round(((mrp - displayPrice) / mrp) * 100)
     : 0;
 
-  // Calculate total inventory
-  const totalInventory = variants.length > 0 
+  // Calculate total inventory (use max of variant stock and product stock)
+  const variantInventory = variants.length > 0
     ? variants.reduce((sum, v) => sum + (v.inventory_count || 0), 0)
-    : product.inventory_count || 0;
+    : 0;
+  const totalInventory = Math.max(product.inventory_count || 0, variantInventory);
 
   // Generate product tags
   const productTags = [
@@ -432,7 +435,7 @@ const ProductDetail = () => {
             {/* Price Section */}
             <div id="product-price" className="mb-4">
               <div className="flex items-center gap-3 flex-wrap">
-                {/* Selling Price - Large */}
+                {/* Selling Price */}
                 <span className="text-3xl md:text-4xl font-bold text-foreground">
                   ₹{displayPrice.toLocaleString("en-IN")}
                 </span>
@@ -444,11 +447,11 @@ const ProductDetail = () => {
                   </span>
                 )}
 
-                {/* Discount Badge - Red/Coral */}
+                {/* Discount Badge */}
                 {salePrice && mrp > displayPrice && (
-                  <span className="bg-[#FF6B6B] text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  <Badge variant="destructive" className="rounded-full px-3 py-1 text-sm">
                     {discountPercent}% OFF
-                  </span>
+                  </Badge>
                 )}
               </div>
             </div>
