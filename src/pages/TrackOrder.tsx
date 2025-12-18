@@ -38,7 +38,7 @@ interface OrderData {
   order_items: OrderItem[];
 }
 
-const ORDER_STATUSES = ['pending', 'confirmed', 'processing', 'shipped', 'out_for_delivery', 'delivered'];
+const ORDER_STATUSES = ['pending', 'paid', 'packed', 'shipped', 'delivered'];
 
 const getStatusIndex = (status: string) => {
   const index = ORDER_STATUSES.indexOf(status);
@@ -48,11 +48,11 @@ const getStatusIndex = (status: string) => {
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
     pending: 'Order Placed',
-    confirmed: 'Order Confirmed',
-    processing: 'Processing',
+    paid: 'Payment Confirmed',
+    packed: 'Packed',
     shipped: 'Shipped',
-    out_for_delivery: 'Out for Delivery',
-    delivered: 'Delivered'
+    delivered: 'Delivered',
+    cancelled: 'Cancelled'
   };
   return labels[status] || status;
 };
@@ -60,11 +60,11 @@ const getStatusLabel = (status: string) => {
 const getStatusDescription = (status: string) => {
   const descriptions: Record<string, string> = {
     pending: 'Your order has been placed successfully',
-    confirmed: 'Your order has been confirmed and is being prepared',
-    processing: 'Your order is being packed and prepared for shipping',
+    paid: 'Payment has been confirmed',
+    packed: 'Your order is packed and ready for shipping',
     shipped: 'Your order has been shipped and is on its way',
-    out_for_delivery: 'Your order is out for delivery today',
-    delivered: 'Your order has been delivered successfully'
+    delivered: 'Your order has been delivered successfully',
+    cancelled: 'Your order has been cancelled'
   };
   return descriptions[status] || '';
 };
@@ -138,10 +138,9 @@ const TrackOrder = () => {
 
   const trackingSteps = [
     { status: 'pending', label: "Order Placed", icon: CheckCircle2 },
-    { status: 'confirmed', label: "Confirmed", icon: CheckCircle2 },
-    { status: 'processing', label: "Processing", icon: Package },
+    { status: 'paid', label: "Payment Confirmed", icon: CheckCircle2 },
+    { status: 'packed', label: "Packed", icon: Package },
     { status: 'shipped', label: "Shipped", icon: Truck },
-    { status: 'out_for_delivery', label: "Out for Delivery", icon: MapPin },
     { status: 'delivered', label: "Delivered", icon: CheckCircle2 },
   ];
 
