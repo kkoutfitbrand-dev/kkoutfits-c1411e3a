@@ -94,7 +94,8 @@ export const ProductForm = ({
     reset,
     setValue,
     trigger,
-    getValues
+    getValues,
+    watch
   } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -505,21 +506,42 @@ export const ProductForm = ({
           {currentStep === 2 && <div className="space-y-4 animate-fade-in">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Regular Price (₹) *</Label>
+                  <Label htmlFor="price">MRP (₹) *</Label>
                   <Input id="price" type="number" step="0.01" {...register('price_cents', {
                 valueAsNumber: true
               })} placeholder="999.00" />
                   {errors.price_cents && <p className="text-sm text-destructive animate-fade-in">{errors.price_cents.message}</p>}
+                  <p className="text-xs text-muted-foreground">Maximum Retail Price</p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="sale_price">Sale Price (₹)</Label>
+                  <Label htmlFor="sale_price">Selling Price (₹) *</Label>
                   <Input id="sale_price" type="number" step="0.01" {...register('sale_price_cents', {
                 valueAsNumber: true
               })} placeholder="799.00" />
-                  <p className="text-xs text-muted-foreground">Leave empty if not on sale</p>
+                  <p className="text-xs text-muted-foreground">Your actual selling price</p>
                 </div>
               </div>
+
+              {/* Auto-calculated Discount Preview */}
+              {(() => {
+                const mrpValue = watch('price_cents');
+                const sellingValue = watch('sale_price_cents');
+                if (mrpValue && sellingValue && mrpValue > sellingValue) {
+                  const discount = Math.round(((mrpValue - sellingValue) / mrpValue) * 100);
+                  return (
+                    <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                      <h4 className="font-medium text-green-700 dark:text-green-400 mb-2">Price Preview</h4>
+                      <div className="flex items-center gap-4 text-sm">
+                        <span className="text-muted-foreground line-through">MRP: ₹{mrpValue.toLocaleString()}</span>
+                        <span className="font-semibold text-foreground">Selling: ₹{sellingValue.toLocaleString()}</span>
+                        <span className="bg-orange-500 text-white px-2 py-0.5 rounded text-xs font-medium">{discount}% OFF</span>
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
 
               <div className="space-y-2">
                 <Label htmlFor="weight">Weight (kg)</Label>
