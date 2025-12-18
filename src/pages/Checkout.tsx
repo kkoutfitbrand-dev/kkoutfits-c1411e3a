@@ -429,19 +429,25 @@ const Checkout = () => {
                 <div className="space-y-4 mb-6">
                   <div>
                     <h3 className="font-semibold mb-2">Delivery Address</h3>
-                    <p className="text-sm text-muted-foreground">
-                      John Doe<br />
-                      123 Street Name, City Name<br />
-                      State - 123456<br />
-                      Phone: +91 98765 43210
-                    </p>
+                    {selectedAddress ? (
+                      <p className="text-sm text-muted-foreground">
+                        {selectedAddress.firstName} {selectedAddress.lastName}<br />
+                        {selectedAddress.address}<br />
+                        {selectedAddress.city}, {selectedAddress.state} - {selectedAddress.pincode}<br />
+                        Phone: +91 {selectedAddress.phone}
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No address selected</p>
+                    )}
                   </div>
                   
                   <Separator />
                   
                   <div>
                     <h3 className="font-semibold mb-2">Payment Method</h3>
-                    <p className="text-sm text-muted-foreground">Cash on Delivery</p>
+                    <p className="text-sm text-muted-foreground">
+                      {paymentMethod === "online" ? "Online Payment" : "Cash on Delivery"}
+                    </p>
                   </div>
                 </div>
                 
