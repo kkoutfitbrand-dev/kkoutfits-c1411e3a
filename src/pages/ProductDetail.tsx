@@ -431,30 +431,24 @@ const ProductDetail = () => {
             
             {/* Price Section */}
             <div id="product-price" className="mb-4">
-              <div className="flex flex-col gap-2">
-                <div className="flex items-end gap-3 flex-wrap">
-                  <span className="text-4xl font-bold text-foreground">
-                    ₹{displayPrice.toLocaleString("en-IN")}
-                  </span>
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Selling Price - Large */}
+                <span className="text-3xl md:text-4xl font-bold text-foreground">
+                  ₹{displayPrice.toLocaleString("en-IN")}
+                </span>
 
-                  {salePrice && mrp > displayPrice && (
-                    <>
-                      <span className="text-base text-muted-foreground">
-                        <span className="mr-1">MRP</span>
-                        <span className="line-through">₹{mrp.toLocaleString("en-IN")}</span>
-                      </span>
-
-                      <Badge className="bg-primary text-primary-foreground border-0 text-sm px-3 py-1">
-                        {discountPercent}% OFF
-                      </Badge>
-                    </>
-                  )}
-                </div>
-
+                {/* MRP - Slashed */}
                 {salePrice && mrp > displayPrice && (
-                  <div className="text-sm text-primary font-medium">
-                    You save ₹{(mrp - displayPrice).toLocaleString("en-IN")}
-                  </div>
+                  <span className="text-lg text-muted-foreground line-through">
+                    ₹{mrp.toLocaleString("en-IN")}
+                  </span>
+                )}
+
+                {/* Discount Badge - Red/Coral */}
+                {salePrice && mrp > displayPrice && (
+                  <span className="bg-[#FF6B6B] text-white text-sm font-semibold px-3 py-1 rounded-full">
+                    {discountPercent}% OFF
+                  </span>
                 )}
               </div>
             </div>
