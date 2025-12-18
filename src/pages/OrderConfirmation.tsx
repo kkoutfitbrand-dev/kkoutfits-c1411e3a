@@ -71,12 +71,12 @@ const OrderConfirmation = () => {
   const [loading, setLoading] = useState(!!orderId && !normalizedStateDetails);
   const [error, setError] = useState<string | null>(null);
 
-  // Always fetch order from database to ensure we have the latest data
+  // Fetch order from database
   useEffect(() => {
     const fetchOrder = async () => {
       if (!orderId || !user) return;
 
-      // If we have valid state data, don't fetch
+      // If we have valid state data, don't fetch initially
       if (normalizedStateDetails) return;
       setLoading(true);
       try {
@@ -120,6 +120,35 @@ const OrderConfirmation = () => {
     };
     fetchOrder();
   }, [orderId, user, normalizedStateDetails]);
+
+  // Real-time subscription to update status when admin changes it
+  useEffect(() => {
+    if (!orderId) return;
+
+    const channel = supabase
+      .channel(`order-${orderId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `id=eq.${orderId}`
+        },
+        (payload) => {
+          console.log('Order updated:', payload);
+          const newStatus = (payload.new as any)?.status;
+          if (newStatus && orderDetails) {
+            setOrderDetails(prev => prev ? { ...prev, status: newStatus } : prev);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [orderId, orderDetails]);
 
   // Redirect if no order details and no order ID to fetch
   if (!loading && !orderDetails && !orderId) {

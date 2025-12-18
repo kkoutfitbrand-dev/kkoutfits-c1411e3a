@@ -1,0 +1,14 @@
+-- Enable realtime for orders table
+ALTER TABLE orders REPLICA IDENTITY FULL;
+
+-- Add orders to realtime publication (will be created if not exists)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' 
+    AND tablename = 'orders'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE orders;
+  END IF;
+END $$;
