@@ -432,22 +432,28 @@ const ProductDetail = () => {
             {/* Price Section */}
             <div id="product-price" className="mb-4">
               <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className="text-4xl font-bold text-primary">₹{displayPrice.toLocaleString()}</span>
+                <div className="flex items-end gap-3 flex-wrap">
+                  <span className="text-4xl font-bold text-foreground">
+                    ₹{displayPrice.toLocaleString("en-IN")}
+                  </span>
+
                   {salePrice && mrp > displayPrice && (
-                    <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 text-sm px-3 py-1">
-                      {discountPercent}% OFF
-                    </Badge>
+                    <>
+                      <span className="text-base text-muted-foreground">
+                        <span className="mr-1">MRP</span>
+                        <span className="line-through">₹{mrp.toLocaleString("en-IN")}</span>
+                      </span>
+
+                      <Badge className="bg-primary text-primary-foreground border-0 text-sm px-3 py-1">
+                        {discountPercent}% OFF
+                      </Badge>
+                    </>
                   )}
                 </div>
+
                 {salePrice && mrp > displayPrice && (
-                  <div className="flex items-center gap-4 text-sm">
-                    <span className="text-muted-foreground">
-                      MRP: <span className="line-through">₹{mrp.toLocaleString()}</span>
-                    </span>
-                    <span className="text-green-600 dark:text-green-400 font-medium">
-                      You save ₹{(mrp - displayPrice).toLocaleString()}
-                    </span>
+                  <div className="text-sm text-primary font-medium">
+                    You save ₹{(mrp - displayPrice).toLocaleString("en-IN")}
                   </div>
                 )}
               </div>
