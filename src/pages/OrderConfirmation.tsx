@@ -3,11 +3,13 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, Package, Truck, MapPin, Loader2 } from "lucide-react";
+import { CheckCircle, Package, Truck, MapPin, Loader2, XCircle } from "lucide-react";
 import { Link, useLocation, useSearchParams, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/hooks/use-toast";
+
 interface OrderItem {
   id: string;
   productId?: string;
@@ -36,12 +38,11 @@ interface OrderDetails {
   status?: string;
   createdAt?: string;
 }
+
 const OrderConfirmation = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
   const stateData = location.state as any;
   const orderIdFromUrl = searchParams.get('orderId');
 
@@ -62,34 +63,40 @@ const OrderConfirmation = () => {
       pincode: stateData.shippingAddress?.pincode || '',
       phone: stateData.shippingAddress?.phone || ''
     },
-    paymentMethod: stateData.paymentMethod || 'cod'
+    paymentMethod: stateData.paymentMethod || 'cod',
+    status: stateData.status || 'pending'
   } : null;
 
   // Get order ID from state or URL
   const orderId = stateData?.orderId || orderIdFromUrl;
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(normalizedStateDetails);
-  const [loading, setLoading] = useState(!!orderId && !normalizedStateDetails);
+  const [loading, setLoading] = useState(!normalizedStateDetails && !!orderId);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch order from database
+  // Fetch order from database - always fetch to get latest status
   useEffect(() => {
     const fetchOrder = async () => {
       if (!orderId || !user) return;
 
-      // If we have valid state data, don't fetch initially
-      if (normalizedStateDetails) return;
-      setLoading(true);
+      // If we don't have state data, show loading
+      if (!normalizedStateDetails) {
+        setLoading(true);
+      }
+
       try {
-        const {
-          data,
-          error: fetchError
-        } = await supabase.from('orders').select('*').eq('id', orderId).eq('user_id', user.id).maybeSingle();
+        const { data, error: fetchError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', orderId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
         if (fetchError) throw fetchError;
+
         if (data) {
           const items = data.order_items as unknown as OrderItem[] || [];
           const rawAddress = data.shipping_address as Record<string, any> || {};
 
-          // Map database address format to our interface
           const address: ShippingAddress = {
             firstName: rawAddress.firstName || '',
             lastName: rawAddress.lastName || '',
@@ -99,6 +106,7 @@ const OrderConfirmation = () => {
             pincode: rawAddress.pincode || '',
             phone: rawAddress.phone || ''
           };
+
           setOrderDetails({
             orderId: data.id,
             items,
@@ -108,25 +116,28 @@ const OrderConfirmation = () => {
             status: data.status || 'pending',
             createdAt: data.created_at || undefined
           });
-        } else {
+        } else if (!normalizedStateDetails) {
           setError('Order not found');
         }
       } catch (err) {
         console.error('Error fetching order:', err);
-        setError('Failed to load order details');
+        if (!normalizedStateDetails) {
+          setError('Failed to load order details');
+        }
       } finally {
         setLoading(false);
       }
     };
+
     fetchOrder();
-  }, [orderId, user, normalizedStateDetails]);
+  }, [orderId, user]);
 
   // Real-time subscription to update status when admin changes it
   useEffect(() => {
     if (!orderId) return;
 
     const channel = supabase
-      .channel(`order-${orderId}`)
+      .channel(`order-status-${orderId}`)
       .on(
         'postgres_changes',
         {
@@ -136,10 +147,25 @@ const OrderConfirmation = () => {
           filter: `id=eq.${orderId}`
         },
         (payload) => {
-          console.log('Order updated:', payload);
+          console.log('Order status updated:', payload);
           const newStatus = (payload.new as any)?.status;
-          if (newStatus && orderDetails) {
-            setOrderDetails(prev => prev ? { ...prev, status: newStatus } : prev);
+          if (newStatus) {
+            setOrderDetails(prev => {
+              if (!prev) return prev;
+              // Show toast notification for status change
+              const statusLabels: Record<string, string> = {
+                pending: 'Pending',
+                packed: 'Packed',
+                shipped: 'Shipped',
+                delivered: 'Delivered',
+                cancelled: 'Cancelled'
+              };
+              toast({
+                title: 'Order Status Updated',
+                description: `Your order is now: ${statusLabels[newStatus] || newStatus}`,
+              });
+              return { ...prev, status: newStatus };
+            });
           }
         }
       )
@@ -148,24 +174,29 @@ const OrderConfirmation = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [orderId, orderDetails]);
+  }, [orderId]);
 
   // Redirect if no order details and no order ID to fetch
   if (!loading && !orderDetails && !orderId) {
     return <Navigate to="/" replace />;
   }
+
   if (loading) {
-    return <div className="min-h-screen bg-background">
+    return (
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container px-4 py-20 flex flex-col items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary mb-4" />
           <p className="text-muted-foreground">Loading order details...</p>
         </div>
         <Footer />
-      </div>;
+      </div>
+    );
   }
+
   if (error || !orderDetails) {
-    return <div className="min-h-screen bg-background">
+    return (
+      <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container px-4 py-20 text-center">
           <h1 className="text-2xl font-bold mb-4">Order Not Found</h1>
@@ -175,14 +206,17 @@ const OrderConfirmation = () => {
           </Button>
         </div>
         <Footer />
-      </div>;
+      </div>
+    );
   }
+
   const estimatedDelivery = new Date();
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
   const items = orderDetails.items || [];
   const subtotal = items.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || 1), 0);
-  const shipping = 0; // Free shipping
+  const shipping = 0;
   const finalTotal = subtotal + shipping;
+
   const getPaymentMethodLabel = (method: string) => {
     switch (method) {
       case 'cod':
@@ -195,31 +229,49 @@ const OrderConfirmation = () => {
         return method;
     }
   };
+
   const getStatusStep = (status?: string) => {
     switch (status) {
+      case 'pending':
+        return 1;
       case 'packed':
         return 2;
       case 'shipped':
         return 3;
       case 'delivered':
         return 4;
+      case 'cancelled':
+        return -1;
       default:
         return 1;
-      // pending
     }
   };
+
   const currentStep = getStatusStep(orderDetails.status);
-  return <div className="min-h-screen bg-background">
+  const isCancelled = orderDetails.status === 'cancelled';
+
+  return (
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container px-4 py-8 md:py-12">
-        {/* Success Header */}
+        {/* Success/Cancelled Header */}
         <div className="text-center mb-8 md:mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full bg-green-100 mb-4">
-            <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-green-600" />
+          <div className={`inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-full ${isCancelled ? 'bg-red-100' : 'bg-green-100'} mb-4`}>
+            {isCancelled ? (
+              <XCircle className="w-8 h-8 md:w-10 md:h-10 text-red-600" />
+            ) : (
+              <CheckCircle className="w-8 h-8 md:w-10 md:h-10 text-green-600" />
+            )}
           </div>
-          <h1 className="text-2xl md:text-4xl font-serif font-bold text-foreground mb-2">Order Confirmed!</h1>
-          <p className="text-muted-foreground">Thank you for your order. We've received your order and will begin processing it soon.</p>
+          <h1 className="text-2xl md:text-4xl font-serif font-bold text-foreground mb-2">
+            {isCancelled ? 'Order Cancelled' : 'Order Confirmed!'}
+          </h1>
+          <p className="text-muted-foreground">
+            {isCancelled 
+              ? 'Your order has been cancelled. If you have any questions, please contact support.'
+              : "Thank you for your order. We've received your order and will begin processing it soon."}
+          </p>
         </div>
 
         {/* Order Details Card */}
@@ -230,47 +282,64 @@ const OrderConfirmation = () => {
               <p className="font-mono font-semibold text-lg break-all">{orderDetails.orderId}</p>
             </div>
             <div className="text-left sm:text-right">
-              <p className="text-sm text-muted-foreground">Estimated Delivery</p>
-              <p className="font-semibold">{estimatedDelivery.toLocaleDateString('en-IN', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric'
-              })}</p>
+              <p className="text-sm text-muted-foreground">
+                {isCancelled ? 'Status' : 'Estimated Delivery'}
+              </p>
+              <p className={`font-semibold ${isCancelled ? 'text-red-600' : ''}`}>
+                {isCancelled 
+                  ? 'Cancelled'
+                  : estimatedDelivery.toLocaleDateString('en-IN', {
+                      weekday: 'long',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+              </p>
             </div>
           </div>
 
           <Separator className="my-6" />
 
           {/* Order Timeline */}
-          <div className="flex items-center justify-between mb-8 overflow-x-auto">
-            <div className="flex flex-col items-center min-w-[80px]">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 1 ? 'bg-green-100' : 'bg-muted'}`}>
-                <CheckCircle className={`w-5 h-5 ${currentStep >= 1 ? 'text-green-600' : 'text-muted-foreground'}`} />
+          {isCancelled ? (
+            <div className="flex items-center justify-center py-6 mb-8">
+              <div className="flex flex-col items-center">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-2">
+                  <XCircle className="w-6 h-6 text-red-600" />
+                </div>
+                <span className="text-sm font-medium text-red-600">Order Cancelled</span>
               </div>
-              <span className={`text-xs text-center ${currentStep >= 1 ? 'font-medium' : 'text-muted-foreground'}`}>Pending</span>
             </div>
-            <div className={`flex-1 h-0.5 mx-2 ${currentStep >= 2 ? 'bg-green-500' : 'bg-border'}`} />
-            <div className="flex flex-col items-center min-w-[80px]">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 2 ? 'bg-green-100' : 'bg-muted'}`}>
-                <Package className={`w-5 h-5 ${currentStep >= 2 ? 'text-green-600' : 'text-muted-foreground'}`} />
+          ) : (
+            <div className="flex items-center justify-between mb-8 overflow-x-auto">
+              <div className="flex flex-col items-center min-w-[80px]">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 1 ? 'bg-green-100' : 'bg-muted'}`}>
+                  <CheckCircle className={`w-5 h-5 ${currentStep >= 1 ? 'text-green-600' : 'text-muted-foreground'}`} />
+                </div>
+                <span className={`text-xs text-center ${currentStep >= 1 ? 'font-medium' : 'text-muted-foreground'}`}>Confirmed</span>
               </div>
-              <span className={`text-xs text-center ${currentStep >= 2 ? 'font-medium' : 'text-muted-foreground'}`}>Packed</span>
-            </div>
-            <div className={`flex-1 h-0.5 mx-2 ${currentStep >= 3 ? 'bg-green-500' : 'bg-border'}`} />
-            <div className="flex flex-col items-center min-w-[80px]">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 3 ? 'bg-green-100' : 'bg-muted'}`}>
-                <Truck className={`w-5 h-5 ${currentStep >= 3 ? 'text-green-600' : 'text-muted-foreground'}`} />
+              <div className={`flex-1 h-0.5 mx-2 ${currentStep >= 2 ? 'bg-green-500' : 'bg-border'}`} />
+              <div className="flex flex-col items-center min-w-[80px]">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 2 ? 'bg-green-100' : 'bg-muted'}`}>
+                  <Package className={`w-5 h-5 ${currentStep >= 2 ? 'text-green-600' : 'text-muted-foreground'}`} />
+                </div>
+                <span className={`text-xs text-center ${currentStep >= 2 ? 'font-medium' : 'text-muted-foreground'}`}>Packed</span>
               </div>
-              <span className={`text-xs text-center ${currentStep >= 3 ? 'font-medium' : 'text-muted-foreground'}`}>Shipped</span>
-            </div>
-            <div className={`flex-1 h-0.5 mx-2 ${currentStep >= 4 ? 'bg-green-500' : 'bg-border'}`} />
-            <div className="flex flex-col items-center min-w-[80px]">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 4 ? 'bg-green-100' : 'bg-muted'}`}>
-                <MapPin className={`w-5 h-5 ${currentStep >= 4 ? 'text-green-600' : 'text-muted-foreground'}`} />
+              <div className={`flex-1 h-0.5 mx-2 ${currentStep >= 3 ? 'bg-green-500' : 'bg-border'}`} />
+              <div className="flex flex-col items-center min-w-[80px]">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 3 ? 'bg-green-100' : 'bg-muted'}`}>
+                  <Truck className={`w-5 h-5 ${currentStep >= 3 ? 'text-green-600' : 'text-muted-foreground'}`} />
+                </div>
+                <span className={`text-xs text-center ${currentStep >= 3 ? 'font-medium' : 'text-muted-foreground'}`}>Shipped</span>
               </div>
-              <span className={`text-xs text-center ${currentStep >= 4 ? 'font-medium' : 'text-muted-foreground'}`}>Delivered</span>
+              <div className={`flex-1 h-0.5 mx-2 ${currentStep >= 4 ? 'bg-green-500' : 'bg-border'}`} />
+              <div className="flex flex-col items-center min-w-[80px]">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 4 ? 'bg-green-100' : 'bg-muted'}`}>
+                  <MapPin className={`w-5 h-5 ${currentStep >= 4 ? 'text-green-600' : 'text-muted-foreground'}`} />
+                </div>
+                <span className={`text-xs text-center ${currentStep >= 4 ? 'font-medium' : 'text-muted-foreground'}`}>Delivered</span>
+              </div>
             </div>
-          </div>
+          )}
 
           <Separator className="my-6" />
 
@@ -278,23 +347,30 @@ const OrderConfirmation = () => {
           <div className="mb-6">
             <h3 className="font-semibold mb-4">Order Items ({items.length})</h3>
             <div className="space-y-4">
-              {items.map((item, index) => <div key={item.id || index} className="flex gap-4">
-                  <img src={item.image || '/placeholder.svg'} alt={item.name} className="w-16 h-16 object-cover rounded bg-muted" onError={e => {
-                e.currentTarget.src = '/placeholder.svg';
-              }} />
+              {items.map((item, index) => (
+                <div key={item.id || index} className="flex gap-4">
+                  <img 
+                    src={item.image || '/placeholder.svg'} 
+                    alt={item.name} 
+                    className="w-16 h-16 object-cover rounded bg-muted" 
+                    onError={e => { e.currentTarget.src = '/placeholder.svg'; }} 
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="font-medium line-clamp-1">{item.name}</p>
-                    {(item.size || item.color) && <p className="text-xs text-muted-foreground">
+                    {(item.size || item.color) && (
+                      <p className="text-xs text-muted-foreground">
                         {item.size && `Size: ${item.size}`}
                         {item.size && item.color && ' | '}
                         {item.color && `Color: ${item.color}`}
-                      </p>}
+                      </p>
+                    )}
                     <p className="text-sm text-muted-foreground">
                       ₹{(item.price || 0).toLocaleString()} × {item.quantity}
                     </p>
                   </div>
                   <p className="font-semibold whitespace-nowrap">₹{((item.price || 0) * item.quantity).toLocaleString()}</p>
-                </div>)}
+                </div>
+              ))}
             </div>
           </div>
 
@@ -342,7 +418,7 @@ const OrderConfirmation = () => {
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
           <Button asChild variant="outline" className="flex-1">
-            
+            <Link to="/account">View All Orders</Link>
           </Button>
           <Button asChild className="flex-1">
             <Link to="/">Continue Shopping</Link>
@@ -351,6 +427,8 @@ const OrderConfirmation = () => {
       </div>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default OrderConfirmation;
