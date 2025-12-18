@@ -31,14 +31,22 @@ const getFirstImage = (images: Json): string => {
   }
   return "/placeholder.svg";
 };
-const getOriginalPrice = (variants: Json): number | undefined => {
-  if (Array.isArray(variants) && variants.length > 0) {
-    const variant = variants[0] as {
-      compareAtPrice?: number;
-    };
-    return variant.compareAtPrice;
+const getSalePrice = (variants: Json): number | null => {
+  if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
+    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
   }
-  return undefined;
+  return null;
+};
+
+const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
+  const salePrice = getSalePrice(product.variants);
+  if (salePrice && salePrice < product.price_cents) {
+    return {
+      price: salePrice / 100,
+      originalPrice: product.price_cents / 100
+    };
+  }
+  return { price: product.price_cents / 100 };
 };
 const Shop = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -107,7 +115,7 @@ const Shop = () => {
   const filteredProducts = activeCategory === "all" ? products : products.filter(p => p.category?.toLowerCase() === activeCategory);
   const newArrivals = products.slice(0, 4);
   const trending = products.slice(0, 6);
-  const saleProducts = products.filter(p => getOriginalPrice(p.variants));
+  const saleProducts = products.filter(p => getSalePrice(p.variants));
   return <div className="min-h-screen bg-background">
       {/* Scroll Progress Bar */}
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-primary z-[60] origin-left" style={{
@@ -266,7 +274,10 @@ const Shop = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {loading ? Array.from({
               length: 4
-            }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : newArrivals.map(product => <ProductCard key={product.id} id={product.id} name={product.title} price={product.price_cents / 100} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={getOriginalPrice(product.variants)} />)}
+            }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : newArrivals.map(product => {
+              const { price, originalPrice } = getDisplayPrice(product);
+              return <ProductCard key={product.id} id={product.id} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} />;
+            })}
             </div>
           </div>
         </section>
@@ -314,7 +325,10 @@ const Shop = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
               {loading ? Array.from({
               length: 6
-            }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : trending.map(product => <ProductCard key={product.id} id={product.id} name={product.title} price={product.price_cents / 100} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={getOriginalPrice(product.variants)} />)}
+            }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : trending.map(product => {
+              const { price, originalPrice } = getDisplayPrice(product);
+              return <ProductCard key={product.id} id={product.id} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} />;
+            })}
             </div>
           </div>
         </section>
@@ -335,7 +349,10 @@ const Shop = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {loading ? Array.from({
               length: 8
-            }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : filteredProducts.map(product => <ProductCard key={product.id} id={product.id} name={product.title} price={product.price_cents / 100} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={getOriginalPrice(product.variants)} />)}
+            }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : filteredProducts.map(product => {
+              const { price, originalPrice } = getDisplayPrice(product);
+              return <ProductCard key={product.id} id={product.id} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} />;
+            })}
             </div>
 
             {!loading && filteredProducts.length === 0 && <div className="text-center py-16">
