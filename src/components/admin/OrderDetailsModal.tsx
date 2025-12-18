@@ -15,6 +15,7 @@ interface OrderItem {
   price_cents: number;
   quantity: number;
   image?: string;
+  size?: string;
 }
 
 interface ShippingAddress {
@@ -130,6 +131,7 @@ export const OrderDetailsModal = ({ order, open, onOpenChange }: OrderDetailsMod
                   <div className="flex-1">
                     <p className="font-medium">{item.title}</p>
                     <p className="text-sm text-muted-foreground">
+                      {item.size && <span>Size: {item.size} • </span>}
                       Quantity: {item.quantity}
                     </p>
                   </div>
