@@ -235,7 +235,9 @@ export const ProductForm = ({
     const result = await trigger(fieldsToValidate);
     return result;
   };
-  const handleNext = async () => {
+  const handleNext = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     const isValid = await validateStep();
     if (isValid) {
       if (currentStep < 4) {
@@ -627,7 +629,7 @@ export const ProductForm = ({
                 Save as Draft
               </Button>
 
-              {currentStep < 4 ? <Button type="button" onClick={handleNext} disabled={isSubmitting || uploading}>
+              {currentStep < 4 ? <Button type="button" onClick={(e) => handleNext(e)} disabled={isSubmitting || uploading}>
                   {currentStep === 3 ? 'Continue to Variants (Required)' : 'Save & Continue'}
                   <ChevronRight className="h-4 w-4 ml-2" />
                 </Button> : <Button type="submit" disabled={isSubmitting || uploading || variants.length === 0} className="min-w-[140px]">
