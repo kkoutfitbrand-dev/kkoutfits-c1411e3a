@@ -27,12 +27,22 @@ const getFirstImage = (images: Json): string => {
   return "/placeholder.svg";
 };
 
-const getOriginalPrice = (variants: Json): number | undefined => {
-  if (Array.isArray(variants) && variants.length > 0) {
-    const variant = variants[0] as { compareAtPrice?: number };
-    return variant.compareAtPrice;
+const getSalePrice = (variants: Json): number | null => {
+  if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
+    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
   }
-  return undefined;
+  return null;
+};
+
+const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
+  const salePrice = getSalePrice(product.variants);
+  if (salePrice && salePrice < product.price_cents) {
+    return {
+      price: salePrice / 100,
+      originalPrice: product.price_cents / 100
+    };
+  }
+  return { price: product.price_cents / 100 };
 };
 
 const Trending = () => {
@@ -173,17 +183,20 @@ const Trending = () => {
               ? Array.from({ length: 12 }).map((_, i) => (
                   <ProductCardSkeleton key={i} index={i} />
                 ))
-              : products.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    id={product.id}
-                    name={product.title}
-                    price={product.price_cents / 100}
-                    image={getFirstImage(product.images)}
-                    category={product.category || undefined}
-                    originalPrice={getOriginalPrice(product.variants)}
-                  />
-                ))}
+              : products.map((product) => {
+                  const { price, originalPrice } = getDisplayPrice(product);
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      id={product.id}
+                      name={product.title}
+                      price={price}
+                      image={getFirstImage(product.images)}
+                      category={product.category || undefined}
+                      originalPrice={originalPrice}
+                    />
+                  );
+                })}
           </div>
 
           {!loading && products.length === 0 && (

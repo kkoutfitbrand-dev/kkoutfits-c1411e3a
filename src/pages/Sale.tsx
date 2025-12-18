@@ -24,14 +24,22 @@ const getFirstImage = (images: Json): string => {
   return "/placeholder.svg";
 };
 
-const getOriginalPrice = (variants: Json): number | undefined => {
-  if (variants && typeof variants === 'object' && !Array.isArray(variants)) {
-    const v = variants as Record<string, unknown>;
-    if (v.compareAtPrice && typeof v.compareAtPrice === 'number') {
-      return v.compareAtPrice;
-    }
+const getSalePrice = (variants: Json): number | null => {
+  if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
+    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
   }
-  return undefined;
+  return null;
+};
+
+const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
+  const salePrice = getSalePrice(product.variants);
+  if (salePrice && salePrice < product.price_cents) {
+    return {
+      price: salePrice / 100,
+      originalPrice: product.price_cents / 100
+    };
+  }
+  return { price: product.price_cents / 100 };
 };
 
 const Sale = () => {
@@ -49,10 +57,10 @@ const Sale = () => {
 
         if (error) throw error;
 
-        // Filter products that have a compare_at_price (on sale)
+        // Filter products that have a sale price
         const saleProducts = (data || []).filter(product => {
-          const originalPrice = getOriginalPrice(product.variants);
-          return originalPrice && originalPrice > product.price_cents / 100;
+          const salePrice = getSalePrice(product.variants);
+          return salePrice && salePrice < product.price_cents;
         });
 
         setProducts(saleProducts);
@@ -113,19 +121,22 @@ const Sale = () => {
               </p>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-              {products.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  id={product.slug}
-                  productId={product.id}
-                  name={product.title}
-                  price={product.price_cents / 100}
-                  originalPrice={getOriginalPrice(product.variants)}
-                  image={getFirstImage(product.images)}
-                  category={product.category}
-                  badge="SALE"
-                />
-              ))}
+              {products.map((product) => {
+                const { price, originalPrice } = getDisplayPrice(product);
+                return (
+                  <ProductCard
+                    key={product.id}
+                    id={product.slug}
+                    productId={product.id}
+                    name={product.title}
+                    price={price}
+                    originalPrice={originalPrice}
+                    image={getFirstImage(product.images)}
+                    category={product.category}
+                    badge="SALE"
+                  />
+                );
+              })}
             </div>
           </>
         )}
