@@ -30,21 +30,39 @@ export default function AdminOrders() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    
+    // Fetch orders
+    const { data: ordersData, error: ordersError } = await supabase
       .from('orders')
-      .select('*, profiles:user_id(name)')
+      .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Orders fetch error:', error);
+    if (ordersError) {
+      console.error('Orders fetch error:', ordersError);
       toast({
         title: 'Error',
         description: 'Failed to fetch orders',
         variant: 'destructive',
       });
-    } else {
-      setOrders(data || []);
+      setLoading(false);
+      return;
     }
+
+    // Fetch profiles for all unique user_ids
+    const userIds = [...new Set(ordersData?.map(o => o.user_id) || [])];
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('id, name')
+      .in('id', userIds);
+
+    // Map profiles to orders
+    const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+    const ordersWithProfiles = ordersData?.map(order => ({
+      ...order,
+      profiles: profilesMap.get(order.user_id) || null
+    })) || [];
+
+    setOrders(ordersWithProfiles);
     setLoading(false);
   };
 

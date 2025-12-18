@@ -89,7 +89,10 @@ export const OrderDetailsModal = ({ order, open, onOpenChange }: OrderDetailsMod
               <h3 className="font-semibold">Customer Information</h3>
             </div>
             <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <p className="font-medium">{order.profiles?.name || 'Unknown Customer'}</p>
+              <p className="font-medium">{order.profiles?.name || order.shipping_address?.name || 'Unknown Customer'}</p>
+              {order.shipping_address?.phone && (
+                <p className="text-sm text-muted-foreground">Phone: {order.shipping_address.phone}</p>
+              )}
             </div>
           </div>
 
