@@ -28,6 +28,18 @@ interface CartItem {
   color?: string;
 }
 
+// Helper to get selling price from product
+const getSellingPrice = (product: any): number => {
+  // Check for sale price in variants JSON field
+  if (product.variants && typeof product.variants === 'object' && 'sale_price_cents' in product.variants) {
+    const salePrice = product.variants.sale_price_cents;
+    if (salePrice && salePrice < product.price_cents) {
+      return salePrice / 100;
+    }
+  }
+  return product.price_cents / 100;
+};
+
 const addressSchema = z.object({
   firstName: z.string().trim().min(1, "First name is required").max(100, "Name must be less than 100 characters"),
   lastName: z.string().trim().min(1, "Last name is required").max(100, "Name must be less than 100 characters"),
@@ -240,7 +252,39 @@ const Checkout = () => {
         if (error) throw error;
 
         if (data?.items && Array.isArray(data.items)) {
-          setCartItems(data.items as unknown as CartItem[]);
+          const items = data.items as unknown as CartItem[];
+          
+          // Get unique product IDs
+          const productIds = [...new Set(items.map(item => item.productId).filter(Boolean))];
+          
+          if (productIds.length > 0) {
+            // Fetch current product prices
+            const { data: products } = await supabase
+              .from('products')
+              .select('id, price_cents, variants')
+              .in('id', productIds);
+            
+            if (products) {
+              // Create a map of product ID to selling price
+              const priceMap = new Map<string, number>();
+              products.forEach(product => {
+                priceMap.set(product.id, getSellingPrice(product));
+              });
+              
+              // Update cart items with current selling prices
+              const updatedItems = items.map(item => ({
+                ...item,
+                price: item.productId && priceMap.has(item.productId) 
+                  ? priceMap.get(item.productId)! 
+                  : item.price
+              }));
+              
+              setCartItems(updatedItems);
+              return;
+            }
+          }
+          
+          setCartItems(items);
         }
       } catch (error) {
         console.error('Error fetching cart:', error);
