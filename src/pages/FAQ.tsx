@@ -19,7 +19,7 @@ const faqData = [
       },
       {
         q: "Do you offer free shipping?",
-        a: "Yes! We offer free standard shipping on all orders above ₹20,000. For orders below this amount, a flat shipping fee of ₹299 applies.",
+        a: "Yes! We offer free standard shipping on all orders across India.",
       },
       {
         q: "Can I track my order?",

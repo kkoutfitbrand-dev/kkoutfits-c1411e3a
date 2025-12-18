@@ -214,7 +214,7 @@ const Checkout = () => {
   }, [user]);
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 999 ? 0 : 99;
+  const shipping = 0; // Free shipping
   const total = subtotal + shipping;
 
   const selectedAddress = savedAddresses.find(addr => addr.id === selectedAddressId) || savedAddresses.find(addr => addr.isDefault);

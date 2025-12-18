@@ -139,10 +139,10 @@ const Cart = () => {
   };
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = subtotal > 999 ? 0 : 99;
+  const shipping = 0; // Free shipping
   const discount = appliedCoupon === "SAVE200" ? 200 : appliedCoupon === "SAVE10" ? Math.floor(subtotal * 0.1) : 0;
   const total = subtotal + shipping - discount;
-  const savings = discount + (shipping === 0 ? 99 : 0);
+  const savings = discount;
 
   if (loading) {
     return (

@@ -62,7 +62,7 @@ export const PincodeChecker = () => {
             ✓ Delivery by {getEstimatedDate(deliveryInfo.estimatedDays)}
           </p>
           <p className="text-muted-foreground text-xs">
-            Free delivery on orders above ₹999
+            Free shipping on all orders
           </p>
         </div>
       )}

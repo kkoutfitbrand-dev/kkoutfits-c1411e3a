@@ -7,7 +7,7 @@ const shippingInfo = [
   {
     icon: Truck,
     title: "Free Shipping",
-    description: "Free delivery on orders above ₹2,999 across India"
+    description: "Free delivery on all orders across India"
   },
   {
     icon: Clock,
@@ -83,8 +83,7 @@ const ShippingPolicy = () => {
               <div className="bg-card p-8 rounded-xl border border-border">
                 <h2 className="text-2xl font-serif font-semibold mb-4">Shipping Rates</h2>
                 <div className="space-y-3 text-muted-foreground">
-                  <p>• Orders above ₹2,999: <span className="text-primary font-medium">FREE Shipping</span></p>
-                  <p>• Orders below ₹2,999: ₹99 flat rate</p>
+                  <p>• All Orders: <span className="text-primary font-medium">FREE Shipping</span></p>
                   <p>• Express Shipping: ₹199 (2-3 business days)</p>
                   <p>• Same Day Delivery: ₹299 (select cities only)</p>
                 </div>
