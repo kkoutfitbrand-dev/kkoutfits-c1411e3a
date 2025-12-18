@@ -38,7 +38,7 @@ interface OrderData {
   order_items: OrderItem[];
 }
 
-const ORDER_STATUSES = ['pending', 'paid', 'packed', 'shipped', 'delivered'];
+const ORDER_STATUSES = ['pending', 'packed', 'shipped', 'delivered'];
 
 const getStatusIndex = (status: string) => {
   const index = ORDER_STATUSES.indexOf(status);
@@ -48,7 +48,6 @@ const getStatusIndex = (status: string) => {
 const getStatusLabel = (status: string) => {
   const labels: Record<string, string> = {
     pending: 'Order Placed',
-    paid: 'Payment Confirmed',
     packed: 'Packed',
     shipped: 'Shipped',
     delivered: 'Delivered',
@@ -60,7 +59,6 @@ const getStatusLabel = (status: string) => {
 const getStatusDescription = (status: string) => {
   const descriptions: Record<string, string> = {
     pending: 'Your order has been placed successfully',
-    paid: 'Payment has been confirmed',
     packed: 'Your order is packed and ready for shipping',
     shipped: 'Your order has been shipped and is on its way',
     delivered: 'Your order has been delivered successfully',
@@ -138,7 +136,6 @@ const TrackOrder = () => {
 
   const trackingSteps = [
     { status: 'pending', label: "Order Placed", icon: CheckCircle2 },
-    { status: 'paid', label: "Payment Confirmed", icon: CheckCircle2 },
     { status: 'packed', label: "Packed", icon: Package },
     { status: 'shipped', label: "Shipped", icon: Truck },
     { status: 'delivered', label: "Delivered", icon: CheckCircle2 },
