@@ -273,7 +273,14 @@ export default function AdminProducts() {
                       </div>
                       <div className="text-sm text-muted-foreground">{product.slug}</div>
                     </TableCell>
-                    <TableCell>₹{(product.price_cents / 100).toLocaleString('en-IN')}</TableCell>
+                    <TableCell>
+                      {(() => {
+                        const variants = product.variants as { sale_price_cents?: number } | null;
+                        const salePrice = variants?.sale_price_cents;
+                        const displayPrice = salePrice ? salePrice / 100 : product.price_cents / 100;
+                        return `₹${displayPrice.toLocaleString('en-IN')}`;
+                      })()}
+                    </TableCell>
                     <TableCell>{product.inventory_count || 0}</TableCell>
                     <TableCell>
                       <span className={product.inventory_count > 0 ? 'text-green-600' : 'text-red-600'}>
