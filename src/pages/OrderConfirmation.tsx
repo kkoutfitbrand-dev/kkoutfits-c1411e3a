@@ -168,7 +168,7 @@ const OrderConfirmation = () => {
   };
   const getStatusStep = (status?: string) => {
     switch (status) {
-      case 'processing':
+      case 'packed':
         return 2;
       case 'shipped':
         return 3;
@@ -176,7 +176,7 @@ const OrderConfirmation = () => {
         return 4;
       default:
         return 1;
-      // pending/confirmed
+      // pending
     }
   };
   const currentStep = getStatusStep(orderDetails.status);
@@ -218,14 +218,14 @@ const OrderConfirmation = () => {
               <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 1 ? 'bg-green-100' : 'bg-muted'}`}>
                 <CheckCircle className={`w-5 h-5 ${currentStep >= 1 ? 'text-green-600' : 'text-muted-foreground'}`} />
               </div>
-              <span className={`text-xs text-center ${currentStep >= 1 ? 'font-medium' : 'text-muted-foreground'}`}>Confirmed</span>
+              <span className={`text-xs text-center ${currentStep >= 1 ? 'font-medium' : 'text-muted-foreground'}`}>Pending</span>
             </div>
             <div className={`flex-1 h-0.5 mx-2 ${currentStep >= 2 ? 'bg-green-500' : 'bg-border'}`} />
             <div className="flex flex-col items-center min-w-[80px]">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${currentStep >= 2 ? 'bg-green-100' : 'bg-muted'}`}>
                 <Package className={`w-5 h-5 ${currentStep >= 2 ? 'text-green-600' : 'text-muted-foreground'}`} />
               </div>
-              <span className={`text-xs text-center ${currentStep >= 2 ? 'font-medium' : 'text-muted-foreground'}`}>Processing</span>
+              <span className={`text-xs text-center ${currentStep >= 2 ? 'font-medium' : 'text-muted-foreground'}`}>Packed</span>
             </div>
             <div className={`flex-1 h-0.5 mx-2 ${currentStep >= 3 ? 'bg-green-500' : 'bg-border'}`} />
             <div className="flex flex-col items-center min-w-[80px]">
