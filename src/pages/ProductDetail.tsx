@@ -201,19 +201,22 @@ const ProductDetail = () => {
     );
   }
 
-  const displayPrice = product.price_cents / 100;
+  // Get sale price from product variants JSON field
+  const getSalePrice = (): number | null => {
+    const productVariants = (product as any).variants;
+    if (productVariants && typeof productVariants === 'object' && 'sale_price_cents' in productVariants) {
+      return productVariants.sale_price_cents || null;
+    }
+    return null;
+  };
+
+  const salePrice = getSalePrice();
+  const mrp = product.price_cents / 100; // MRP is the base price_cents
+  const displayPrice = salePrice ? salePrice / 100 : mrp; // Selling price is sale_price_cents if exists
   const productImages = product.images.length > 0 ? product.images : [product1];
   
-  // Calculate MRP (compare at price) from variants
-  const mrp = variants.reduce((max, v) => {
-    if (v.compare_at_price_cents && v.compare_at_price_cents > max) {
-      return v.compare_at_price_cents;
-    }
-    return max;
-  }, 0) / 100 || null;
-  
   // Calculate discount percentage
-  const discountPercent = mrp && mrp > displayPrice 
+  const discountPercent = salePrice && mrp > displayPrice 
     ? Math.round(((mrp - displayPrice) / mrp) * 100) 
     : 0;
 
@@ -431,13 +434,13 @@ const ProductDetail = () => {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3 flex-wrap">
                   <span className="text-4xl font-bold text-primary">₹{displayPrice.toLocaleString()}</span>
-                  {mrp && mrp > displayPrice && (
+                  {salePrice && mrp > displayPrice && (
                     <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-0 text-sm px-3 py-1">
                       {discountPercent}% OFF
                     </Badge>
                   )}
                 </div>
-                {mrp && mrp > displayPrice && (
+                {salePrice && mrp > displayPrice && (
                   <div className="flex items-center gap-4 text-sm">
                     <span className="text-muted-foreground">
                       MRP: <span className="line-through">₹{mrp.toLocaleString()}</span>

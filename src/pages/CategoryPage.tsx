@@ -18,12 +18,31 @@ interface Product {
   images: Json;
   slug: string;
   category: string | null;
+  variants: Json;
 }
 const getFirstImage = (images: Json): string => {
   if (Array.isArray(images) && images.length > 0) {
     return images[0] as string;
   }
   return '/placeholder.svg';
+};
+
+const getSalePrice = (variants: Json): number | null => {
+  if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
+    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
+  }
+  return null;
+};
+
+const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
+  const salePrice = getSalePrice(product.variants);
+  if (salePrice && salePrice < product.price_cents) {
+    return {
+      price: salePrice / 100,
+      originalPrice: product.price_cents / 100
+    };
+  }
+  return { price: product.price_cents / 100 };
 };
 const CategoryPage = () => {
   const {
@@ -40,7 +59,7 @@ const CategoryPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      let query = supabase.from('products').select('id, title, price_cents, images, slug, category').eq('status', 'published').order('created_at', {
+      let query = supabase.from('products').select('id, title, price_cents, images, slug, category, variants').eq('status', 'published').order('created_at', {
         ascending: false
       });
 
@@ -147,9 +166,14 @@ const CategoryPage = () => {
                   <ProductCardSkeleton key={i} index={i} />
                 ))}
               </div> : sortedProducts.length > 0 ? viewMode === "grid" ? <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in">
-                  {sortedProducts.map(product => <ProductCard key={product.id} id={product.slug} productId={product.id} name={product.title} price={product.price_cents / 100} image={getFirstImage(product.images)} category={product.category} />)}
+                  {sortedProducts.map(product => {
+                    const { price, originalPrice } = getDisplayPrice(product);
+                    return <ProductCard key={product.id} id={product.slug} productId={product.id} name={product.title} price={price} originalPrice={originalPrice} image={getFirstImage(product.images)} category={product.category} />;
+                  })}
                 </div> : <div className="space-y-4 animate-fade-in">
-                  {sortedProducts.map(product => <div key={product.id} className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
+                  {sortedProducts.map(product => {
+                    const { price, originalPrice } = getDisplayPrice(product);
+                    return <div key={product.id} className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
                       <img src={getFirstImage(product.images)} alt={product.title} className="w-32 h-32 object-cover rounded-md flex-shrink-0" />
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
@@ -157,7 +181,8 @@ const CategoryPage = () => {
                             <h3 className="font-semibold text-lg">{product.title}</h3>
                           </div>
                           <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xl font-bold">₹{(product.price_cents / 100).toLocaleString()}</span>
+                            <span className="text-xl font-bold">₹{price.toLocaleString()}</span>
+                            {originalPrice && <span className="text-muted-foreground line-through">₹{originalPrice.toLocaleString()}</span>}
                           </div>
                         </div>
                         <div className="flex gap-2">
@@ -166,7 +191,8 @@ const CategoryPage = () => {
                           </Button>
                         </div>
                       </div>
-                    </div>)}
+                    </div>;
+                  })}
                 </div> : <div className="text-center py-12">
                 <p className="text-muted-foreground text-lg mb-4">
                   No products found matching your filters

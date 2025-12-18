@@ -11,6 +11,7 @@ interface Product {
   price_cents: number;
   images: Json;
   slug: string;
+  variants: Json;
 }
 
 const getFirstImage = (images: Json): string => {
@@ -18,6 +19,24 @@ const getFirstImage = (images: Json): string => {
     return images[0] as string;
   }
   return '/placeholder.svg';
+};
+
+const getSalePrice = (variants: Json): number | null => {
+  if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
+    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
+  }
+  return null;
+};
+
+const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
+  const salePrice = getSalePrice(product.variants);
+  if (salePrice && salePrice < product.price_cents) {
+    return {
+      price: salePrice / 100,
+      originalPrice: product.price_cents / 100
+    };
+  }
+  return { price: product.price_cents / 100 };
 };
 
 export const TrendingProducts = () => {
@@ -32,7 +51,7 @@ export const TrendingProducts = () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, title, price_cents, images, slug')
+        .select('id, title, price_cents, images, slug, variants')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(4);
@@ -68,16 +87,20 @@ export const TrendingProducts = () => {
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 md:gap-6">
-          {trendingProducts.map((product) => (
-            <ProductCard 
-              key={product.id}
-              id={product.slug}
-              productId={product.id}
-              name={product.title}
-              price={product.price_cents / 100}
-              image={getFirstImage(product.images)}
-            />
-          ))}
+          {trendingProducts.map((product) => {
+            const { price, originalPrice } = getDisplayPrice(product);
+            return (
+              <ProductCard 
+                key={product.id}
+                id={product.slug}
+                productId={product.id}
+                name={product.title}
+                price={price}
+                originalPrice={originalPrice}
+                image={getFirstImage(product.images)}
+              />
+            );
+          })}
         </div>
       )}
     </section>
