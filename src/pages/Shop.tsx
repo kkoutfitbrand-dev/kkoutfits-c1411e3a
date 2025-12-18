@@ -372,7 +372,7 @@ const Shop = () => {
             {[{
             icon: Package,
             title: "Free Shipping",
-            desc: "On orders over ₹999"
+            desc: "On all orders"
           }, {
             icon: Star,
             title: "Premium Quality",

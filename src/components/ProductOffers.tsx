@@ -26,7 +26,7 @@ const offers = [
   {
     id: 4,
     title: "Free Shipping",
-    description: "Free shipping on orders above ₹999",
+    description: "Free shipping on all orders",
     code: null,
   },
 ];
