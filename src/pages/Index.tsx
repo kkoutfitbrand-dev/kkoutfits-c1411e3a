@@ -64,6 +64,7 @@ interface Product {
   images: Json;
   slug: string;
   category: string | null;
+  variants: Json;
 }
 
 const getFirstImage = (images: Json): string => {
@@ -71,6 +72,24 @@ const getFirstImage = (images: Json): string => {
     return images[0] as string;
   }
   return '/placeholder.svg';
+};
+
+const getSalePrice = (variants: Json): number | null => {
+  if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
+    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
+  }
+  return null;
+};
+
+const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
+  const salePrice = getSalePrice(product.variants);
+  if (salePrice && salePrice < product.price_cents) {
+    return {
+      price: salePrice / 100,
+      originalPrice: product.price_cents / 100
+    };
+  }
+  return { price: product.price_cents / 100 };
 };
 
 const Index = () => {
@@ -85,7 +104,7 @@ const Index = () => {
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, title, price_cents, images, slug, category')
+        .select('id, title, price_cents, images, slug, category, variants')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(6);
@@ -130,18 +149,22 @@ const Index = () => {
             <ProductGridSkeleton count={6} />
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              {featuredProducts.map((product, index) => (
-                <ScrollReveal key={product.id} delay={index * 0.05} direction="up">
-                  <ProductCard 
-                    id={product.slug}
-                    productId={product.id}
-                    name={product.title}
-                    price={product.price_cents / 100}
-                    image={getFirstImage(product.images)}
-                    category={product.category}
-                  />
-                </ScrollReveal>
-              ))}
+              {featuredProducts.map((product, index) => {
+                const { price, originalPrice } = getDisplayPrice(product);
+                return (
+                  <ScrollReveal key={product.id} delay={index * 0.05} direction="up">
+                    <ProductCard 
+                      id={product.slug}
+                      productId={product.id}
+                      name={product.title}
+                      price={price}
+                      originalPrice={originalPrice}
+                      image={getFirstImage(product.images)}
+                      category={product.category}
+                    />
+                  </ScrollReveal>
+                );
+              })}
             </div>
           )}
         </section>
