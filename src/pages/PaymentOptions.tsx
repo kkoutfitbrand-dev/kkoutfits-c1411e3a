@@ -2,30 +2,46 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { CreditCard, Smartphone, Building2, Wallet, Shield, CheckCircle } from "lucide-react";
-const paymentMethods = [{
-  icon: CreditCard,
-  title: "Credit & Debit Cards",
-  description: "All major cards accepted",
-  items: ["Visa", "Mastercard", "American Express", "RuPay"]
-}, {
-  icon: Smartphone,
-  title: "UPI Payments",
-  description: "Instant and secure",
-  items: ["Google Pay", "PhonePe", "Paytm", "BHIM UPI"]
-}, {
-  icon: Building2,
-  title: "Net Banking",
-  description: "All major banks supported",
-  items: ["HDFC", "ICICI", "SBI", "Axis", "& 50+ more"]
-}, {
-  icon: Wallet,
-  title: "Digital Wallets",
-  description: "Quick checkout",
-  items: ["Paytm Wallet", "Amazon Pay", "Mobikwik", "Freecharge"]
-}];
-const securityFeatures = ["256-bit SSL encryption", "PCI DSS compliant", "3D Secure authentication", "Fraud detection system", "Secure payment gateways", "No card data stored"];
+
+const paymentMethods = [
+  {
+    icon: CreditCard,
+    title: "Credit & Debit Cards",
+    description: "All major cards accepted",
+    items: ["Visa", "Mastercard", "American Express", "RuPay"]
+  },
+  {
+    icon: Smartphone,
+    title: "UPI Payments",
+    description: "Instant and secure",
+    items: ["Google Pay", "PhonePe", "Paytm", "BHIM UPI"]
+  },
+  {
+    icon: Building2,
+    title: "Net Banking",
+    description: "All major banks supported",
+    items: ["HDFC", "ICICI", "SBI", "Axis", "& 50+ more"]
+  },
+  {
+    icon: Wallet,
+    title: "Digital Wallets",
+    description: "Quick checkout",
+    items: ["Paytm Wallet", "Amazon Pay", "Mobikwik", "Freecharge"]
+  }
+];
+
+const securityFeatures = [
+  "256-bit SSL encryption",
+  "PCI DSS compliant",
+  "3D Secure authentication",
+  "Fraud detection system",
+  "Secure payment gateways",
+  "No card data stored"
+];
+
 const PaymentOptions = () => {
-  return <div className="min-h-screen bg-background">
+  return (
+    <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Section */}
@@ -51,7 +67,8 @@ const PaymentOptions = () => {
       <section className="py-16">
         <div className="container px-4">
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {paymentMethods.map((method, index) => <ScrollReveal key={method.title} delay={index * 0.1}>
+            {paymentMethods.map((method, index) => (
+              <ScrollReveal key={method.title} delay={index * 0.1}>
                 <div className="bg-card p-8 rounded-xl border border-border hover:border-primary/50 transition-all duration-300 h-full">
                   <div className="flex items-center gap-4 mb-4">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -63,18 +80,53 @@ const PaymentOptions = () => {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {method.items.map(item => <span key={item} className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground">
+                    {method.items.map((item) => (
+                      <span
+                        key={item}
+                        className="text-sm bg-muted px-3 py-1 rounded-full text-muted-foreground"
+                      >
                         {item}
-                      </span>)}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              </ScrollReveal>)}
+              </ScrollReveal>
+            ))}
           </div>
         </div>
       </section>
 
       {/* EMI Options */}
-      
+      <section className="py-16 bg-muted/50">
+        <div className="container px-4">
+          <ScrollReveal>
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-3xl font-serif font-semibold text-center mb-8">
+                Easy EMI Options
+              </h2>
+              <div className="bg-card p-8 rounded-xl border border-border">
+                <div className="grid md:grid-cols-3 gap-6 text-center">
+                  <div>
+                    <div className="text-3xl font-bold text-primary mb-2">3 Months</div>
+                    <p className="text-muted-foreground">No Cost EMI available</p>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-primary mb-2">6 Months</div>
+                    <p className="text-muted-foreground">Low interest rates</p>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-primary mb-2">12 Months</div>
+                    <p className="text-muted-foreground">Flexible payments</p>
+                  </div>
+                </div>
+                <p className="text-center text-sm text-muted-foreground mt-6">
+                  *EMI available on orders above ₹3,000. Terms and conditions apply.
+                </p>
+              </div>
+            </div>
+          </ScrollReveal>
+        </div>
+      </section>
 
       {/* Security */}
       <section className="py-16">
@@ -88,12 +140,14 @@ const PaymentOptions = () => {
                 </h2>
               </div>
               <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {securityFeatures.map((feature, index) => <ScrollReveal key={feature} delay={index * 0.05}>
+                {securityFeatures.map((feature, index) => (
+                  <ScrollReveal key={feature} delay={index * 0.05}>
                     <div className="flex items-center gap-3 p-4 bg-card rounded-lg border border-border">
                       <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
                       <span className="text-sm">{feature}</span>
                     </div>
-                  </ScrollReveal>)}
+                  </ScrollReveal>
+                ))}
               </div>
             </div>
           </ScrollReveal>
@@ -121,6 +175,8 @@ const PaymentOptions = () => {
       </section>
 
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default PaymentOptions;
