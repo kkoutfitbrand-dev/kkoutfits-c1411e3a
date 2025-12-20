@@ -1,9 +1,8 @@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { MapPin, Phone, Clock, Navigation as NavigationIcon } from "lucide-react";
+import { MapPin, Phone, Clock, Navigation as NavigationIcon, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 const store = {
   name: "KK Outfit",
   address: "Your Store Address, City - Pincode",
@@ -16,6 +15,11 @@ const store = {
 const StoreLocator = () => {
   const handleGetDirections = () => {
     window.open(store.mapUrl, '_blank');
+  };
+
+  const handleWhatsAppChat = () => {
+    const phoneNumber = store.phone.replace(/\D/g, '');
+    window.open(`https://wa.me/${phoneNumber}`, '_blank');
   };
 
   return (
@@ -88,7 +92,7 @@ const StoreLocator = () => {
                     </div>
                   </div>
 
-                  <div className="mt-8">
+                  <div className="mt-8 flex flex-col gap-3">
                     <Button 
                       onClick={handleGetDirections}
                       className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
@@ -96,6 +100,14 @@ const StoreLocator = () => {
                     >
                       <NavigationIcon className="w-5 h-5 mr-2" />
                       Get Directions
+                    </Button>
+                    <Button 
+                      onClick={handleWhatsAppChat}
+                      className="w-full bg-green-600 text-white hover:bg-green-700"
+                      size="lg"
+                    >
+                      <MessageCircle className="w-5 h-5 mr-2" />
+                      Chat on WhatsApp
                     </Button>
                   </div>
                 </div>
