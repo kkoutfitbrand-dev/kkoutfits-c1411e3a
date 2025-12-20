@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 const store = {
   name: "KK Outfit",
   address: "Your Store Address, City - Pincode",
-  phone: "+91 98765 43210",
+  phone: "+91 87146 59465",
   hours: "10:00 AM - 9:00 PM (All Days)",
   mapUrl: "https://www.google.com/maps/place//data=!4m2!3m1!1s0x3bad2500097992a1:0x1ab8b329143f9b2b",
   embedUrl: "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15551.0!2d0!3d0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bad2500097992a1%3A0x1ab8b329143f9b2b!2z!5e0!3m2!1sen!2sin!4v1"
