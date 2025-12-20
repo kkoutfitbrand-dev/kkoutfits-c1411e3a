@@ -16,6 +16,7 @@ const footerLinks = {
     { label: "Track Order", path: "/track-order" },
     { label: "Shipping Policy", path: "/shipping-policy" },
     { label: "Returns & Exchange", path: "/returns-exchange" },
+    { label: "Refund Policy", path: "/refund-policy" },
     { label: "Size Guide", path: "/size-guide" },
   ],
   "About": [
