@@ -1,76 +1,29 @@
 import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { MapPin, Phone, Clock, Navigation as NavigationIcon, Search } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import { MapPin, Phone, Clock, Navigation as NavigationIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 
-const stores = [
-  {
-    id: 1,
-    name: "KK Outfit - Mumbai Flagship",
-    address: "123 Linking Road, Bandra West, Mumbai - 400050",
-    phone: "+91 22 2640 1234",
-    hours: "10:00 AM - 9:00 PM",
-    type: "Flagship Store"
-  },
-  {
-    id: 2,
-    name: "KK Outfit - Delhi",
-    address: "45 South Extension Part 2, New Delhi - 110049",
-    phone: "+91 11 4150 5678",
-    hours: "10:00 AM - 8:30 PM",
-    type: "Experience Store"
-  },
-  {
-    id: 3,
-    name: "KK Outfit - Bangalore",
-    address: "78 Commercial Street, Bangalore - 560001",
-    phone: "+91 80 2558 9012",
-    hours: "10:30 AM - 9:00 PM",
-    type: "Store"
-  },
-  {
-    id: 4,
-    name: "KK Outfit - Kolkata",
-    address: "22 Park Street, Kolkata - 700016",
-    phone: "+91 33 2249 3456",
-    hours: "10:00 AM - 8:00 PM",
-    type: "Store"
-  },
-  {
-    id: 5,
-    name: "KK Outfit - Chennai",
-    address: "156 Anna Salai, Chennai - 600002",
-    phone: "+91 44 2852 7890",
-    hours: "10:00 AM - 9:00 PM",
-    type: "Store"
-  },
-  {
-    id: 6,
-    name: "KK Outfit - Hyderabad",
-    address: "89 Jubilee Hills, Hyderabad - 500033",
-    phone: "+91 40 2355 1234",
-    hours: "10:30 AM - 9:00 PM",
-    type: "Experience Store"
-  }
-];
+const store = {
+  name: "KK Outfit",
+  address: "Your Store Address, City - Pincode",
+  phone: "+91 98765 43210",
+  hours: "10:00 AM - 9:00 PM (All Days)",
+  mapUrl: "https://www.google.com/maps/place//data=!4m2!3m1!1s0x3bad2500097992a1:0x1ab8b329143f9b2b",
+  embedUrl: "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d15551.0!2d0!3d0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bad2500097992a1%3A0x1ab8b329143f9b2b!2z!5e0!3m2!1sen!2sin!4v1"
+};
 
 const StoreLocator = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  
-  const filteredStores = stores.filter(store => 
-    store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    store.address.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleGetDirections = () => {
+    window.open(store.mapUrl, '_blank');
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
       
       {/* Hero Section */}
-      <section className="relative py-20 bg-gradient-to-br from-primary/10 via-background to-accent/10 overflow-hidden">
+      <section className="relative py-16 bg-gradient-to-br from-primary/10 via-background to-accent/10 overflow-hidden">
         <div className="container px-4 relative">
           <ScrollReveal>
             <div className="flex justify-center mb-6">
@@ -79,109 +32,92 @@ const StoreLocator = () => {
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-serif font-bold text-center mb-4">
-              Find a Store Near You
+              Visit Our Store
             </h1>
-            <p className="text-muted-foreground text-center max-w-2xl mx-auto text-lg mb-8">
-              Visit our stores for an exclusive shopping experience
+            <p className="text-muted-foreground text-center max-w-2xl mx-auto text-lg">
+              Experience our exclusive collection in person
             </p>
-            
-            {/* Search */}
-            <div className="max-w-md mx-auto">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search by city or area..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-12 bg-card"
-                />
-              </div>
-            </div>
           </ScrollReveal>
         </div>
       </section>
 
-      {/* Store Count */}
-      <section className="py-8 border-b border-border">
-        <div className="container px-4">
-          <p className="text-center text-muted-foreground">
-            Showing <span className="font-semibold text-foreground">{filteredStores.length}</span> stores
-          </p>
-        </div>
-      </section>
-
-      {/* Stores List */}
+      {/* Store Details & Map */}
       <section className="py-16">
         <div className="container px-4">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {filteredStores.map((store, index) => (
-              <ScrollReveal key={store.id} delay={index * 0.1}>
-                <div className="group bg-card p-6 rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all duration-300 h-full">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
-                        {store.type}
-                      </span>
-                      <h3 className="text-lg font-semibold mt-2 group-hover:text-primary transition-colors">
-                        {store.name}
-                      </h3>
-                    </div>
-                  </div>
+          <div className="max-w-5xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Store Info Card */}
+              <ScrollReveal>
+                <div className="bg-card p-8 rounded-xl border border-border h-full">
+                  <h2 className="text-2xl font-serif font-bold mb-6">{store.name}</h2>
                   
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-start gap-3">
-                      <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-                      <span className="text-muted-foreground">{store.address}</span>
+                  <div className="space-y-5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <MapPin className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium mb-1">Address</h3>
+                        <p className="text-muted-foreground">{store.address}</p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <a href={`tel:${store.phone}`} className="text-muted-foreground hover:text-primary transition-colors">
-                        {store.phone}
-                      </a>
+                    
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <Phone className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium mb-1">Phone</h3>
+                        <a 
+                          href={`tel:${store.phone}`} 
+                          className="text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          {store.phone}
+                        </a>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <span className="text-muted-foreground">{store.hours}</span>
+                    
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <Clock className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium mb-1">Store Hours</h3>
+                        <p className="text-muted-foreground">{store.hours}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-border">
-                    <Button variant="outline" size="sm" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                      <NavigationIcon className="w-4 h-4 mr-2" />
+                  <div className="mt-8">
+                    <Button 
+                      onClick={handleGetDirections}
+                      className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                      size="lg"
+                    >
+                      <NavigationIcon className="w-5 h-5 mr-2" />
                       Get Directions
                     </Button>
                   </div>
                 </div>
               </ScrollReveal>
-            ))}
-          </div>
 
-          {filteredStores.length === 0 && (
-            <ScrollReveal>
-              <div className="text-center py-12">
-                <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No stores found</h3>
-                <p className="text-muted-foreground">Try searching for a different location</p>
-              </div>
-            </ScrollReveal>
-          )}
-        </div>
-      </section>
-
-      {/* Map Placeholder */}
-      <section className="py-16 bg-muted/50">
-        <div className="container px-4">
-          <ScrollReveal>
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-card rounded-xl border border-border h-80 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">Interactive map coming soon</p>
+              {/* Google Map */}
+              <ScrollReveal delay={0.1}>
+                <div className="bg-card rounded-xl border border-border overflow-hidden h-full min-h-[400px]">
+                  <iframe
+                    src={store.embedUrl}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0, minHeight: "400px" }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Store Location"
+                  />
                 </div>
-              </div>
+              </ScrollReveal>
             </div>
-          </ScrollReveal>
+          </div>
         </div>
       </section>
 
