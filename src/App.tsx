@@ -9,7 +9,6 @@ import { AdminRoute } from "@/components/AdminRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { PageTransition } from "@/components/PageTransition";
 import { AnimatePresence } from "framer-motion";
-import ChatBot from "@/components/ChatBot";
 import Index from "./pages/Index";
 import CategoryPage from "./pages/CategoryPage";
 import ProductDetail from "./pages/ProductDetail";
@@ -105,7 +104,6 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <AnimatedRoutes />
-          <ChatBot />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
