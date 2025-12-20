@@ -9,6 +9,7 @@ import { BrandShowcase } from "@/components/BrandShowcase";
 import { PromotionalBanner } from "@/components/PromotionalBanner";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
+import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton, CategoryGridSkeleton } from "@/components/HomeSkeleton";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -232,6 +233,11 @@ const Index = () => {
       {/* Occasion Shopping */}
       <ScrollReveal delay={0.1} direction="right">
         <OccasionShopping />
+      </ScrollReveal>
+
+      {/* Google Reviews */}
+      <ScrollReveal delay={0.1}>
+        <GoogleReviewsBanner />
       </ScrollReveal>
 
       {/* USP Section */}
