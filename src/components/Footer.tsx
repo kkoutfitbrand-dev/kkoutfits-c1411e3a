@@ -7,13 +7,13 @@ const footerLinks = {
   "Shop": [
     { label: "Sarees", path: "/category/sarees" },
     { label: "Lehengas", path: "/category/lehengas" },
+    { label: "Kurtas", path: "/category/kurtas" },
+    { label: "Sherwani", path: "/category/sherwani" },
     { label: "Salwar Kameez", path: "/category/salwar-kameez" },
-    { label: "Indo Western", path: "/category/indo-western" },
-    { label: "Bridal Collection", path: "/category/bridal" },
+    { label: "Bandhgala", path: "/category/bandhgala" },
   ],
   "Customer Care": [
     { label: "Contact Us", path: "/contact" },
-    { label: "Track Order", path: "/track-order" },
     { label: "Shipping Policy", path: "/shipping-policy" },
     { label: "Returns & Exchange", path: "/returns-exchange" },
     { label: "Refund Policy", path: "/refund-policy" },
@@ -21,8 +21,6 @@ const footerLinks = {
   ],
   "About": [
     { label: "Our Story", path: "/about" },
-    { label: "Blog", path: "/blog" },
-    { label: "Careers", path: "/careers" },
     { label: "Sustainability", path: "/sustainability" },
     { label: "Store Locator", path: "/store-locator" },
   ],
