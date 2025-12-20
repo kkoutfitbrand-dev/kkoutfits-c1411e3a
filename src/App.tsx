@@ -32,6 +32,7 @@ import Shop from "./pages/Shop";
 import Trending from "./pages/Trending";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import ReturnsExchange from "./pages/ReturnsExchange";
+import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsConditions from "./pages/TermsConditions";
 import Careers from "./pages/Careers";
@@ -75,6 +76,7 @@ const AnimatedRoutes = () => {
         <Route path="/trending" element={<PageTransition><Trending /></PageTransition>} />
         <Route path="/shipping-policy" element={<PageTransition><ShippingPolicy /></PageTransition>} />
         <Route path="/returns-exchange" element={<PageTransition><ReturnsExchange /></PageTransition>} />
+        <Route path="/refund-policy" element={<PageTransition><RefundPolicy /></PageTransition>} />
         <Route path="/privacy-policy" element={<PageTransition><PrivacyPolicy /></PageTransition>} />
         <Route path="/terms-conditions" element={<PageTransition><TermsConditions /></PageTransition>} />
         <Route path="/careers" element={<PageTransition><Careers /></PageTransition>} />
