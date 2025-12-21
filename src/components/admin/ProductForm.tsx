@@ -452,9 +452,37 @@ export const ProductForm = ({
                 <Textarea id="description" {...register('description')} placeholder="Detailed product description, features, and benefits..." rows={5} className="resize-none" />
               </div>
 
+              {/* Main Category Section */}
+              <div className="space-y-3">
+                <Label>Main Category</Label>
+                <div className="grid grid-cols-5 gap-2">
+                  {['Shirts', 'T-Shirts', 'Pants', 'Jeans', 'Casual Wear'].map((cat) => {
+                    const catSlug = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+                    const isSelected = watch('category') === catSlug;
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setValue('category', catSlug)}
+                        className={`p-3 rounded-lg border-2 text-center transition-all ${
+                          isSelected 
+                            ? 'border-primary bg-primary/10 text-primary font-semibold' 
+                            : 'border-border hover:border-primary/50 hover:bg-muted'
+                        }`}
+                      >
+                        <span className="text-sm">{cat}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Select a main category to display this product on the category page
+                </p>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select onValueChange={value => setValue('category', value)}>
+                <Label htmlFor="category">Or Select from Database Categories</Label>
+                <Select value={watch('category') || ''} onValueChange={value => setValue('category', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
@@ -464,9 +492,6 @@ export const ProductForm = ({
                       </SelectItem>)}
                   </SelectContent>
                 </Select>
-                <p className="text-xs text-muted-foreground">
-                  Choose the most relevant category for this product
-                </p>
               </div>
 
               <div className="space-y-2">
