@@ -491,36 +491,85 @@ export const ProductForm = ({
               {/* Subcategories Section - Multi-select */}
               <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
                 <Label className="text-base font-semibold">2. Categories (Select Multiple)</Label>
-                <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
-                  {categories.map((cat: any) => {
-                    const isSelected = selectedSubcategories.includes(cat.slug);
-                    return (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => {
-                          const newSelected = isSelected
-                            ? selectedSubcategories.filter(s => s !== cat.slug)
-                            : [...selectedSubcategories, cat.slug];
-                          setSelectedSubcategories(newSelected);
-                          setValue('subcategories', newSelected);
-                        }}
-                        className={`p-2 rounded-lg border-2 text-left transition-all flex items-center gap-2 ${
-                          isSelected 
-                            ? 'border-primary bg-primary/10 text-primary' 
-                            : 'border-border hover:border-primary/50 hover:bg-muted'
-                        }`}
-                      >
-                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                          isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'
-                        }`}>
-                          {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
-                        </div>
-                        <span className="text-sm">{cat.parent_id && '• '}{cat.name}</span>
-                      </button>
-                    );
-                  })}
+                
+                {/* Parent Categories */}
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Parent Categories</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {categories.filter((cat: any) => !cat.parent_id).map((cat: any) => {
+                      const isSelected = selectedSubcategories.includes(cat.slug);
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => {
+                            const newSelected = isSelected
+                              ? selectedSubcategories.filter(s => s !== cat.slug)
+                              : [...selectedSubcategories, cat.slug];
+                            setSelectedSubcategories(newSelected);
+                            setValue('subcategories', newSelected);
+                          }}
+                          className={`p-2 rounded-lg border-2 text-left transition-all flex items-center gap-2 ${
+                            isSelected 
+                              ? 'border-primary bg-primary/10 text-primary' 
+                              : 'border-border hover:border-primary/50 hover:bg-muted'
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                            isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'
+                          }`}>
+                            {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+                          </div>
+                          <span className="text-sm font-medium">{cat.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
+
+                {/* Sub Categories */}
+                {categories.filter((cat: any) => cat.parent_id).length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-muted-foreground">Sub Categories</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {categories.filter((cat: any) => cat.parent_id).map((cat: any) => {
+                        const isSelected = selectedSubcategories.includes(cat.slug);
+                        const parentCat = categories.find((c: any) => c.id === cat.parent_id);
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                              const newSelected = isSelected
+                                ? selectedSubcategories.filter(s => s !== cat.slug)
+                                : [...selectedSubcategories, cat.slug];
+                              setSelectedSubcategories(newSelected);
+                              setValue('subcategories', newSelected);
+                            }}
+                            className={`p-2 rounded-lg border-2 text-left transition-all flex flex-col gap-1 ${
+                              isSelected 
+                                ? 'border-primary bg-primary/10 text-primary' 
+                                : 'border-border hover:border-primary/50 hover:bg-muted'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                                isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'
+                              }`}>
+                                {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+                              </div>
+                              <span className="text-sm">{cat.name}</span>
+                            </div>
+                            {parentCat && (
+                              <span className="text-xs text-muted-foreground ml-6">in {parentCat.name}</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
                 {selectedSubcategories.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-2">
                     {selectedSubcategories.map(slug => {
