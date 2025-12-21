@@ -26,6 +26,7 @@ const productSchema = z.object({
   sku: z.string().optional(),
   barcode: z.string().optional(),
   category: z.string().optional(),
+  subcategories: z.array(z.string()).optional(),
   tags: z.string().optional(),
   weight: z.number().min(0).optional()
 });
@@ -66,6 +67,7 @@ export const ProductForm = ({
   const [dragActive, setDragActive] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [variants, setVariants] = useState<any[]>([]);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<string[]>([]);
 
   // Fetch categories from database
@@ -108,6 +110,7 @@ export const ProductForm = ({
       sku: '',
       barcode: '',
       category: '',
+      subcategories: [],
       tags: '',
       weight: 0
     }
@@ -120,6 +123,7 @@ export const ProductForm = ({
       setImagePreviews([]);
       setExistingImages([]);
       setVariants([]);
+      setSelectedSubcategories([]);
     } else if (editProduct) {
       // Populate form with existing product data
       const variantsData = editProduct.variants || {};
@@ -132,6 +136,9 @@ export const ProductForm = ({
       setValue('sku', variantsData.sku || '');
       setValue('barcode', variantsData.barcode || '');
       setValue('category', editProduct.category || variantsData.category || '');
+      const existingSubcats = variantsData.subcategories || [];
+      setValue('subcategories', existingSubcats);
+      setSelectedSubcategories(existingSubcats);
       setValue('tags', variantsData.tags?.join(', ') || '');
       setValue('weight', variantsData.weight || 0);
 
@@ -272,7 +279,8 @@ export const ProductForm = ({
           barcode: data.barcode,
           tags: data.tags?.split(',').map(t => t.trim()).filter(Boolean),
           weight: data.weight,
-          sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null
+          sale_price_cents: data.sale_price_cents ? Math.round(data.sale_price_cents * 100) : null,
+          subcategories: selectedSubcategories
         }
       };
       let error;
@@ -453,8 +461,8 @@ export const ProductForm = ({
               </div>
 
               {/* Main Category Section */}
-              <div className="space-y-3">
-                <Label>Main Category</Label>
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                <Label className="text-base font-semibold">1. Main Category</Label>
                 <div className="grid grid-cols-5 gap-2">
                   {['Shirts', 'T-Shirts', 'Pants', 'Jeans', 'Casual Wear'].map((cat) => {
                     const catSlug = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -476,22 +484,69 @@ export const ProductForm = ({
                   })}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Select a main category to display this product on the category page
+                  Select one main category for this product
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="category">Or Select from Database Categories</Label>
-                <Select value={watch('category') || ''} onValueChange={value => setValue('category', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat: any) => <SelectItem key={cat.id} value={cat.slug}>
-                        {cat.parent_id && '• '}{cat.name}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
+              {/* Subcategories Section - Multi-select */}
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                <Label className="text-base font-semibold">2. Categories (Select Multiple)</Label>
+                <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+                  {categories.map((cat: any) => {
+                    const isSelected = selectedSubcategories.includes(cat.slug);
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          const newSelected = isSelected
+                            ? selectedSubcategories.filter(s => s !== cat.slug)
+                            : [...selectedSubcategories, cat.slug];
+                          setSelectedSubcategories(newSelected);
+                          setValue('subcategories', newSelected);
+                        }}
+                        className={`p-2 rounded-lg border-2 text-left transition-all flex items-center gap-2 ${
+                          isSelected 
+                            ? 'border-primary bg-primary/10 text-primary' 
+                            : 'border-border hover:border-primary/50 hover:bg-muted'
+                        }`}
+                      >
+                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                          isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'
+                        }`}>
+                          {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+                        </div>
+                        <span className="text-sm">{cat.parent_id && '• '}{cat.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedSubcategories.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {selectedSubcategories.map(slug => {
+                      const cat = categories.find((c: any) => c.slug === slug);
+                      return (
+                        <Badge key={slug} variant="secondary" className="text-xs">
+                          {cat?.name || slug}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const newSelected = selectedSubcategories.filter(s => s !== slug);
+                              setSelectedSubcategories(newSelected);
+                              setValue('subcategories', newSelected);
+                            }}
+                            className="ml-1 hover:text-destructive"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Select multiple categories to show this product on different category pages
+                </p>
               </div>
 
               <div className="space-y-2">
