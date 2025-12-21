@@ -26,10 +26,7 @@ export const ProductQA = () => {
   return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-semibold">Questions & Answers</h3>
-        <Button variant="outline" className="gap-2">
-          <MessageCircle className="h-4 w-4" />
-          Ask a Question
-        </Button>
+        
       </div>
 
       <div className="space-y-6">
