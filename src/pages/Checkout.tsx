@@ -489,18 +489,39 @@ const Checkout = () => {
             .update({ status: 'payment_failed' })
             .eq('id', orderData.id);
           
+          // Navigate to failure page
+          navigate('/payment-failed', {
+            state: {
+              orderId: orderData.id,
+              error: 'Payment was cancelled or failed'
+            }
+          });
           setPlacingOrder(false);
           return;
         }
+
+        // Clear cart
+        await supabase
+          .from('carts')
+          .update({ items: [] })
+          .eq('user_id', user.id);
+
+        // Navigate to success page for online payment
+        navigate('/payment-success', {
+          state: {
+            orderId: orderData.id
+          }
+        });
+        return;
       }
 
-      // Clear cart
+      // Clear cart for COD orders
       await supabase
         .from('carts')
         .update({ items: [] })
         .eq('user_id', user.id);
 
-      // Navigate to confirmation
+      // Navigate to confirmation for COD
       navigate('/order-confirmation', {
         state: {
           orderId: orderData.id,

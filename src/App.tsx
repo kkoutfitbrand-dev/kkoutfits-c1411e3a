@@ -39,6 +39,8 @@ import Careers from "./pages/Careers";
 import Sustainability from "./pages/Sustainability";
 import StoreLocator from "./pages/StoreLocator";
 import PaymentOptions from "./pages/PaymentOptions";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminProducts from "./pages/admin/Products";
 import AdminCategories from "./pages/admin/Categories";
@@ -83,6 +85,8 @@ const AnimatedRoutes = () => {
         <Route path="/sustainability" element={<PageTransition><Sustainability /></PageTransition>} />
         <Route path="/store-locator" element={<PageTransition><StoreLocator /></PageTransition>} />
         <Route path="/payment-options" element={<PageTransition><PaymentOptions /></PageTransition>} />
+        <Route path="/payment-success" element={<ProtectedRoute><PageTransition><PaymentSuccess /></PageTransition></ProtectedRoute>} />
+        <Route path="/payment-failed" element={<PageTransition><PaymentFailed /></PageTransition>} />
         <Route path="/admin/dashboard" element={<AdminRoute><PageTransition><AdminDashboard /></PageTransition></AdminRoute>} />
         <Route path="/admin/products" element={<AdminRoute><PageTransition><AdminProducts /></PageTransition></AdminRoute>} />
         <Route path="/admin/categories" element={<AdminRoute><PageTransition><AdminCategories /></PageTransition></AdminRoute>} />
