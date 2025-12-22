@@ -303,10 +303,7 @@ export const VariantsManager = ({
 
                   <div className="grid grid-cols-3 gap-3">
                     
-                    <div className="space-y-1">
-                      <Label className="text-xs">Price (₹)</Label>
-                      <Input type="number" step="0.01" value={variant.price_cents ? variant.price_cents / 100 : basePrice / 100} onChange={e => updateVariant(index, 'price_cents', Math.round(parseFloat(e.target.value) * 100))} />
-                    </div>
+                    
                     <div className="space-y-1">
                       <Label className="text-xs">Stock</Label>
                       <Input type="number" value={variant.inventory_count} onChange={e => updateVariant(index, 'inventory_count', parseInt(e.target.value) || 0)} />
