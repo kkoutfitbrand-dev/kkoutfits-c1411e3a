@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
-import { Check, Loader2, Plus, Pencil, Trash2 } from "lucide-react";
+import { Check, Loader2, Plus, Pencil, Trash2, CreditCard } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,6 +16,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useRazorpay } from "@/hooks/useRazorpay";
 
 interface CartItem {
   id: string;
@@ -67,15 +68,16 @@ interface SavedAddress {
 
 const Checkout = () => {
   const [step, setStep] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState("cod");
+  const [paymentMethod, setPaymentMethod] = useState("online");
   const [placingOrder, setPlacingOrder] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
   const navigate = useNavigate();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
   const [addressesLoading, setAddressesLoading] = useState(true);
   const { toast } = useToast();
-  
+  const { isLoaded: razorpayLoaded } = useRazorpay();
 
   const onAddressSubmit = async (data: AddressFormData) => {
     if (!user) return;
@@ -350,12 +352,115 @@ const Checkout = () => {
 
   const selectedAddress = savedAddresses.find(addr => addr.id === selectedAddressId) || savedAddresses.find(addr => addr.isDefault);
 
+  const initiateRazorpayPayment = async (orderId: string) => {
+    if (!razorpayLoaded || !window.Razorpay) {
+      toast({
+        title: "Error",
+        description: "Payment gateway is loading. Please try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    try {
+      // Create Razorpay order
+      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
+        body: {
+          amount: total,
+          currency: 'INR',
+          receipt: orderId,
+          notes: {
+            order_id: orderId,
+            user_id: user?.id
+          }
+        }
+      });
+
+      if (error || !data?.orderId) {
+        console.error('Error creating Razorpay order:', error || data?.error);
+        throw new Error(data?.error || 'Failed to create payment order');
+      }
+
+      return new Promise<boolean>((resolve) => {
+        const options = {
+          key: data.keyId,
+          amount: data.amount,
+          currency: data.currency,
+          name: 'Your Store',
+          description: `Order #${orderId.slice(0, 8)}`,
+          order_id: data.orderId,
+          handler: async function (response: any) {
+            try {
+              // Verify payment
+              const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+                body: {
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  order_id: orderId
+                }
+              });
+
+              if (verifyError || !verifyData?.verified) {
+                console.error('Payment verification failed:', verifyError || verifyData?.error);
+                toast({
+                  title: "Payment Verification Failed",
+                  description: "Please contact support if amount was deducted.",
+                  variant: "destructive"
+                });
+                resolve(false);
+                return;
+              }
+
+              resolve(true);
+            } catch (err) {
+              console.error('Error verifying payment:', err);
+              resolve(false);
+            }
+          },
+          prefill: {
+            name: selectedAddress ? `${selectedAddress.firstName} ${selectedAddress.lastName}` : '',
+            contact: selectedAddress?.phone || ''
+          },
+          theme: {
+            color: '#000000'
+          },
+          modal: {
+            ondismiss: function() {
+              resolve(false);
+            }
+          }
+        };
+
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', function (response: any) {
+          console.error('Payment failed:', response.error);
+          toast({
+            title: "Payment Failed",
+            description: response.error.description || "Please try again.",
+            variant: "destructive"
+          });
+          resolve(false);
+        });
+        rzp.open();
+      });
+    } catch (error) {
+      console.error('Error initiating payment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initiate payment. Please try again.",
+        variant: "destructive"
+      });
+      return false;
+    }
+  };
+
   const handlePlaceOrder = async () => {
     if (!user || cartItems.length === 0) return;
     
     setPlacingOrder(true);
     try {
-      // Create order in database and get the ID
+      // Create order in database
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert([{
@@ -363,7 +468,7 @@ const Checkout = () => {
           order_items: cartItems as unknown as import('@/integrations/supabase/types').Json,
           total_cents: total * 100,
           shipping_address: (selectedAddress || {}) as unknown as import('@/integrations/supabase/types').Json,
-          status: 'pending',
+          status: paymentMethod === 'online' ? 'payment_pending' : 'pending',
           payment_method: paymentMethod
         }])
         .select('id')
@@ -371,13 +476,31 @@ const Checkout = () => {
 
       if (orderError) throw orderError;
 
+      // If online payment, initiate Razorpay
+      if (paymentMethod === 'online') {
+        setProcessingPayment(true);
+        const paymentSuccess = await initiateRazorpayPayment(orderData.id);
+        setProcessingPayment(false);
+
+        if (!paymentSuccess) {
+          // Update order status to failed
+          await supabase
+            .from('orders')
+            .update({ status: 'payment_failed' })
+            .eq('id', orderData.id);
+          
+          setPlacingOrder(false);
+          return;
+        }
+      }
+
       // Clear cart
       await supabase
         .from('carts')
         .update({ items: [] })
         .eq('user_id', user.id);
 
-      // Navigate to confirmation with real order ID
+      // Navigate to confirmation
       navigate('/order-confirmation', {
         state: {
           orderId: orderData.id,
@@ -396,6 +519,7 @@ const Checkout = () => {
       });
     } finally {
       setPlacingOrder(false);
+      setProcessingPayment(false);
     }
   };
 
@@ -526,15 +650,22 @@ const Checkout = () => {
               <div className="bg-card border border-border rounded-lg p-6">
                 <h2 className="text-xl font-serif font-bold mb-6">Payment Method</h2>
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="space-y-4">
-                  <div className="flex items-center space-x-3 border border-border rounded-lg p-4">
+                  <div className={`flex items-center space-x-3 border rounded-lg p-4 transition-colors ${
+                    paymentMethod === 'online' ? 'border-primary bg-primary/5' : 'border-border'
+                  }`}>
                     <RadioGroupItem value="online" id="online" />
                     <Label htmlFor="online" className="flex-1 cursor-pointer">
-                      <div className="font-medium">Online Payment</div>
-                      <div className="text-sm text-muted-foreground">UPI, Credit/Debit Card, Net Banking & more</div>
+                      <div className="flex items-center gap-2 font-medium">
+                        <CreditCard className="h-4 w-4" />
+                        Online Payment
+                      </div>
+                      <div className="text-sm text-muted-foreground">UPI, Credit/Debit Card, Net Banking & more via Razorpay</div>
                     </Label>
                   </div>
                   
-                  <div className="flex items-center space-x-3 border border-border rounded-lg p-4">
+                  <div className={`flex items-center space-x-3 border rounded-lg p-4 transition-colors ${
+                    paymentMethod === 'cod' ? 'border-primary bg-primary/5' : 'border-border'
+                  }`}>
                     <RadioGroupItem value="cod" id="cod" />
                     <Label htmlFor="cod" className="flex-1 cursor-pointer">
                       <div className="font-medium">Cash on Delivery</div>
@@ -590,10 +721,10 @@ const Checkout = () => {
                     className="flex-1" 
                     size="lg" 
                     onClick={handlePlaceOrder}
-                    disabled={placingOrder || cartItems.length === 0}
+                    disabled={placingOrder || processingPayment || cartItems.length === 0}
                   >
-                    {placingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Place Order
+                    {(placingOrder || processingPayment) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {processingPayment ? 'Processing Payment...' : paymentMethod === 'online' ? 'Pay Now' : 'Place Order'}
                   </Button>
                 </div>
               </div>
@@ -661,9 +792,9 @@ const Checkout = () => {
             </Button>
           )}
           {step === 3 && (
-            <Button size="lg" onClick={handlePlaceOrder} disabled={placingOrder || cartItems.length === 0}>
-              {placingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Place Order
+            <Button size="lg" onClick={handlePlaceOrder} disabled={placingOrder || processingPayment || cartItems.length === 0}>
+              {(placingOrder || processingPayment) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {processingPayment ? 'Processing...' : paymentMethod === 'online' ? 'Pay Now' : 'Place Order'}
             </Button>
           )}
         </div>
