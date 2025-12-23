@@ -79,7 +79,7 @@ serve(async (req) => {
       const { error: updateError } = await supabase
         .from('orders')
         .update({ 
-          status: 'confirmed',
+          status: 'paid',
           stripe_payment_intent_id: razorpay_payment_id // Reusing this field for Razorpay payment ID
         })
         .eq('id', order_id);
@@ -88,7 +88,7 @@ serve(async (req) => {
         console.error('Error updating order:', updateError);
         // Don't fail the request, payment is still verified
       } else {
-        console.log('Order status updated to confirmed');
+        console.log('Order status updated to paid');
       }
     }
 
