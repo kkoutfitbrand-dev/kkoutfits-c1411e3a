@@ -468,7 +468,7 @@ const Checkout = () => {
           order_items: cartItems as unknown as import('@/integrations/supabase/types').Json,
           total_cents: total * 100,
           shipping_address: (selectedAddress || {}) as unknown as import('@/integrations/supabase/types').Json,
-          status: paymentMethod === 'online' ? 'payment_pending' : 'pending',
+          status: 'pending',
           payment_method: paymentMethod
         }])
         .select('id')
@@ -486,7 +486,7 @@ const Checkout = () => {
           // Update order status to failed
           await supabase
             .from('orders')
-            .update({ status: 'payment_failed' })
+            .update({ status: 'cancelled' })
             .eq('id', orderData.id);
           
           // Navigate to failure page
