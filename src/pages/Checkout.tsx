@@ -352,25 +352,25 @@ const Checkout = () => {
 
   const selectedAddress = savedAddresses.find(addr => addr.id === selectedAddressId) || savedAddresses.find(addr => addr.isDefault);
 
-  const initiateRazorpayPayment = async (orderId: string) => {
+  const initiateRazorpayPayment = async (): Promise<{ success: boolean; orderId?: string }> => {
     if (!razorpayLoaded || !window.Razorpay) {
       toast({
         title: "Error",
         description: "Payment gateway is loading. Please try again.",
         variant: "destructive"
       });
-      return false;
+      return { success: false };
     }
 
     try {
-      // Create Razorpay order
+      // Create Razorpay order (without creating DB order)
+      const tempReceiptId = `temp_${Date.now()}`;
       const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
         body: {
           amount: total,
           currency: 'INR',
-          receipt: orderId,
+          receipt: tempReceiptId,
           notes: {
-            order_id: orderId,
             user_id: user?.id
           }
         }
@@ -381,23 +381,28 @@ const Checkout = () => {
         throw new Error(data?.error || 'Failed to create payment order');
       }
 
-      return new Promise<boolean>((resolve) => {
+      return new Promise<{ success: boolean; orderId?: string }>((resolve) => {
         const options = {
           key: data.keyId,
           amount: data.amount,
           currency: data.currency,
-          name: 'Your Store',
-          description: `Order #${orderId.slice(0, 8)}`,
+          name: 'KKOUTFITD',
+          description: 'Order Payment',
           order_id: data.orderId,
           handler: async function (response: any) {
             try {
-              // Verify payment
+              // Verify payment and create order only after successful payment
               const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
                 body: {
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
-                  order_id: orderId
+                  order_data: {
+                    user_id: user?.id,
+                    order_items: cartItems,
+                    total_cents: Math.round(total * 100),
+                    shipping_address: selectedAddress || {}
+                  }
                 }
               });
 
@@ -408,14 +413,14 @@ const Checkout = () => {
                   description: "Please contact support if amount was deducted.",
                   variant: "destructive"
                 });
-                resolve(false);
+                resolve({ success: false });
                 return;
               }
 
-              resolve(true);
+              resolve({ success: true, orderId: verifyData.orderId });
             } catch (err) {
               console.error('Error verifying payment:', err);
-              resolve(false);
+              resolve({ success: false });
             }
           },
           prefill: {
@@ -427,7 +432,7 @@ const Checkout = () => {
           },
           modal: {
             ondismiss: function() {
-              resolve(false);
+              resolve({ success: false });
             }
           }
         };
@@ -440,7 +445,7 @@ const Checkout = () => {
             description: response.error.description || "Please try again.",
             variant: "destructive"
           });
-          resolve(false);
+          resolve({ success: false });
         });
         rzp.open();
       });
@@ -451,7 +456,7 @@ const Checkout = () => {
         description: "Failed to initiate payment. Please try again.",
         variant: "destructive"
       });
-      return false;
+      return { success: false };
     }
   };
 
@@ -460,13 +465,40 @@ const Checkout = () => {
     
     setPlacingOrder(true);
     try {
-      // Create order in database
+      // If online payment, initiate Razorpay first (order created only after successful payment)
+      if (paymentMethod === 'online') {
+        setProcessingPayment(true);
+        const paymentResult = await initiateRazorpayPayment();
+        setProcessingPayment(false);
+
+        if (!paymentResult.success) {
+          // Navigate to failure page - no order was created
+          navigate('/payment-failed', {
+            state: {
+              error: 'Payment was cancelled or failed'
+            }
+          });
+          setPlacingOrder(false);
+          return;
+        }
+
+        // Navigate to success page for online payment
+        navigate('/payment-success', {
+          state: {
+            orderId: paymentResult.orderId
+          }
+        });
+        setPlacingOrder(false);
+        return;
+      }
+
+      // COD: Create order directly in database
       const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert([{
           user_id: user.id,
           order_items: cartItems as unknown as import('@/integrations/supabase/types').Json,
-          total_cents: total * 100,
+          total_cents: Math.round(total * 100),
           shipping_address: (selectedAddress || {}) as unknown as import('@/integrations/supabase/types').Json,
           status: 'pending',
           payment_method: paymentMethod
@@ -475,45 +507,6 @@ const Checkout = () => {
         .single();
 
       if (orderError) throw orderError;
-
-      // If online payment, initiate Razorpay
-      if (paymentMethod === 'online') {
-        setProcessingPayment(true);
-        const paymentSuccess = await initiateRazorpayPayment(orderData.id);
-        setProcessingPayment(false);
-
-        if (!paymentSuccess) {
-          // Update order status to failed
-          await supabase
-            .from('orders')
-            .update({ status: 'cancelled' })
-            .eq('id', orderData.id);
-          
-          // Navigate to failure page
-          navigate('/payment-failed', {
-            state: {
-              orderId: orderData.id,
-              error: 'Payment was cancelled or failed'
-            }
-          });
-          setPlacingOrder(false);
-          return;
-        }
-
-        // Clear cart
-        await supabase
-          .from('carts')
-          .update({ items: [] })
-          .eq('user_id', user.id);
-
-        // Navigate to success page for online payment
-        navigate('/payment-success', {
-          state: {
-            orderId: orderData.id
-          }
-        });
-        return;
-      }
 
       // Clear cart for COD orders
       await supabase
