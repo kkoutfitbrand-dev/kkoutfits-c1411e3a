@@ -17,10 +17,11 @@ serve(async (req) => {
       razorpay_order_id, 
       razorpay_payment_id, 
       razorpay_signature,
-      order_id // Our internal order ID
+      // Order details to create order after successful payment
+      order_data
     } = await req.json();
 
-    console.log('Verifying Razorpay payment:', { razorpay_order_id, razorpay_payment_id, order_id });
+    console.log('Verifying Razorpay payment:', { razorpay_order_id, razorpay_payment_id });
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       console.error('Missing payment details');
@@ -70,32 +71,55 @@ serve(async (req) => {
       );
     }
 
-    // Update order status in database if order_id is provided
-    if (order_id) {
+    // Create order in database only after successful payment verification
+    let orderId = null;
+    if (order_data) {
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-      const { error: updateError } = await supabase
+      const { data: orderResult, error: insertError } = await supabase
         .from('orders')
-        .update({ 
+        .insert([{
+          user_id: order_data.user_id,
+          order_items: order_data.order_items,
+          total_cents: order_data.total_cents,
+          shipping_address: order_data.shipping_address,
           status: 'paid',
-          stripe_payment_intent_id: razorpay_payment_id // Reusing this field for Razorpay payment ID
-        })
-        .eq('id', order_id);
+          payment_method: 'online',
+          stripe_payment_intent_id: razorpay_payment_id
+        }])
+        .select('id')
+        .single();
 
-      if (updateError) {
-        console.error('Error updating order:', updateError);
-        // Don't fail the request, payment is still verified
-      } else {
-        console.log('Order status updated to paid');
+      if (insertError) {
+        console.error('Error creating order:', insertError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to create order', verified: true }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      orderId = orderResult.id;
+      console.log('Order created successfully:', orderId);
+
+      // Clear user's cart
+      const { error: cartError } = await supabase
+        .from('carts')
+        .update({ items: [] })
+        .eq('user_id', order_data.user_id);
+
+      if (cartError) {
+        console.error('Error clearing cart:', cartError);
+        // Don't fail - order is already created
       }
     }
 
     return new Response(
       JSON.stringify({ 
         verified: true,
-        paymentId: razorpay_payment_id
+        paymentId: razorpay_payment_id,
+        orderId: orderId
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
