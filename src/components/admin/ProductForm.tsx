@@ -463,22 +463,21 @@ export const ProductForm = ({
               {/* Main Category Section */}
               <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
                 <Label className="text-base font-semibold">1. Main Category</Label>
-                <div className="grid grid-cols-5 gap-2">
-                  {['Shirts', 'T-Shirts', 'Pants', 'Jeans', 'Casual Wear'].map((cat) => {
-                    const catSlug = cat.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                    const isSelected = watch('category') === catSlug;
+                <div className="grid grid-cols-4 gap-2">
+                  {categories.filter((cat: any) => !cat.parent_id).map((cat: any) => {
+                    const isSelected = watch('category') === cat.slug;
                     return (
                       <button
-                        key={cat}
+                        key={cat.id}
                         type="button"
-                        onClick={() => setValue('category', catSlug)}
+                        onClick={() => setValue('category', cat.slug)}
                         className={`p-3 rounded-lg border-2 text-center transition-all ${
                           isSelected 
                             ? 'border-primary bg-primary/10 text-primary font-semibold' 
                             : 'border-border hover:border-primary/50 hover:bg-muted'
                         }`}
                       >
-                        <span className="text-sm">{cat}</span>
+                        <span className="text-sm">{cat.name}</span>
                       </button>
                     );
                   })}
