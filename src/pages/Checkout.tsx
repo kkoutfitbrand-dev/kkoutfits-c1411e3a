@@ -240,6 +240,60 @@ const Checkout = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartLoading, setCartLoading] = useState(true);
 
+  // Handle mobile payment redirect - check for pending order data on mount
+  useEffect(() => {
+    const handlePendingPayment = async () => {
+      const pendingOrderData = sessionStorage.getItem('pending_order_data');
+      if (!pendingOrderData || !user) return;
+
+      try {
+        const orderData = JSON.parse(pendingOrderData);
+        
+        // Check if the Razorpay order was paid by querying our verify endpoint
+        // This handles the case where mobile app redirected back after payment
+        const urlParams = new URLSearchParams(window.location.search);
+        const razorpayPaymentId = urlParams.get('razorpay_payment_id');
+        const razorpayOrderId = urlParams.get('razorpay_order_id');
+        const razorpaySignature = urlParams.get('razorpay_signature');
+
+        if (razorpayPaymentId && razorpayOrderId && razorpaySignature) {
+          setProcessingPayment(true);
+          
+          const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
+            body: {
+              razorpay_order_id: razorpayOrderId,
+              razorpay_payment_id: razorpayPaymentId,
+              razorpay_signature: razorpaySignature,
+              order_data: {
+                user_id: orderData.user_id,
+                order_items: orderData.order_items,
+                total_cents: orderData.total_cents,
+                shipping_address: orderData.shipping_address
+              }
+            }
+          });
+
+          sessionStorage.removeItem('pending_order_data');
+          setProcessingPayment(false);
+
+          if (verifyError || !verifyData?.verified) {
+            navigate('/payment-failed', { state: { error: 'Payment verification failed' } });
+          } else {
+            navigate('/payment-success', { state: { orderId: verifyData.orderId } });
+          }
+          
+          // Clean up URL params
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      } catch (error) {
+        console.error('Error handling pending payment:', error);
+        sessionStorage.removeItem('pending_order_data');
+      }
+    };
+
+    handlePendingPayment();
+  }, [user, navigate]);
+
   useEffect(() => {
     const fetchCart = async () => {
       if (!user) return;
@@ -381,6 +435,16 @@ const Checkout = () => {
         throw new Error(data?.error || 'Failed to create payment order');
       }
 
+      // Store order data in sessionStorage for mobile payment redirect handling
+      const orderDataForSession = {
+        user_id: user?.id,
+        order_items: cartItems,
+        total_cents: Math.round(total * 100),
+        shipping_address: selectedAddress || {},
+        razorpay_order_id: data.orderId
+      };
+      sessionStorage.setItem('pending_order_data', JSON.stringify(orderDataForSession));
+
       return new Promise<{ success: boolean; orderId?: string }>((resolve) => {
         const options = {
           key: data.keyId,
@@ -391,6 +455,9 @@ const Checkout = () => {
           order_id: data.orderId,
           handler: async function (response: any) {
             try {
+              // Clear session storage on successful callback
+              sessionStorage.removeItem('pending_order_data');
+              
               // Verify payment and create order only after successful payment
               const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
                 body: {
@@ -432,14 +499,17 @@ const Checkout = () => {
           },
           modal: {
             ondismiss: function() {
+              sessionStorage.removeItem('pending_order_data');
               resolve({ success: false });
             }
-          }
+          },
+          redirect: false
         };
 
         const rzp = new window.Razorpay(options);
         rzp.on('payment.failed', function (response: any) {
           console.error('Payment failed:', response.error);
+          sessionStorage.removeItem('pending_order_data');
           toast({
             title: "Payment Failed",
             description: response.error.description || "Please try again.",
