@@ -463,7 +463,7 @@ export const ProductForm = ({
               {/* Main Category Section */}
               <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
                 <Label className="text-base font-semibold">1. Main Category</Label>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-3">
                   {categories.filter((cat: any) => !cat.parent_id).map((cat: any) => {
                     const isSelected = watch('category') === cat.slug;
                     return (
@@ -471,12 +471,25 @@ export const ProductForm = ({
                         key={cat.id}
                         type="button"
                         onClick={() => setValue('category', cat.slug)}
-                        className={`p-3 rounded-lg border-2 text-center transition-all ${
+                        className={`p-3 rounded-lg border-2 text-center transition-all flex flex-col items-center gap-2 ${
                           isSelected 
                             ? 'border-primary bg-primary/10 text-primary font-semibold' 
                             : 'border-border hover:border-primary/50 hover:bg-muted'
                         }`}
                       >
+                        {cat.image_url ? (
+                          <img 
+                            src={cat.image_url} 
+                            alt={cat.name} 
+                            className="w-12 h-12 rounded-md object-cover"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center">
+                            <span className="text-lg font-bold text-muted-foreground">
+                              {cat.name.charAt(0)}
+                            </span>
+                          </div>
+                        )}
                         <span className="text-sm">{cat.name}</span>
                       </button>
                     );
@@ -494,7 +507,7 @@ export const ProductForm = ({
                 {/* Parent Categories */}
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">Parent Categories</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-4 gap-3">
                     {categories.filter((cat: any) => !cat.parent_id).map((cat: any) => {
                       const isSelected = selectedSubcategories.includes(cat.slug);
                       return (
@@ -508,29 +521,41 @@ export const ProductForm = ({
                             setSelectedSubcategories(newSelected);
                             setValue('subcategories', newSelected);
                           }}
-                          className={`p-2 rounded-lg border-2 text-left transition-all flex items-center gap-2 ${
+                          className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center gap-2 relative ${
                             isSelected 
                               ? 'border-primary bg-primary/10 text-primary' 
                               : 'border-border hover:border-primary/50 hover:bg-muted'
                           }`}
                         >
-                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                            isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'
-                          }`}>
-                            {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
-                          </div>
-                          <span className="text-sm font-medium">{cat.name}</span>
+                          {isSelected && (
+                            <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                              <Check className="h-3 w-3 text-primary-foreground" />
+                            </div>
+                          )}
+                          {cat.image_url ? (
+                            <img 
+                              src={cat.image_url} 
+                              alt={cat.name} 
+                              className="w-10 h-10 rounded-md object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
+                              <span className="text-base font-bold text-muted-foreground">
+                                {cat.name.charAt(0)}
+                              </span>
+                            </div>
+                          )}
+                          <span className="text-xs font-medium">{cat.name}</span>
                         </button>
                       );
                     })}
                   </div>
                 </div>
-
                 {/* Sub Categories */}
                 {categories.filter((cat: any) => cat.parent_id).length > 0 && (
                   <div className="space-y-2">
                     <p className="text-sm font-medium text-muted-foreground">Sub Categories</p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-4 gap-3">
                       {categories.filter((cat: any) => cat.parent_id).map((cat: any) => {
                         const isSelected = selectedSubcategories.includes(cat.slug);
                         const parentCat = categories.find((c: any) => c.id === cat.parent_id);
@@ -545,22 +570,33 @@ export const ProductForm = ({
                               setSelectedSubcategories(newSelected);
                               setValue('subcategories', newSelected);
                             }}
-                            className={`p-2 rounded-lg border-2 text-left transition-all flex flex-col gap-1 ${
+                            className={`p-3 rounded-lg border-2 transition-all flex flex-col items-center gap-2 relative ${
                               isSelected 
                                 ? 'border-primary bg-primary/10 text-primary' 
                                 : 'border-border hover:border-primary/50 hover:bg-muted'
                             }`}
                           >
-                            <div className="flex items-center gap-2">
-                              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                                isSelected ? 'border-primary bg-primary' : 'border-muted-foreground'
-                              }`}>
-                                {isSelected && <Check className="h-3 w-3 text-primary-foreground" />}
+                            {isSelected && (
+                              <div className="absolute top-1 right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                <Check className="h-3 w-3 text-primary-foreground" />
                               </div>
-                              <span className="text-sm">{cat.name}</span>
-                            </div>
+                            )}
+                            {cat.image_url ? (
+                              <img 
+                                src={cat.image_url} 
+                                alt={cat.name} 
+                                className="w-10 h-10 rounded-md object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
+                                <span className="text-base font-bold text-muted-foreground">
+                                  {cat.name.charAt(0)}
+                                </span>
+                              </div>
+                            )}
+                            <span className="text-xs font-medium text-center">{cat.name}</span>
                             {parentCat && (
-                              <span className="text-xs text-muted-foreground ml-6">in {parentCat.name}</span>
+                              <span className="text-xs text-muted-foreground">in {parentCat.name}</span>
                             )}
                           </button>
                         );
