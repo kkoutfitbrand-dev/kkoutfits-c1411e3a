@@ -33,6 +33,7 @@ interface Category {
   description: string | null;
   display_order: number;
   is_active: boolean;
+  image_url?: string | null;
   subcategories?: Category[];
 }
 
@@ -126,9 +127,9 @@ export default function AdminCategories() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-16">Image</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Slug</TableHead>
-                <TableHead>Description</TableHead>
                 <TableHead>Order</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
@@ -144,7 +145,7 @@ export default function AdminCategories() {
               ) : categories.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8">
-                    No categories found
+                    No categories found. Click "Add Category" to create one.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -152,8 +153,20 @@ export default function AdminCategories() {
                   {categories.map((category) => (
                     <>
                       <TableRow key={category.id} className="font-medium">
+                        <TableCell>
+                          {category.image_url ? (
+                            <img
+                              src={category.image_url}
+                              alt={category.name}
+                              className="w-10 h-10 rounded-md object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center">
+                              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          )}
+                        </TableCell>
                         <TableCell className="flex items-center gap-2">
-                          <ChevronRight className="h-4 w-4" />
                           {category.name}
                           {category.subcategories && category.subcategories.length > 0 && (
                             <Badge variant="secondary" className="ml-2">
@@ -163,9 +176,6 @@ export default function AdminCategories() {
                         </TableCell>
                         <TableCell className="font-mono text-sm">
                           {category.slug}
-                        </TableCell>
-                        <TableCell className="text-muted-foreground max-w-md truncate">
-                          {category.description || '-'}
                         </TableCell>
                         <TableCell>{category.display_order}</TableCell>
                         <TableCell>
@@ -194,15 +204,25 @@ export default function AdminCategories() {
                       </TableRow>
                       {category.subcategories?.map((sub) => (
                         <TableRow key={sub.id} className="bg-muted/30">
-                          <TableCell className="pl-12 flex items-center gap-2">
-                            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                          <TableCell>
+                            {sub.image_url ? (
+                              <img
+                                src={sub.image_url}
+                                alt={sub.name}
+                                className="w-8 h-8 rounded-md object-cover ml-2"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 rounded-md bg-muted/50 flex items-center justify-center ml-2">
+                                <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="flex items-center gap-2 pl-4">
+                            <span className="text-muted-foreground">└</span>
                             {sub.name}
                           </TableCell>
                           <TableCell className="font-mono text-sm text-muted-foreground">
                             {sub.slug}
-                          </TableCell>
-                          <TableCell className="text-muted-foreground max-w-md truncate">
-                            {sub.description || '-'}
                           </TableCell>
                           <TableCell>{sub.display_order}</TableCell>
                           <TableCell>

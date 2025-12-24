@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Upload, X, Image as ImageIcon } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -45,6 +45,7 @@ interface Category {
   description: string | null;
   display_order: number;
   is_active: boolean;
+  image_url?: string | null;
 }
 
 interface CategoryFormProps {
@@ -62,6 +63,10 @@ export const CategoryForm = ({
   editingCategory,
   parentCategories,
 }: CategoryFormProps) => {
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -93,6 +98,7 @@ export const CategoryForm = ({
         display_order: editingCategory.display_order,
         is_active: editingCategory.is_active,
       });
+      setImagePreview(editingCategory.image_url || null);
     } else {
       reset({
         name: '',
@@ -102,8 +108,10 @@ export const CategoryForm = ({
         display_order: 0,
         is_active: true,
       });
+      setImagePreview(null);
+      setImageFile(null);
     }
-  }, [editingCategory, reset]);
+  }, [editingCategory, reset, open]);
 
   const generateSlug = (name: string) => {
     return name
@@ -112,8 +120,48 @@ export const CategoryForm = ({
       .replace(/^-+|-+$/g, '');
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return editingCategory?.image_url || null;
+
+    const fileExt = imageFile.name.split('.').pop();
+    const fileName = `category-${Date.now()}.${fileExt}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product-images')
+      .upload(fileName, imageFile);
+
+    if (uploadError) throw uploadError;
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(fileName);
+
+    return publicUrl;
+  };
+
   const onSubmit = async (data: CategoryFormData) => {
     try {
+      setUploading(true);
+      
+      const imageUrl = await uploadImage();
+
       const categoryData = {
         name: data.name,
         slug: data.slug,
@@ -121,6 +169,7 @@ export const CategoryForm = ({
         description: data.description || null,
         display_order: data.display_order,
         is_active: data.is_active,
+        image_url: imagePreview === null ? null : imageUrl,
       };
 
       if (editingCategory) {
@@ -147,6 +196,8 @@ export const CategoryForm = ({
       }
 
       reset();
+      setImageFile(null);
+      setImagePreview(null);
       onOpenChange(false);
       onSuccess();
     } catch (error: any) {
@@ -155,6 +206,8 @@ export const CategoryForm = ({
         description: error.message || 'Failed to save category',
         variant: 'destructive',
       });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -173,6 +226,48 @@ export const CategoryForm = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Category Image Upload */}
+          <div className="space-y-2">
+            <Label>Category Image</Label>
+            <div className="flex items-start gap-4">
+              {imagePreview ? (
+                <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-border">
+                  <img
+                    src={imagePreview}
+                    alt="Category preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="w-32 h-32 flex flex-col items-center justify-center border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors">
+                  <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
+                  <span className="text-xs text-muted-foreground">Upload Image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+              <div className="flex-1">
+                <p className="text-sm text-muted-foreground">
+                  Upload an image for this category. This will be displayed in the product form and category pages.
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Recommended: 400x400px, JPG or PNG
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Category Name *</Label>
@@ -291,12 +386,12 @@ export const CategoryForm = ({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || uploading}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+            <Button type="submit" disabled={isSubmitting || uploading}>
+              {(isSubmitting || uploading) && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {editingCategory ? 'Update Category' : 'Create Category'}
             </Button>
           </DialogFooter>
