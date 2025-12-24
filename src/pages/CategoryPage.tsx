@@ -59,20 +59,34 @@ const CategoryPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      let query = supabase.from('products').select('id, title, price_cents, images, slug, category, variants').eq('status', 'published').order('created_at', {
-        ascending: false
-      });
+      // Fetch all published products first
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, title, price_cents, images, slug, category, variants')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
 
-      // Filter by category if provided
-      if (category) {
-        query = query.eq('category', category);
-      }
-      const {
-        data,
-        error
-      } = await query;
       if (error) throw error;
-      setProducts(data || []);
+
+      // Filter by category - check both main category AND subcategories in variants
+      if (category && data) {
+        const filtered = data.filter(product => {
+          // Check main category
+          if (product.category === category) return true;
+          
+          // Check subcategories in variants JSON
+          if (product.variants && typeof product.variants === 'object') {
+            const variants = product.variants as { subcategories?: string[] };
+            if (variants.subcategories && Array.isArray(variants.subcategories)) {
+              return variants.subcategories.includes(category);
+            }
+          }
+          return false;
+        });
+        setProducts(filtered);
+      } else {
+        setProducts(data || []);
+      }
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
