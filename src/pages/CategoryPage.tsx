@@ -3,10 +3,10 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Slider } from "@/components/ui/slider";
-import { Filter, Grid2x2, List, Check } from "lucide-react";
+import { ScrollReveal } from "@/components/ScrollReveal";
+import { Filter } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,7 +59,7 @@ const CategoryPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      // Fetch all published products first
+      // Fetch all published products
       const { data, error } = await supabase
         .from('products')
         .select('id, title, price_cents, images, slug, category, variants')
@@ -68,8 +68,11 @@ const CategoryPage = () => {
 
       if (error) throw error;
 
-      // Filter by category - check both main category AND subcategories in variants
-      if (category && data) {
+      // If category is "all" or no category, show all products
+      if (!category || category === 'all') {
+        setProducts(data || []);
+      } else if (data) {
+        // Filter by category - check both main category AND subcategories in variants
         const filtered = data.filter(product => {
           // Check main category
           if (product.category === category) return true;
@@ -84,8 +87,6 @@ const CategoryPage = () => {
           return false;
         });
         setProducts(filtered);
-      } else {
-        setProducts(data || []);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -120,7 +121,8 @@ const CategoryPage = () => {
     setPriceRange([0, 20000]);
   };
   const getCategoryTitle = () => {
-    return category?.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') || 'Products';
+    if (!category || category === 'all') return 'All Products';
+    return category.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
   return <div className="min-h-screen bg-background">
       <Navigation />
@@ -179,33 +181,41 @@ const CategoryPage = () => {
                 {[...Array(6)].map((_, i) => (
                   <ProductCardSkeleton key={i} index={i} />
                 ))}
-              </div> : sortedProducts.length > 0 ? viewMode === "grid" ? <div className="grid grid-cols-2 gap-4 md:gap-6 animate-fade-in">
-                  {sortedProducts.map(product => {
+              </div> : sortedProducts.length > 0 ? viewMode === "grid" ? <div className="grid grid-cols-2 gap-4 md:gap-6">
+                  {sortedProducts.map((product, index) => {
                     const { price, originalPrice } = getDisplayPrice(product);
-                    return <ProductCard key={product.id} id={product.slug} productId={product.id} name={product.title} price={price} originalPrice={originalPrice} image={getFirstImage(product.images)} category={product.category} />;
+                    return (
+                      <ScrollReveal key={product.id} delay={index * 0.05} direction="up">
+                        <ProductCard id={product.slug} productId={product.id} name={product.title} price={price} originalPrice={originalPrice} image={getFirstImage(product.images)} category={product.category} />
+                      </ScrollReveal>
+                    );
                   })}
-                </div> : <div className="space-y-4 animate-fade-in">
-                  {sortedProducts.map(product => {
+                </div> : <div className="space-y-4">
+                  {sortedProducts.map((product, index) => {
                     const { price, originalPrice } = getDisplayPrice(product);
-                    return <div key={product.id} className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
-                      <img src={getFirstImage(product.images)} alt={product.title} className="w-32 h-32 object-cover rounded-md flex-shrink-0" />
-                      <div className="flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-semibold text-lg">{product.title}</h3>
-                          </div>
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="text-xl font-bold">₹{price.toLocaleString()}</span>
-                            {originalPrice && <span className="text-muted-foreground line-through">₹{originalPrice.toLocaleString()}</span>}
+                    return (
+                      <ScrollReveal key={product.id} delay={index * 0.05} direction="up">
+                        <div className="flex gap-4 p-4 border border-border rounded-lg hover:shadow-lg transition-shadow bg-card">
+                          <img src={getFirstImage(product.images)} alt={product.title} className="w-32 h-32 object-cover rounded-md flex-shrink-0" />
+                          <div className="flex-1 flex flex-col justify-between">
+                            <div>
+                              <div className="flex items-start justify-between mb-2">
+                                <h3 className="font-semibold text-lg">{product.title}</h3>
+                              </div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="text-xl font-bold">₹{price.toLocaleString()}</span>
+                                {originalPrice && <span className="text-muted-foreground line-through">₹{originalPrice.toLocaleString()}</span>}
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Button onClick={() => window.location.href = `/product/${product.slug}`} className="flex-1">
+                                View Details
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex gap-2">
-                          <Button onClick={() => window.location.href = `/product/${product.slug}`} className="flex-1">
-                            View Details
-                          </Button>
-                        </div>
-                      </div>
-                    </div>;
+                      </ScrollReveal>
+                    );
                   })}
                 </div> : <div className="text-center py-12">
                 <p className="text-muted-foreground text-lg mb-4">
