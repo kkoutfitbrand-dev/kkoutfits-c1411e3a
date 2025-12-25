@@ -71,6 +71,14 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState("online");
   const [placingOrder, setPlacingOrder] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [isPreparingRazorpay, setIsPreparingRazorpay] = useState(false);
+  const [preparedRazorpayOrder, setPreparedRazorpayOrder] = useState<null | {
+    orderId: string;
+    amount: number;
+    currency: string;
+    keyId: string;
+  }>(null);
+
   const navigate = useNavigate();
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
@@ -406,7 +414,75 @@ const Checkout = () => {
 
   const selectedAddress = savedAddresses.find(addr => addr.id === selectedAddressId) || savedAddresses.find(addr => addr.isDefault);
 
+  const prepareRazorpayOrder = async () => {
+    if (!user || cartItems.length === 0) return null;
+    if (preparedRazorpayOrder) return preparedRazorpayOrder;
+
+    if (!razorpayLoaded || !window.Razorpay) {
+      return null;
+    }
+
+    setIsPreparingRazorpay(true);
+    try {
+      const tempReceiptId = `temp_${Date.now()}`;
+      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
+        body: {
+          amount: total,
+          currency: 'INR',
+          receipt: tempReceiptId,
+          notes: {
+            user_id: user.id,
+          },
+        },
+      });
+
+      if (error || !data?.orderId) {
+        console.error('Error creating Razorpay order:', error || data?.error);
+        throw new Error(data?.error || 'Failed to create payment order');
+      }
+
+      const prepared = {
+        orderId: data.orderId as string,
+        amount: data.amount as number,
+        currency: data.currency as string,
+        keyId: data.keyId as string,
+      };
+
+      // Store order data in sessionStorage for mobile payment redirect handling
+      const orderDataForSession = {
+        user_id: user.id,
+        order_items: cartItems,
+        total_cents: Math.round(total * 100),
+        shipping_address: selectedAddress || {},
+        razorpay_order_id: prepared.orderId,
+      };
+      sessionStorage.setItem('pending_order_data', JSON.stringify(orderDataForSession));
+
+      setPreparedRazorpayOrder(prepared);
+      return prepared;
+    } finally {
+      setIsPreparingRazorpay(false);
+    }
+  };
+
+  // Pre-create Razorpay order when user reaches Review step on mobile/desktop.
+  // This keeps "Pay Now" opening the checkout as a direct user gesture (better mobile compatibility).
+  useEffect(() => {
+    if (step !== 3) return;
+    if (paymentMethod !== 'online') return;
+    if (!user || cartItems.length === 0) return;
+    if (!razorpayLoaded || !window.Razorpay) return;
+    if (preparedRazorpayOrder) return;
+
+    prepareRazorpayOrder().catch((err) => {
+      console.error('Error preparing Razorpay order:', err);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, paymentMethod, user, cartItems.length, razorpayLoaded]);
+
   const initiateRazorpayPayment = async (): Promise<{ success: boolean; orderId?: string }> => {
+    if (!user || cartItems.length === 0) return { success: false };
+
     if (!razorpayLoaded || !window.Razorpay) {
       toast({
         title: "Error",
@@ -417,55 +493,31 @@ const Checkout = () => {
     }
 
     try {
-      // Create Razorpay order (without creating DB order)
-      const tempReceiptId = `temp_${Date.now()}`;
-      const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
-        body: {
-          amount: total,
-          currency: 'INR',
-          receipt: tempReceiptId,
-          notes: {
-            user_id: user?.id
-          }
-        }
-      });
-
-      if (error || !data?.orderId) {
-        console.error('Error creating Razorpay order:', error || data?.error);
-        throw new Error(data?.error || 'Failed to create payment order');
+      const prepared = await prepareRazorpayOrder();
+      if (!prepared?.orderId) {
+        throw new Error('Failed to prepare payment order');
       }
 
-      // Store order data in sessionStorage for mobile payment redirect handling
-      const orderDataForSession = {
-        user_id: user?.id,
-        order_items: cartItems,
-        total_cents: Math.round(total * 100),
-        shipping_address: selectedAddress || {},
-        razorpay_order_id: data.orderId
-      };
-      sessionStorage.setItem('pending_order_data', JSON.stringify(orderDataForSession));
-
+      // Open Razorpay immediately after we have a prepared order
       return new Promise<{ success: boolean; orderId?: string }>((resolve) => {
         const options = {
-          key: data.keyId,
-          amount: data.amount,
-          currency: data.currency,
+          key: prepared.keyId,
+          amount: prepared.amount,
+          currency: prepared.currency,
           name: 'KKOUTFITD',
           description: 'Order Payment',
-          order_id: data.orderId,
+          order_id: prepared.orderId,
           handler: async function (response: any) {
             try {
-              // Clear session storage on successful callback
               sessionStorage.removeItem('pending_order_data');
-              
-              // Verify payment and create order only after successful payment
+
               const { data: verifyData, error: verifyError } = await supabase.functions.invoke('verify-razorpay-payment', {
                 body: {
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
                   order_data: {
-                    user_id: user?.id,
+                    user_id: user.id,
                     order_items: cartItems,
                     total_cents: Math.round(total * 100),
                     shipping_address: selectedAddress || {}
@@ -484,6 +536,7 @@ const Checkout = () => {
                 return;
               }
 
+              setPreparedRazorpayOrder(null);
               resolve({ success: true, orderId: verifyData.orderId });
             } catch (err) {
               console.error('Error verifying payment:', err);
@@ -498,8 +551,9 @@ const Checkout = () => {
             color: '#000000'
           },
           modal: {
-            ondismiss: function() {
+            ondismiss: function () {
               sessionStorage.removeItem('pending_order_data');
+              setPreparedRazorpayOrder(null);
               resolve({ success: false });
             }
           },
@@ -510,6 +564,7 @@ const Checkout = () => {
         rzp.on('payment.failed', function (response: any) {
           console.error('Payment failed:', response.error);
           sessionStorage.removeItem('pending_order_data');
+          setPreparedRazorpayOrder(null);
           toast({
             title: "Payment Failed",
             description: response.error.description || "Please try again.",
@@ -517,6 +572,7 @@ const Checkout = () => {
           });
           resolve({ success: false });
         });
+
         rzp.open();
       });
     } catch (error) {
@@ -801,15 +857,26 @@ const Checkout = () => {
                   <Button onClick={() => setStep(2)} variant="outline" className="flex-1">
                     Back
                   </Button>
-                  <Button 
-                    className="flex-1" 
-                    size="lg" 
-                    onClick={handlePlaceOrder}
-                    disabled={placingOrder || processingPayment || cartItems.length === 0}
-                  >
-                    {(placingOrder || processingPayment) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {processingPayment ? 'Processing Payment...' : paymentMethod === 'online' ? 'Pay Now' : 'Place Order'}
-                  </Button>
+                    <Button 
+                      className="flex-1" 
+                      size="lg" 
+                      onClick={handlePlaceOrder}
+                      disabled={
+                        placingOrder ||
+                        processingPayment ||
+                        cartItems.length === 0 ||
+                        (paymentMethod === 'online' && isPreparingRazorpay)
+                      }
+                    >
+                      {(placingOrder || processingPayment || isPreparingRazorpay) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {processingPayment
+                        ? 'Processing Payment...'
+                        : isPreparingRazorpay
+                          ? 'Preparing Payment...'
+                          : paymentMethod === 'online'
+                            ? 'Pay Now'
+                            : 'Place Order'}
+                    </Button>
                 </div>
               </div>
             )}
@@ -876,9 +943,24 @@ const Checkout = () => {
             </Button>
           )}
           {step === 3 && (
-            <Button size="lg" onClick={handlePlaceOrder} disabled={placingOrder || processingPayment || cartItems.length === 0}>
-              {(placingOrder || processingPayment) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {processingPayment ? 'Processing...' : paymentMethod === 'online' ? 'Pay Now' : 'Place Order'}
+            <Button
+              size="lg"
+              onClick={handlePlaceOrder}
+              disabled={
+                placingOrder ||
+                processingPayment ||
+                cartItems.length === 0 ||
+                (paymentMethod === 'online' && isPreparingRazorpay)
+              }
+            >
+              {(placingOrder || processingPayment || isPreparingRazorpay) && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {processingPayment
+                ? 'Processing...'
+                : isPreparingRazorpay
+                  ? 'Preparing...'
+                  : paymentMethod === 'online'
+                    ? 'Pay Now'
+                    : 'Place Order'}
             </Button>
           )}
         </div>
