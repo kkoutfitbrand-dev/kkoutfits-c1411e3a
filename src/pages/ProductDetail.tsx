@@ -77,6 +77,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [isZoomed, setIsZoomed] = useState(false);
   const [manualImageSelect, setManualImageSelect] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
 
   // Fetch product and variants
   useEffect(() => {
@@ -474,7 +475,22 @@ const ProductDetail = () => {
             {product.description && (
               <div className="mb-6">
                 <h3 className="font-semibold text-lg mb-2">Description</h3>
-                <p className="text-muted-foreground leading-relaxed">{product.description}</p>
+                {/* Desktop: Full description */}
+                <p className="hidden md:block text-muted-foreground leading-relaxed">{product.description}</p>
+                {/* Mobile: Collapsible description */}
+                <div className="md:hidden">
+                  <p className={`text-muted-foreground leading-relaxed ${!showFullDescription ? 'line-clamp-3' : ''}`}>
+                    {product.description}
+                  </p>
+                  {product.description.length > 150 && (
+                    <button 
+                      onClick={() => setShowFullDescription(!showFullDescription)}
+                      className="text-primary font-medium text-sm mt-2 hover:underline"
+                    >
+                      {showFullDescription ? 'View Less' : 'View More'}
+                    </button>
+                  )}
+                </div>
               </div>
             )}
 
