@@ -276,7 +276,7 @@ const Shop = () => {
               length: 4
             }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : newArrivals.map(product => {
               const { price, originalPrice } = getDisplayPrice(product);
-              return <ProductCard key={product.id} id={product.id} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} />;
+              return <ProductCard key={product.id} id={product.slug} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} productId={product.id} />;
             })}
             </div>
           </div>
@@ -327,7 +327,7 @@ const Shop = () => {
               length: 6
             }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : trending.map(product => {
               const { price, originalPrice } = getDisplayPrice(product);
-              return <ProductCard key={product.id} id={product.id} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} />;
+              return <ProductCard key={product.id} id={product.slug} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} productId={product.id} />;
             })}
             </div>
           </div>
@@ -351,7 +351,7 @@ const Shop = () => {
               length: 8
             }).map((_, i) => <ProductCardSkeleton key={i} index={i} />) : filteredProducts.map(product => {
               const { price, originalPrice } = getDisplayPrice(product);
-              return <ProductCard key={product.id} id={product.id} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} />;
+              return <ProductCard key={product.id} id={product.slug} name={product.title} price={price} image={getFirstImage(product.images)} category={product.category || undefined} originalPrice={originalPrice} productId={product.id} />;
             })}
             </div>
 
