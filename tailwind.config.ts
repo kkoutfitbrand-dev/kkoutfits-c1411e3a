@@ -107,11 +107,60 @@ export default {
             transform: "scale(1)",
           },
         },
+        "float": {
+          "0%, 100%": {
+            transform: "translateY(0) rotateY(0deg)",
+          },
+          "50%": {
+            transform: "translateY(-20px) rotateY(5deg)",
+          },
+        },
+        "twinkle": {
+          "0%, 100%": {
+            opacity: "0.3",
+            transform: "scale(1)",
+          },
+          "50%": {
+            opacity: "1",
+            transform: "scale(1.2)",
+          },
+        },
+        "glow-pulse": {
+          "0%, 100%": {
+            boxShadow: "0 0 20px rgba(255, 215, 0, 0.3)",
+          },
+          "50%": {
+            boxShadow: "0 0 40px rgba(255, 215, 0, 0.6)",
+          },
+        },
+        "confetti": {
+          "0%": {
+            transform: "translateY(-20px) rotate(0deg)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateY(100vh) rotate(720deg)",
+            opacity: "0",
+          },
+        },
+        "shimmer": {
+          "0%": {
+            backgroundPosition: "-200% 0",
+          },
+          "100%": {
+            backgroundPosition: "200% 0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "spring-bounce": "spring-bounce 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "float": "float 6s ease-in-out infinite",
+        "twinkle": "twinkle 3s ease-in-out infinite",
+        "glow-pulse": "glow-pulse 2s ease-in-out infinite",
+        "confetti": "confetti 8s linear infinite",
+        "shimmer": "shimmer 3s linear infinite",
       },
     },
   },
