@@ -11,7 +11,6 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton, CategoryGridSkeleton } from "@/components/HomeSkeleton";
-import { NewYearBanner } from "@/components/NewYearBanner";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -127,11 +126,6 @@ const Index = () => {
       {/* Hero Section */}
       <ScrollReveal>
         <HeroCarousel />
-      </ScrollReveal>
-
-      {/* New Year 2026 Banner */}
-      <ScrollReveal delay={0.1}>
-        <NewYearBanner />
       </ScrollReveal>
 
       {/* Promotional Banner */}
