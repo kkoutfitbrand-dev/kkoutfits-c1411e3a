@@ -47,7 +47,7 @@ import AdminCategories from "./pages/admin/Categories";
 import AdminOrders from "./pages/admin/Orders";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminSettings from "./pages/admin/Settings";
-
+import NewYearCollection from "./pages/NewYearCollection";
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
@@ -76,6 +76,7 @@ const AnimatedRoutes = () => {
         <Route path="/sale" element={<PageTransition><Sale /></PageTransition>} />
         <Route path="/shop" element={<PageTransition><Shop /></PageTransition>} />
         <Route path="/trending" element={<PageTransition><Trending /></PageTransition>} />
+        <Route path="/new-year-collection" element={<PageTransition><NewYearCollection /></PageTransition>} />
         <Route path="/shipping-policy" element={<PageTransition><ShippingPolicy /></PageTransition>} />
         <Route path="/returns-exchange" element={<PageTransition><ReturnsExchange /></PageTransition>} />
         <Route path="/refund-policy" element={<PageTransition><RefundPolicy /></PageTransition>} />
