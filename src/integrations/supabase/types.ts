@@ -130,6 +130,80 @@ export type Database = {
           },
         ]
       }
+      combo_product_items: {
+        Row: {
+          color_code: string | null
+          color_name: string
+          combo_id: string
+          created_at: string | null
+          id: string
+          image_url: string | null
+        }
+        Insert: {
+          color_code?: string | null
+          color_name: string
+          combo_id: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+        }
+        Update: {
+          color_code?: string | null
+          color_name?: string
+          combo_id?: string
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "combo_product_items_combo_id_fkey"
+            columns: ["combo_id"]
+            isOneToOne: false
+            referencedRelation: "combo_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      combo_products: {
+        Row: {
+          combo_price_cents: number
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          id: string
+          images: Json | null
+          name: string
+          original_price_cents: number
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          combo_price_cents: number
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          images?: Json | null
+          name: string
+          original_price_cents: number
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          combo_price_cents?: number
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          id?: string
+          images?: Json | null
+          name?: string
+          original_price_cents?: number
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string | null
