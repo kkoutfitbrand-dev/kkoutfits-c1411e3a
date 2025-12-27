@@ -48,6 +48,9 @@ import AdminOrders from "./pages/admin/Orders";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminSettings from "./pages/admin/Settings";
 import NewYearCollection from "./pages/NewYearCollection";
+import Combo from "./pages/Combo";
+import ComboDetail from "./pages/ComboDetail";
+import AdminCombos from "./pages/admin/Combos";
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
@@ -77,6 +80,8 @@ const AnimatedRoutes = () => {
         <Route path="/shop" element={<PageTransition><Shop /></PageTransition>} />
         <Route path="/trending" element={<PageTransition><Trending /></PageTransition>} />
         <Route path="/new-year-collection" element={<PageTransition><NewYearCollection /></PageTransition>} />
+        <Route path="/combo" element={<PageTransition><Combo /></PageTransition>} />
+        <Route path="/combo/:id" element={<PageTransition><ComboDetail /></PageTransition>} />
         <Route path="/shipping-policy" element={<PageTransition><ShippingPolicy /></PageTransition>} />
         <Route path="/returns-exchange" element={<PageTransition><ReturnsExchange /></PageTransition>} />
         <Route path="/refund-policy" element={<PageTransition><RefundPolicy /></PageTransition>} />
@@ -94,6 +99,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/orders" element={<AdminRoute><PageTransition><AdminOrders /></PageTransition></AdminRoute>} />
         <Route path="/admin/customers" element={<AdminRoute><PageTransition><AdminCustomers /></PageTransition></AdminRoute>} />
         <Route path="/admin/settings" element={<AdminRoute><PageTransition><AdminSettings /></PageTransition></AdminRoute>} />
+        <Route path="/admin/combos" element={<AdminRoute><PageTransition><AdminCombos /></PageTransition></AdminRoute>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>

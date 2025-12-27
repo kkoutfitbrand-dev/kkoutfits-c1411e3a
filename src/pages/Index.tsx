@@ -4,13 +4,12 @@ import { ProductCard } from "@/components/ProductCard";
 import { Footer } from "@/components/Footer";
 import { TrendingProducts } from "@/components/TrendingProducts";
 import { OccasionShopping } from "@/components/OccasionShopping";
-import { DealsBanner } from "@/components/DealsBanner";
 import { BrandShowcase } from "@/components/BrandShowcase";
-import { PromotionalBanner } from "@/components/PromotionalBanner";
+import { ComboBanner } from "@/components/ComboBanner";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
-import { ProductGridSkeleton, CategoryGridSkeleton } from "@/components/HomeSkeleton";
+import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { NewYearBanner } from "@/components/NewYearBanner";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
@@ -134,16 +133,9 @@ const Index = () => {
         <NewYearBanner />
       </ScrollReveal>
 
-      {/* Promotional Banner */}
+      {/* Combo Offer Banner */}
       <ScrollReveal delay={0.1}>
-        <PromotionalBanner 
-          title="MEGA SALE - UP TO 70% OFF" 
-          subtitle="End of Season Sale on All Products" 
-          ctaText="Shop Now" 
-          ctaLink="/category/all"
-          badge="LIMITED TIME OFFER"
-          showTimer={true}
-        />
+        <ComboBanner />
       </ScrollReveal>
 
       {/* Deals of the Day */}
