@@ -170,21 +170,33 @@ export const NewYearBanner = () => {
     }, 1500);
   }, []);
 
-  // Auto fireworks on scroll into view
+  // Auto fireworks on scroll into view - continuous sky burst effect
   useEffect(() => {
     if (isInView && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
+      
       const createRandomFirework = () => {
         const x = Math.random() * rect.width;
-        const y = Math.random() * rect.height * 0.6;
+        const y = Math.random() * rect.height * 0.5; // Upper half of banner (sky area)
         const newFirework = { id: Date.now() + Math.random(), x, y };
-        setInteractiveFireworks(prev => [...prev.slice(-10), newFirework]);
+        setInteractiveFireworks(prev => [...prev.slice(-15), newFirework]);
       };
       
       // Create initial burst
-      for (let i = 0; i < 3; i++) {
-        setTimeout(createRandomFirework, i * 300);
+      for (let i = 0; i < 5; i++) {
+        setTimeout(createRandomFirework, i * 200);
       }
+
+      // Continuous automatic fireworks every 800ms
+      const intervalId = setInterval(() => {
+        createRandomFirework();
+        // Random chance for double burst
+        if (Math.random() > 0.5) {
+          setTimeout(createRandomFirework, 150);
+        }
+      }, 800);
+
+      return () => clearInterval(intervalId);
     }
   }, [isInView]);
 
@@ -339,8 +351,8 @@ export const NewYearBanner = () => {
               <Link to="/sale">
                 <Button
                   size="lg"
-                  variant="outline"
-                  className="border-2 border-white/30 text-white hover:bg-white/10 hover:border-white/50 px-8 py-6 text-lg rounded-full backdrop-blur-sm"
+                  className="relative overflow-hidden bg-white/20 border-2 border-white text-white hover:bg-white hover:text-black font-bold px-8 py-6 text-lg rounded-full backdrop-blur-md shadow-[0_0_20px_rgba(255,255,255,0.3)] transition-all duration-300 hover:shadow-[0_0_40px_rgba(255,255,255,0.5)]"
+                  onMouseEnter={handleInteraction}
                 >
                   View All Offers
                 </Button>
