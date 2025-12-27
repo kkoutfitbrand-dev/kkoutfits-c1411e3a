@@ -1,156 +1,79 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Package, ArrowRight } from 'lucide-react';
+import { Sparkles, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const ComboBanner = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-r from-primary via-primary/90 to-accent py-12 md:py-16">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute -top-20 -left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, 50, 0],
-            y: [0, 30, 0],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute -bottom-20 -right-20 w-80 h-80 bg-white/10 rounded-full blur-3xl"
-          animate={{
-            x: [0, -40, 0],
-            y: [0, -40, 0],
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-        />
-        
-        {/* Floating shapes */}
-        {[...Array(6)].map((_, i) => (
+    <section className="container px-4 py-6 md:py-8">
+      <motion.div 
+        className="relative overflow-hidden bg-gradient-to-r from-primary via-primary/90 to-accent rounded-2xl"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+      >
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
           <motion.div
-            key={i}
-            className="absolute w-4 h-4 bg-white/20 rounded-full"
-            style={{
-              left: `${15 + i * 15}%`,
-              top: `${20 + (i % 3) * 25}%`,
-            }}
+            className="absolute -top-10 -left-10 w-32 md:w-48 h-32 md:h-48 bg-white/10 rounded-full blur-2xl"
             animate={{
-              y: [0, -20, 0],
-              opacity: [0.3, 0.8, 0.3],
+              x: [0, 30, 0],
+              y: [0, 20, 0],
             }}
-            transition={{
-              duration: 3 + i * 0.5,
-              repeat: Infinity,
-              delay: i * 0.3,
-            }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           />
-        ))}
-      </div>
+          <motion.div
+            className="absolute -bottom-10 -right-10 w-40 md:w-56 h-40 md:h-56 bg-white/10 rounded-full blur-2xl"
+            animate={{
+              x: [0, -25, 0],
+              y: [0, -25, 0],
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+        </div>
 
-      <div className="container px-4 relative z-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Text content */}
-          <div className="text-center md:text-left max-w-xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <Badge className="mb-4 bg-white/20 text-white border-white/30 backdrop-blur-sm">
-                <Sparkles className="h-3 w-3 mr-1" />
-                EXCLUSIVE OFFER
-              </Badge>
-            </motion.div>
+        {/* Content */}
+        <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 sm:p-6 md:p-8">
+          {/* Left - Text content */}
+          <div className="flex-1 text-center sm:text-left">
+            <Badge className="mb-2 bg-white/20 text-white border-white/30 backdrop-blur-sm text-xs">
+              <Sparkles className="h-3 w-3 mr-1" />
+              EXCLUSIVE OFFER
+            </Badge>
             
-            <motion.h2
-              className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-            >
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1">
               COMBO OFFER
-              <span className="block text-lg md:text-xl font-normal mt-2 text-white/90">
-                Up to 40% OFF on Bundle Deals
-              </span>
-            </motion.h2>
-            
-            <motion.p
-              className="text-white/80 text-lg mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-            >
-              Mix & match your favorite colors. Select multiple items and save more!
-            </motion.p>
+            </h2>
+            <p className="text-white/90 text-sm md:text-base mb-3">
+              Up to 40% OFF • Mix & match colors
+            </p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
+            <Button 
+              asChild 
+              size="sm"
+              className="bg-white text-primary hover:bg-white/90 font-bold group"
             >
-              <Button 
-                asChild 
-                size="lg" 
-                className="bg-white text-primary hover:bg-white/90 font-bold group"
-              >
-                <Link to="/combo">
-                  Shop Combos
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-            </motion.div>
+              <Link to="/combo">
+                Shop Combos
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
           </div>
 
-          {/* Visual element */}
+          {/* Right - Discount badge */}
           <motion.div
-            className="relative"
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            className="flex-shrink-0"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
           >
-            <div className="relative w-64 h-64 md:w-80 md:h-80">
-              {/* Circular background */}
-              <div className="absolute inset-0 bg-white/10 rounded-full backdrop-blur-sm" />
-              
-              {/* Package icons */}
-              <motion.div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              >
-                <div className="relative w-48 h-48 md:w-60 md:h-60">
-                  {[0, 1, 2, 3].map((i) => (
-                    <motion.div
-                      key={i}
-                      className="absolute w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center"
-                      style={{
-                        top: i < 2 ? '0%' : 'auto',
-                        bottom: i >= 2 ? '0%' : 'auto',
-                        left: i % 2 === 0 ? '0%' : 'auto',
-                        right: i % 2 === 1 ? '0%' : 'auto',
-                      }}
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <Package className="h-8 w-8 text-white" />
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* Center badge */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 bg-white rounded-full flex flex-col items-center justify-center shadow-xl">
-                <span className="text-2xl font-bold text-primary">40%</span>
-                <span className="text-xs font-semibold text-primary/70">OFF</span>
-              </div>
+            <div className="w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 bg-white rounded-full flex flex-col items-center justify-center shadow-xl">
+              <span className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">40%</span>
+              <span className="text-xs font-semibold text-primary/70">OFF</span>
             </div>
           </motion.div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 };
