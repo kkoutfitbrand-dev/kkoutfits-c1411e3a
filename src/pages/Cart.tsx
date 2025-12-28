@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Minus, Plus, Trash2, ShoppingBag, Loader2 } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Loader2, X, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { SavedForLater } from "@/components/SavedForLater";
@@ -29,9 +29,23 @@ interface CartItem {
   }>;
 }
 
+interface Coupon {
+  id: string;
+  code: string;
+  description: string | null;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  minimum_order_cents: number;
+  maximum_discount_cents: number | null;
+  usage_limit: number | null;
+  used_count: number;
+  is_active: boolean;
+  valid_from: string;
+  valid_until: string | null;
+}
+
 // Helper to get selling price from product
 const getSellingPrice = (product: any): number => {
-  // Check for sale price in variants JSON field
   if (product.variants && typeof product.variants === 'object' && 'sale_price_cents' in product.variants) {
     const salePrice = product.variants.sale_price_cents;
     if (salePrice && salePrice < product.price_cents) {
@@ -45,12 +59,12 @@ const Cart = () => {
   const { user } = useAuth();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
-
   const [savedItems, setSavedItems] = useState<CartItem[]>([]);
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
-  // Fetch cart items from database and update with current selling prices
   useEffect(() => {
     const fetchCart = async () => {
       if (!user) {
@@ -69,25 +83,20 @@ const Cart = () => {
 
         if (data?.items && Array.isArray(data.items)) {
           const items = data.items as unknown as CartItem[];
-          
-          // Get unique product IDs
           const productIds = [...new Set(items.map(item => item.productId).filter(Boolean))];
           
           if (productIds.length > 0) {
-            // Fetch current product prices
             const { data: products } = await supabase
               .from('products')
               .select('id, price_cents, variants')
               .in('id', productIds);
             
             if (products) {
-              // Create a map of product ID to selling price
               const priceMap = new Map<string, number>();
               products.forEach(product => {
                 priceMap.set(product.id, getSellingPrice(product));
               });
               
-              // Update cart items with current selling prices
               const updatedItems = items.map(item => ({
                 ...item,
                 price: item.productId && priceMap.has(item.productId) 
@@ -112,12 +121,10 @@ const Cart = () => {
     fetchCart();
   }, [user]);
 
-  // Save cart to database
   const saveCartToDb = async (items: CartItem[]) => {
     if (!user) return;
 
     try {
-      // Check if cart exists
       const { data: existingCart } = await supabase
         .from('carts')
         .select('id')
@@ -183,18 +190,81 @@ const Cart = () => {
     toast.success("Item removed");
   };
 
-  const applyCoupon = () => {
-    if (couponCode.trim()) {
-      setAppliedCoupon(couponCode.toUpperCase());
-      toast.success(`Coupon ${couponCode.toUpperCase()} applied!`);
+  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const shipping = 0;
+  
+  const calculateDiscount = (): number => {
+    if (!appliedCoupon) return 0;
+    
+    if (appliedCoupon.discount_type === 'percentage') {
+      let discount = Math.floor(subtotal * (appliedCoupon.discount_value / 100));
+      if (appliedCoupon.maximum_discount_cents) {
+        discount = Math.min(discount, appliedCoupon.maximum_discount_cents / 100);
+      }
+      return discount;
+    } else {
+      return appliedCoupon.discount_value;
+    }
+  };
+  
+  const discount = calculateDiscount();
+  const total = subtotal + shipping - discount;
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    
+    setCouponLoading(true);
+    setCouponError(null);
+    
+    try {
+      const { data, error } = await supabase
+        .from('coupons')
+        .select('*')
+        .eq('code', couponCode.toUpperCase().trim())
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (!data) {
+        setCouponError('Invalid coupon code');
+        return;
+      }
+
+      if (data.valid_until && new Date(data.valid_until) < new Date()) {
+        setCouponError('This coupon has expired');
+        return;
+      }
+
+      if (data.minimum_order_cents > 0 && subtotal * 100 < data.minimum_order_cents) {
+        setCouponError(`Minimum order of ₹${data.minimum_order_cents / 100} required`);
+        return;
+      }
+
+      if (data.usage_limit && data.used_count >= data.usage_limit) {
+        setCouponError('This coupon has reached its usage limit');
+        return;
+      }
+
+      setAppliedCoupon({
+        ...data,
+        discount_type: data.discount_type as 'percentage' | 'fixed'
+      });
+      setCouponCode('');
+      toast.success(`Coupon "${data.code}" applied!`);
+    } catch (error) {
+      console.error('Error applying coupon:', error);
+      setCouponError('Failed to apply coupon');
+    } finally {
+      setCouponLoading(false);
     }
   };
 
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const shipping = 0; // Free shipping
-  const discount = appliedCoupon === "SAVE200" ? 200 : appliedCoupon === "SAVE10" ? Math.floor(subtotal * 0.1) : 0;
-  const total = subtotal + shipping - discount;
-  const savings = discount;
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError(null);
+    toast.success('Coupon removed');
+  };
 
   if (loading) {
     return (
@@ -215,8 +285,8 @@ const Cart = () => {
         <Navigation />
         <div className="flex-1 container px-4 py-16 flex flex-col items-center justify-center">
           <ShoppingBag className="w-24 h-24 text-muted-foreground mb-6" />
-          <h1 className="text-3xl font-serif font-bold mb-4">Your Cart is Empty</h1>
-          <p className="text-muted-foreground mb-8">Add items to get started</p>
+          <h1 className="text-2xl md:text-3xl font-serif font-bold mb-4 text-center">Your Cart is Empty</h1>
+          <p className="text-muted-foreground mb-8 text-center">Add items to get started</p>
           <Link to="/">
             <Button size="lg">Continue Shopping</Button>
           </Link>
@@ -228,178 +298,269 @@ const Cart = () => {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pb-32 lg:pb-0">
         <Navigation />
-      <div className="container px-4 py-8 md:py-12">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold mb-8">Shopping Cart</h1>
-        
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4">
-            {cartItems.map(item => (
-              <div key={item.id} className="bg-card border border-border rounded-lg p-4 flex gap-4">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-md"
-                />
-                <div className="flex-1">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold mb-1">{item.name}</h3>
-                      {item.is_combo && (
-                        <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full mb-2">
-                          Combo Bundle
+        <div className="container px-4 py-6 md:py-12">
+          <h1 className="text-2xl md:text-4xl font-serif font-bold mb-6 md:mb-8">Shopping Cart</h1>
+          
+          <div className="grid lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Cart Items */}
+            <div className="lg:col-span-2 space-y-3 md:space-y-4">
+              {cartItems.map(item => (
+                <div key={item.id} className="bg-card border border-border rounded-lg p-3 md:p-4 flex gap-3 md:gap-4">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-20 h-20 md:w-32 md:h-32 object-cover rounded-md flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm md:text-base line-clamp-2">{item.name}</h3>
+                        {item.is_combo && (
+                          <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full mt-1">
+                            Combo Bundle
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => removeItem(item.id)}
+                        className="p-1.5 md:p-2 text-destructive hover:bg-destructive/10 rounded-md transition-colors flex-shrink-0"
+                      >
+                        <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
+                      </button>
+                    </div>
+                    
+                    {/* Combo items breakdown with color images */}
+                    {item.is_combo ? (
+                      <div className="mt-2">
+                        <span className="text-xs md:text-sm font-medium text-muted-foreground">Selected Items:</span>
+                        <div className="flex flex-wrap gap-1.5 md:gap-2 mt-1.5">
+                          {item.combo_items && item.combo_items.length > 0 ? (
+                            item.combo_items.map((ci, idx) => (
+                              <div key={idx} className="flex items-center gap-1.5 bg-muted/50 rounded-md px-1.5 py-1 md:px-2 md:py-1.5">
+                                {ci.image_url ? (
+                                  <img 
+                                    src={ci.image_url} 
+                                    alt={ci.color_name || `Item ${idx + 1}`}
+                                    className="w-6 h-6 md:w-8 md:h-8 rounded object-cover border border-border"
+                                  />
+                                ) : (
+                                  <div className="w-6 h-6 md:w-8 md:h-8 rounded bg-muted border border-border flex items-center justify-center">
+                                    <span className="text-[10px] md:text-xs text-muted-foreground">{idx + 1}</span>
+                                  </div>
+                                )}
+                                <span className="text-xs md:text-sm">
+                                  {ci.color_name || `Item ${idx + 1}`}
+                                  {ci.quantity > 1 && <span className="text-muted-foreground ml-0.5">×{ci.quantity}</span>}
+                                </span>
+                              </div>
+                            ))
+                          ) : item.color ? (
+                            <span className="text-xs md:text-sm text-muted-foreground">{item.color}</span>
+                          ) : (
+                            <span className="text-xs md:text-sm text-muted-foreground">{item.size || 'Bundle items'}</span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-x-2 md:gap-x-3 text-xs md:text-sm text-muted-foreground mt-1 md:mt-2">
+                        {item.color && <span>Color: {item.color}</span>}
+                        {item.size && <span>Size: {item.size}</span>}
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center justify-between mt-2 md:mt-4">
+                      <p className="font-semibold text-base md:text-lg">₹{item.price.toLocaleString()}</p>
+                      
+                      {!item.is_combo ? (
+                        <div className="flex items-center border border-border rounded-md">
+                          <button
+                            onClick={() => updateQuantity(item.id, -1)}
+                            className="p-1.5 md:p-2 hover:bg-muted transition-colors"
+                          >
+                            <Minus className="w-3 h-3 md:w-4 md:h-4" />
+                          </button>
+                          <span className="px-3 md:px-4 font-medium text-sm md:text-base">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.id, 1)}
+                            className="p-1.5 md:p-2 hover:bg-muted transition-colors"
+                          >
+                            <Plus className="w-3 h-3 md:w-4 md:h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs md:text-sm text-muted-foreground">
+                          Qty: {item.quantity} bundle
                         </span>
                       )}
                     </div>
                   </div>
-                  
-                  {/* Show combo items breakdown */}
-                  {item.is_combo ? (
-                    <div className="mb-2">
-                      <span className="text-sm font-medium text-muted-foreground">Selected Items:</span>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {item.combo_items && item.combo_items.length > 0 ? (
-                          item.combo_items.map((ci, idx) => (
-                            <div key={idx} className="flex items-center gap-2 bg-muted/50 rounded-lg px-2 py-1.5">
-                              {ci.image_url ? (
-                                <img 
-                                  src={ci.image_url} 
-                                  alt={ci.color_name || `Item ${idx + 1}`}
-                                  className="w-8 h-8 rounded object-cover border border-border"
-                                />
-                              ) : (
-                                <div className="w-8 h-8 rounded bg-muted border border-border flex items-center justify-center">
-                                  <span className="text-xs text-muted-foreground">{idx + 1}</span>
-                                </div>
-                              )}
-                              <span className="text-sm">
-                                {ci.color_name || `Item ${idx + 1}`}
-                                {ci.quantity > 1 && <span className="text-muted-foreground ml-1">×{ci.quantity}</span>}
-                              </span>
-                            </div>
-                          ))
-                        ) : item.color ? (
-                          <span className="text-sm text-muted-foreground">{item.color}</span>
-                        ) : (
-                          <span className="text-sm text-muted-foreground">{item.size || 'Bundle items'}</span>
-                        )}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-wrap gap-x-3 text-sm text-muted-foreground mb-2">
-                      {item.color && <span>Color: {item.color}</span>}
-                      {item.size && <span>Size: {item.size}</span>}
+                </div>
+              ))}
+            </div>
+
+            {/* Order Summary - Desktop */}
+            <div className="lg:col-span-1 hidden lg:block">
+              <div className="bg-card border border-border rounded-lg p-6 sticky top-24">
+                <h2 className="text-xl font-serif font-bold mb-6">Order Summary</h2>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium">₹{subtotal.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Shipping</span>
+                    <span className="font-medium text-green-600">FREE</span>
+                  </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Discount</span>
+                      <span>-₹{discount.toLocaleString()}</span>
                     </div>
                   )}
-                  
-                  <p className="font-semibold text-lg">₹{item.price.toLocaleString()}</p>
-                  
-                  <div className="flex items-center gap-4 mt-4">
-                    {/* Only show quantity controls for non-combo items */}
-                    {!item.is_combo ? (
-                      <div className="flex items-center border border-border rounded-md">
-                        <button
-                          onClick={() => updateQuantity(item.id, -1)}
-                          className="p-2 hover:bg-muted transition-colors"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="px-4 font-medium">{item.quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(item.id, 1)}
-                          className="p-2 hover:bg-muted transition-colors"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">
-                        Qty: {item.quantity} bundle
-                      </span>
-                    )}
-                    
-                    <button
-                      onClick={() => removeItem(item.id)}
-                      className="p-2 text-destructive hover:bg-destructive/10 rounded-md transition-colors"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                  <div className="border-t border-border pt-3 flex justify-between text-lg font-bold">
+                    <span>Total</span>
+                    <span>₹{total.toLocaleString()}</span>
                   </div>
                 </div>
+
+                {/* Coupon Code */}
+                <div className="mb-6">
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium text-green-700 dark:text-green-400">{appliedCoupon.code}</p>
+                          <p className="text-xs text-green-600 dark:text-green-500">
+                            {appliedCoupon.discount_type === 'percentage' 
+                              ? `${appliedCoupon.discount_value}% off`
+                              : `₹${appliedCoupon.discount_value} off`}
+                          </p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100 flex-shrink-0"
+                        onClick={removeCoupon}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Enter coupon code"
+                          value={couponCode}
+                          onChange={(e) => {
+                            setCouponCode(e.target.value.toUpperCase());
+                            setCouponError(null);
+                          }}
+                          className="uppercase"
+                        />
+                        <Button 
+                          variant="outline" 
+                          onClick={applyCoupon}
+                          disabled={couponLoading || !couponCode.trim()}
+                        >
+                          {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
+                        </Button>
+                      </div>
+                      {couponError && (
+                        <p className="text-xs text-destructive">{couponError}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <Link to="/checkout">
+                  <Button className="w-full" size="lg">
+                    Proceed to Checkout
+                  </Button>
+                </Link>
+                
+                <Link to="/">
+                  <Button variant="ghost" className="w-full mt-3">
+                    Continue Shopping
+                  </Button>
+                </Link>
               </div>
-            ))}
+            </div>
           </div>
 
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-card border border-border rounded-lg p-6 sticky top-24">
-              <h2 className="text-xl font-serif font-bold mb-6">Order Summary</h2>
-              
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">₹{subtotal.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Shipping</span>
-                  <span className="font-medium">
-                    {shipping === 0 ? "FREE" : `₹${shipping}`}
-                  </span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-accent">
-                    <span>Discount</span>
-                    <span>-₹{discount.toLocaleString()}</span>
-                  </div>
-                )}
-                <div className="border-t border-border pt-3 flex justify-between text-lg font-bold">
-                  <span>Total</span>
-                  <span>₹{total.toLocaleString()}</span>
-                </div>
-              </div>
+          {/* Saved for Later Section */}
+          {savedItems.length > 0 && (
+            <div className="mt-8">
+              <SavedForLater
+                items={savedItems}
+                onMoveToCart={moveToCart}
+                onRemove={removeSavedItem}
+              />
+            </div>
+          )}
+        </div>
 
-              {/* Coupon Code */}
-              <div className="mb-6">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Coupon code"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                  />
-                  <Button variant="outline">Apply</Button>
-                </div>
+        {/* Sticky Mobile Order Summary */}
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 lg:hidden z-50">
+          <div className="space-y-3">
+            {/* Coupon Code - Mobile */}
+            {!appliedCoupon ? (
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Coupon code"
+                  value={couponCode}
+                  onChange={(e) => {
+                    setCouponCode(e.target.value.toUpperCase());
+                    setCouponError(null);
+                  }}
+                  className="uppercase text-sm"
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={applyCoupon}
+                  disabled={couponLoading || !couponCode.trim()}
+                >
+                  {couponLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Apply'}
+                </Button>
               </div>
-
+            ) : (
+              <div className="flex items-center justify-between bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-2">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm font-medium text-green-700 dark:text-green-400">{appliedCoupon.code}</span>
+                  <span className="text-xs text-green-600">-₹{discount}</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6 text-green-600"
+                  onClick={removeCoupon}
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
+            {couponError && <p className="text-xs text-destructive">{couponError}</p>}
+            
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">{cartItems.length} item{cartItems.length !== 1 ? 's' : ''}</p>
+                <p className="text-lg font-bold">₹{total.toLocaleString()}</p>
+              </div>
               <Link to="/checkout">
-                <Button className="w-full" size="lg">
-                  Proceed to Checkout
-                </Button>
-              </Link>
-              
-              <Link to="/">
-                <Button variant="ghost" className="w-full mt-3">
-                  Continue Shopping
-                </Button>
+                <Button size="lg">Checkout</Button>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Saved for Later Section */}
-        {savedItems.length > 0 && (
-          <div className="mt-8">
-            <SavedForLater
-              items={savedItems}
-              onMoveToCart={moveToCart}
-              onRemove={removeSavedItem}
-            />
-          </div>
-        )}
+        <Footer />
       </div>
-      <Footer />
-    </div>
     </ProtectedRoute>
   );
 };
