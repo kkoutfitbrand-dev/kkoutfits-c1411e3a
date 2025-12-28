@@ -256,20 +256,26 @@ const Cart = () => {
                   </div>
                   
                   {/* Show combo items breakdown */}
-                  {item.is_combo && item.combo_items && item.combo_items.length > 0 ? (
+                  {item.is_combo ? (
                     <div className="text-sm text-muted-foreground mb-2">
                       <span className="font-medium">Items: </span>
-                      {item.combo_items.map((ci, idx) => (
-                        <span key={idx}>
-                          {ci.color_name}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
-                          {idx < item.combo_items!.length - 1 ? ', ' : ''}
-                        </span>
-                      ))}
+                      {item.combo_items && item.combo_items.length > 0 ? (
+                        item.combo_items.map((ci, idx) => (
+                          <span key={idx}>
+                            {ci.color_name}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
+                            {idx < item.combo_items!.length - 1 ? ', ' : ''}
+                          </span>
+                        ))
+                      ) : item.color ? (
+                        <span>{item.color}</span>
+                      ) : (
+                        <span>Bundle items</span>
+                      )}
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-x-3 text-sm text-muted-foreground mb-2">
                       {item.color && <span>Color: {item.color}</span>}
-                      {item.size && !item.is_combo && <span>Size: {item.size}</span>}
+                      {item.size && <span>Size: {item.size}</span>}
                     </div>
                   )}
                   
