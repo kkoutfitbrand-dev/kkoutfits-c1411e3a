@@ -262,14 +262,14 @@ const Cart = () => {
                       {item.combo_items && item.combo_items.length > 0 ? (
                         item.combo_items.map((ci, idx) => (
                           <span key={idx}>
-                            {ci.color_name}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
+                            {ci.color_name || `Color ${idx + 1}`}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
                             {idx < item.combo_items!.length - 1 ? ', ' : ''}
                           </span>
                         ))
                       ) : item.color ? (
                         <span>{item.color}</span>
                       ) : (
-                        <span>Bundle items</span>
+                        <span>{item.size || 'Bundle items'}</span>
                       )}
                     </div>
                   ) : (
