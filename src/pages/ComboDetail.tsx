@@ -22,6 +22,23 @@ interface ComboProduct {
   min_quantity: number;
 }
 
+interface ComboCartItem {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+  size: string;
+  color: string;
+  is_combo: true;
+  combo_id: string;
+  combo_items: Array<{
+    color_name: string;
+    quantity: number;
+    image_url: string;
+  }>;
+}
+
 interface ComboItem {
   id: string;
   color_name: string;
@@ -152,26 +169,35 @@ const ComboDetail = () => {
 
       const currentItems = Array.isArray(cartData?.items) ? cartData.items : [];
 
-      // Add combo items to cart
-      const newItems = selectedColors.map(sc => ({
-        id: `combo-${combo!.id}-${sc.item.id}-${Date.now()}`,
-        product_id: combo!.id,
-        name: `${combo!.name} - ${sc.item.color_name}`,
-        price: combo!.combo_price_cents / 100,
-        quantity: sc.quantity,
-        image: sc.item.image_url || combo!.images[0] || '',
-        color: sc.item.color_name,
+      // Build combo item details string for display
+      const colorsList = selectedColors.map(sc => `${sc.item.color_name}${sc.quantity > 1 ? ` ×${sc.quantity}` : ''}`).join(', ');
+      
+      // Add combo as a SINGLE cart item with the bundle price
+      const comboCartItem: ComboCartItem = {
+        id: `combo-${combo!.id}-${Date.now()}`,
+        name: combo!.name,
+        price: combo!.combo_price_cents / 100, // This is the TOTAL combo price
+        image: selectedColors[0]?.item.image_url || combo!.images[0] || '',
+        quantity: 1, // One combo bundle
+        size: `${combo!.min_quantity} items`,
+        color: colorsList,
         is_combo: true,
-      }));
+        combo_id: combo!.id,
+        combo_items: selectedColors.map(sc => ({
+          color_name: sc.item.color_name,
+          quantity: sc.quantity,
+          image_url: sc.item.image_url || '',
+        })),
+      };
 
-      const updatedItems = [...currentItems, ...newItems];
+      const updatedItems = [...currentItems, comboCartItem];
 
       const { error } = await supabase
         .from('carts')
         .upsert({
           user_id: user.id,
-          items: updatedItems,
-        }, { onConflict: 'user_id' });
+          items: JSON.parse(JSON.stringify(updatedItems)),
+        } as any, { onConflict: 'user_id' });
 
       if (error) throw error;
 

@@ -20,6 +20,13 @@ interface CartItem {
   quantity: number;
   size: string;
   color?: string;
+  is_combo?: boolean;
+  combo_id?: string;
+  combo_items?: Array<{
+    color_name: string;
+    quantity: number;
+    image_url: string;
+  }>;
 }
 
 // Helper to get selling price from product
@@ -237,29 +244,60 @@ const Cart = () => {
                   className="w-24 h-24 md:w-32 md:h-32 object-cover rounded-md"
                 />
                 <div className="flex-1">
-                  <h3 className="font-semibold mb-1">{item.name}</h3>
-                  <div className="flex flex-wrap gap-x-3 text-sm text-muted-foreground mb-2">
-                    {item.color && <span>Color: {item.color}</span>}
-                    {item.size && <span>Size: {item.size}</span>}
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-semibold mb-1">{item.name}</h3>
+                      {item.is_combo && (
+                        <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full mb-2">
+                          Combo Bundle
+                        </span>
+                      )}
+                    </div>
                   </div>
+                  
+                  {/* Show combo items breakdown */}
+                  {item.is_combo && item.combo_items && item.combo_items.length > 0 ? (
+                    <div className="text-sm text-muted-foreground mb-2">
+                      <span className="font-medium">Items: </span>
+                      {item.combo_items.map((ci, idx) => (
+                        <span key={idx}>
+                          {ci.color_name}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
+                          {idx < item.combo_items!.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-x-3 text-sm text-muted-foreground mb-2">
+                      {item.color && <span>Color: {item.color}</span>}
+                      {item.size && !item.is_combo && <span>Size: {item.size}</span>}
+                    </div>
+                  )}
+                  
                   <p className="font-semibold text-lg">₹{item.price.toLocaleString()}</p>
                   
                   <div className="flex items-center gap-4 mt-4">
-                    <div className="flex items-center border border-border rounded-md">
-                      <button
-                        onClick={() => updateQuantity(item.id, -1)}
-                        className="p-2 hover:bg-muted transition-colors"
-                      >
-                        <Minus className="w-4 h-4" />
-                      </button>
-                      <span className="px-4 font-medium">{item.quantity}</span>
-                      <button
-                        onClick={() => updateQuantity(item.id, 1)}
-                        className="p-2 hover:bg-muted transition-colors"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
-                    </div>
+                    {/* Only show quantity controls for non-combo items */}
+                    {!item.is_combo ? (
+                      <div className="flex items-center border border-border rounded-md">
+                        <button
+                          onClick={() => updateQuantity(item.id, -1)}
+                          className="p-2 hover:bg-muted transition-colors"
+                        >
+                          <Minus className="w-4 h-4" />
+                        </button>
+                        <span className="px-4 font-medium">{item.quantity}</span>
+                        <button
+                          onClick={() => updateQuantity(item.id, 1)}
+                          className="p-2 hover:bg-muted transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        Qty: {item.quantity} bundle
+                      </span>
+                    )}
                     
                     <button
                       onClick={() => removeItem(item.id)}

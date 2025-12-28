@@ -18,6 +18,12 @@ interface CartItem {
   quantity: number;
   size: string;
   color?: string;
+  is_combo?: boolean;
+  combo_items?: Array<{
+    color_name: string;
+    quantity: number;
+    image_url: string;
+  }>;
 }
 
 export const MiniCart = () => {
@@ -153,8 +159,16 @@ export const MiniCart = () => {
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.name}</p>
+                    {item.is_combo && (
+                      <span className="inline-block bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-full">
+                        Combo
+                      </span>
+                    )}
                     <p className="text-xs text-muted-foreground">
-                      {item.color && `${item.color} / `}{item.size} × {item.quantity}
+                      {item.is_combo && item.combo_items 
+                        ? item.combo_items.map(ci => ci.color_name).join(', ')
+                        : `${item.color ? `${item.color} / ` : ''}${item.size} × ${item.quantity}`
+                      }
                     </p>
                     <p className="text-sm font-semibold mt-1">₹{(item.price * item.quantity).toLocaleString()}</p>
                   </div>
