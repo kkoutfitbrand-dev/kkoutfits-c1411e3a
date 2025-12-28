@@ -51,6 +51,7 @@ import NewYearCollection from "./pages/NewYearCollection";
 import Combo from "./pages/Combo";
 import ComboDetail from "./pages/ComboDetail";
 import AdminCombos from "./pages/admin/Combos";
+import AdminCoupons from "./pages/admin/Coupons";
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
@@ -100,6 +101,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/customers" element={<AdminRoute><PageTransition><AdminCustomers /></PageTransition></AdminRoute>} />
         <Route path="/admin/settings" element={<AdminRoute><PageTransition><AdminSettings /></PageTransition></AdminRoute>} />
         <Route path="/admin/combos" element={<AdminRoute><PageTransition><AdminCombos /></PageTransition></AdminRoute>} />
+        <Route path="/admin/coupons" element={<AdminRoute><PageTransition><AdminCoupons /></PageTransition></AdminRoute>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
