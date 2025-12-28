@@ -28,6 +28,7 @@ interface ComboProduct {
   discount_percentage: number;
   status: string;
   created_at: string;
+  min_quantity: number;
 }
 
 const Combos = () => {
