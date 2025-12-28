@@ -161,6 +161,13 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
       return;
     }
 
+    // Validate color items have names
+    const emptyColorNames = colorItems.filter(item => !item.color_name.trim());
+    if (emptyColorNames.length > 0) {
+      toast.error('Please enter a name for all color variants');
+      return;
+    }
+
     setLoading(true);
     try {
       const comboData = {
@@ -419,11 +426,12 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
                     </div>
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label>Color Name</Label>
+                        <Label>Color Name *</Label>
                         <Input
                           value={item.color_name}
                           onChange={(e) => updateColorItem(index, 'color_name', e.target.value)}
                           placeholder="e.g., Navy Blue"
+                          required
                         />
                       </div>
                       <div>
