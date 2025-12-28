@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
-import { Check, Loader2, Plus, Pencil, Trash2, CreditCard } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Check, Loader2, Plus, Pencil, Trash2, CreditCard, ChevronDown, Package } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,13 +21,20 @@ import { useRazorpay } from "@/hooks/useRazorpay";
 
 interface CartItem {
   id: string;
-  productId: string;
+  productId?: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
   size?: string;
   color?: string;
+  is_combo?: boolean;
+  combo_id?: string;
+  combo_items?: Array<{
+    color_name: string;
+    quantity: number;
+    image_url: string;
+  }>;
 }
 
 // Helper to get selling price from product
@@ -65,6 +73,64 @@ interface SavedAddress {
   pincode: string;
   isDefault: boolean;
 }
+
+// Expandable item component for combo products in order summary
+const ComboExpandableItem = ({ item }: { item: CartItem }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (item.is_combo && item.combo_items && item.combo_items.length > 0) {
+    return (
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <div className="flex gap-3">
+          <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+          <div className="flex-1">
+            <div className="flex items-start justify-between">
+              <p className="text-sm font-medium line-clamp-2">{item.name}</p>
+            </div>
+            <div className="flex items-center gap-1 mt-0.5">
+              <Package className="h-3 w-3 text-primary" />
+              <span className="text-xs text-primary font-medium">Combo Bundle</span>
+            </div>
+            <CollapsibleTrigger asChild>
+              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mt-1 transition-colors">
+                <span>{item.combo_items.length} items</span>
+                <ChevronDown className={`h-3 w-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              </button>
+            </CollapsibleTrigger>
+            <p className="text-sm font-semibold mt-1">₹{item.price.toLocaleString()}</p>
+          </div>
+        </div>
+        <CollapsibleContent className="ml-[76px] mt-2 space-y-1.5 pb-2">
+          {item.combo_items.map((ci, idx) => (
+            <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+              {ci.image_url ? (
+                <img src={ci.image_url} alt={ci.color_name} className="w-8 h-8 rounded object-cover" />
+              ) : (
+                <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
+                  <Package className="h-3 w-3" />
+                </div>
+              )}
+              <span>{ci.color_name}</span>
+              {ci.quantity > 1 && <span className="text-muted-foreground">×{ci.quantity}</span>}
+            </div>
+          ))}
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  }
+
+  // Regular non-combo item
+  return (
+    <div className="flex gap-3">
+      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+      <div className="flex-1">
+        <p className="text-sm font-medium line-clamp-2">{item.name}</p>
+        <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
+        <p className="text-sm font-semibold">₹{item.price.toLocaleString()}</p>
+      </div>
+    </div>
+  );
+};
 
 const Checkout = () => {
   const [step, setStep] = useState(1);
@@ -889,14 +955,7 @@ const Checkout = () => {
               
               <div className="space-y-4 mb-6">
                 {cartItems.map(item => (
-                  <div key={item.id} className="flex gap-3">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
-                    <div className="flex-1">
-                      <p className="text-sm font-medium line-clamp-2">{item.name}</p>
-                      <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
-                      <p className="text-sm font-semibold">₹{item.price.toLocaleString()}</p>
-                    </div>
-                  </div>
+                  <ComboExpandableItem key={item.id} item={item} />
                 ))}
               </div>
               
