@@ -257,20 +257,35 @@ const Cart = () => {
                   
                   {/* Show combo items breakdown */}
                   {item.is_combo ? (
-                    <div className="text-sm text-muted-foreground mb-2">
-                      <span className="font-medium">Items: </span>
-                      {item.combo_items && item.combo_items.length > 0 ? (
-                        item.combo_items.map((ci, idx) => (
-                          <span key={idx}>
-                            {ci.color_name || `Color ${idx + 1}`}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
-                            {idx < item.combo_items!.length - 1 ? ', ' : ''}
-                          </span>
-                        ))
-                      ) : item.color ? (
-                        <span>{item.color}</span>
-                      ) : (
-                        <span>{item.size || 'Bundle items'}</span>
-                      )}
+                    <div className="mb-2">
+                      <span className="text-sm font-medium text-muted-foreground">Selected Items:</span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {item.combo_items && item.combo_items.length > 0 ? (
+                          item.combo_items.map((ci, idx) => (
+                            <div key={idx} className="flex items-center gap-2 bg-muted/50 rounded-lg px-2 py-1.5">
+                              {ci.image_url ? (
+                                <img 
+                                  src={ci.image_url} 
+                                  alt={ci.color_name || `Item ${idx + 1}`}
+                                  className="w-8 h-8 rounded object-cover border border-border"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded bg-muted border border-border flex items-center justify-center">
+                                  <span className="text-xs text-muted-foreground">{idx + 1}</span>
+                                </div>
+                              )}
+                              <span className="text-sm">
+                                {ci.color_name || `Item ${idx + 1}`}
+                                {ci.quantity > 1 && <span className="text-muted-foreground ml-1">×{ci.quantity}</span>}
+                              </span>
+                            </div>
+                          ))
+                        ) : item.color ? (
+                          <span className="text-sm text-muted-foreground">{item.color}</span>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">{item.size || 'Bundle items'}</span>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-x-3 text-sm text-muted-foreground mb-2">
