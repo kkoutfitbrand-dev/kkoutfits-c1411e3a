@@ -173,6 +173,7 @@ export type Database = {
           discount_percentage: number | null
           id: string
           images: Json | null
+          min_quantity: number
           name: string
           original_price_cents: number
           status: string | null
@@ -185,6 +186,7 @@ export type Database = {
           discount_percentage?: number | null
           id?: string
           images?: Json | null
+          min_quantity?: number
           name: string
           original_price_cents: number
           status?: string | null
@@ -197,6 +199,7 @@ export type Database = {
           discount_percentage?: number | null
           id?: string
           images?: Json | null
+          min_quantity?: number
           name?: string
           original_price_cents?: number
           status?: string | null

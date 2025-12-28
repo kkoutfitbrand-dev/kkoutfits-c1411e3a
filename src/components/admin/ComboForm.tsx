@@ -26,6 +26,7 @@ interface ComboFormProps {
     combo_price_cents: number;
     discount_percentage: number;
     status: string;
+    min_quantity: number;
   } | null;
   onClose: () => void;
 }
@@ -39,6 +40,7 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
   const [originalPrice, setOriginalPrice] = useState(combo ? (combo.original_price_cents / 100).toString() : '');
   const [comboPrice, setComboPrice] = useState(combo ? (combo.combo_price_cents / 100).toString() : '');
   const [status, setStatus] = useState(combo?.status || 'draft');
+  const [minQuantity, setMinQuantity] = useState(combo?.min_quantity?.toString() || '1');
   const [colorItems, setColorItems] = useState<ComboItem[]>([]);
 
   useEffect(() => {
@@ -169,6 +171,7 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
         combo_price_cents: Math.round(parseFloat(comboPrice) * 100),
         discount_percentage: calculateDiscount(),
         status,
+        min_quantity: parseInt(minQuantity) || 1,
       };
 
       if (combo?.id) {
@@ -326,6 +329,21 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
                   </p>
                 </div>
               )}
+              <div className="pt-4 border-t">
+                <Label htmlFor="minQuantity">Minimum Quantity Required *</Label>
+                <Input
+                  id="minQuantity"
+                  type="number"
+                  value={minQuantity}
+                  onChange={(e) => setMinQuantity(e.target.value)}
+                  placeholder="e.g., 3 for 3-shirt combo"
+                  min="1"
+                  required
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Customer must select exactly this many items to get the combo price
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>

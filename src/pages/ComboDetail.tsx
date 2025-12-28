@@ -19,6 +19,7 @@ interface ComboProduct {
   original_price_cents: number;
   combo_price_cents: number;
   discount_percentage: number;
+  min_quantity: number;
 }
 
 interface ComboItem {
@@ -84,6 +85,8 @@ const ComboDetail = () => {
     }
   };
 
+  const getTotalQuantity = () => selectedColors.reduce((sum, sc) => sum + sc.quantity, 0);
+
   const toggleColorSelection = (item: ComboItem) => {
     const existing = selectedColors.find(sc => sc.item.id === item.id);
     if (existing) {
@@ -106,14 +109,24 @@ const ComboDetail = () => {
 
   const getTotalPrice = () => {
     if (!combo) return 0;
-    const totalQty = selectedColors.reduce((sum, sc) => sum + sc.quantity, 0);
-    return (combo.combo_price_cents / 100) * Math.max(1, totalQty);
+    const totalQty = getTotalQuantity();
+    if (totalQty < combo.min_quantity) return 0;
+    return combo.combo_price_cents / 100;
   };
 
   const getOriginalTotal = () => {
     if (!combo) return 0;
-    const totalQty = selectedColors.reduce((sum, sc) => sum + sc.quantity, 0);
-    return (combo.original_price_cents / 100) * Math.max(1, totalQty);
+    return combo.original_price_cents / 100;
+  };
+
+  const isComboComplete = () => {
+    if (!combo) return false;
+    return getTotalQuantity() === combo.min_quantity;
+  };
+
+  const getRemainingCount = () => {
+    if (!combo) return 0;
+    return Math.max(0, combo.min_quantity - getTotalQuantity());
   };
 
   const handleAddToCart = async () => {
@@ -123,8 +136,8 @@ const ComboDetail = () => {
       return;
     }
 
-    if (selectedColors.length === 0) {
-      toast.error('Please select at least one color');
+    if (!isComboComplete()) {
+      toast.error(`Please select exactly ${combo?.min_quantity} items to get this combo offer`);
       return;
     }
 
@@ -269,7 +282,29 @@ const ComboDetail = () => {
             {items.length > 0 && (
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold mb-4">Select Colors (Choose multiple)</h3>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold">Select {combo.min_quantity} Colors</h3>
+                    <Badge variant={isComboComplete() ? "default" : "secondary"}>
+                      {getTotalQuantity()}/{combo.min_quantity} selected
+                    </Badge>
+                  </div>
+                  
+                  {/* Progress Bar */}
+                  <div className="mb-4">
+                    <div className="h-2 bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full transition-all duration-300 ${isComboComplete() ? 'bg-green-500' : 'bg-primary'}`}
+                        style={{ width: `${Math.min(100, (getTotalQuantity() / combo.min_quantity) * 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 text-center">
+                      {isComboComplete() 
+                        ? '✓ Your combo is complete!' 
+                        : `Select ${getRemainingCount()} more item${getRemainingCount() > 1 ? 's' : ''}`
+                      }
+                    </p>
+                  </div>
+
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     {items.map(item => {
                       const isSelected = selectedColors.some(sc => sc.item.id === item.id);
@@ -370,12 +405,17 @@ const ComboDetail = () => {
             {/* Add to Cart */}
             <Button 
               size="lg" 
-              className="w-full"
+              className={`w-full ${isComboComplete() ? 'bg-green-600 hover:bg-green-700' : ''}`}
               onClick={handleAddToCart}
-              disabled={addingToCart || selectedColors.length === 0}
+              disabled={addingToCart || !isComboComplete()}
             >
               <ShoppingCart className="h-5 w-5 mr-2" />
-              {addingToCart ? 'Adding...' : selectedColors.length === 0 ? 'Select Colors to Continue' : 'Add to Cart'}
+              {addingToCart 
+                ? 'Adding...' 
+                : !isComboComplete() 
+                  ? `Select ${getRemainingCount()} more to unlock combo` 
+                  : `Add Combo to Cart - ₹${getTotalPrice().toLocaleString()}`
+              }
             </Button>
           </div>
         </div>
