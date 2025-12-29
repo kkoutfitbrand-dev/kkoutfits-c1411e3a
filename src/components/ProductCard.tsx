@@ -14,6 +14,7 @@ interface ProductCardProps {
   badge?: string;
   category?: string | null;
   productId?: string;
+  hasCombo?: boolean;
 }
 const getCategoryStyle = (category: string | null | undefined): {
   bg: string;
@@ -61,7 +62,8 @@ export const ProductCard = ({
   image,
   badge,
   category,
-  productId
+  productId,
+  hasCombo = false
 }: ProductCardProps) => {
   const {
     isInWishlist,
@@ -100,10 +102,15 @@ export const ProductCard = ({
             {badge && <Badge className="absolute top-2 left-2 bg-foreground text-background border-0 text-xs font-bold uppercase rounded-sm px-2 py-1">
                 {badge}
               </Badge>}
+            {hasCombo && !badge && (
+              <Badge className="absolute top-2 left-2 bg-gradient-to-r from-purple-600 to-pink-500 text-white border-0 text-xs font-bold uppercase rounded-sm px-2 py-1">
+                <Tag className="h-3 w-3 mr-1" />
+                Combo
+              </Badge>
+            )}
             <button onClick={handleWishlistClick} disabled={loading} className={`absolute top-2 right-2 p-2 rounded-full transition-all ${inWishlist ? "bg-red-500 text-white" : "bg-background/80 text-foreground hover:bg-background"}`}>
               <Heart className={`h-4 w-4 ${inWishlist ? "fill-current" : ""}`} />
             </button>
-            {category}
             {discount > 0 && <div className="absolute bottom-2 left-2 bg-myntra-pink text-white text-xs font-bold px-2 py-1 rounded-sm">
                 {discount}% OFF
               </div>}
