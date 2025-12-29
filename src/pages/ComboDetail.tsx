@@ -305,7 +305,17 @@ const ComboDetail = () => {
                             </div>
                           </div>
                           
-                          {isSelected && selectedItem}
+                          {isSelected && selectedItem && (
+                            <div className="mt-2 flex items-center justify-center gap-2" onClick={(e) => e.stopPropagation()}>
+                              <Button size="sm" variant="outline" className="h-6 w-6 p-0" onClick={() => updateQuantity(item.id, -1)}>
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <span className="text-sm font-medium w-6 text-center">{selectedItem.quantity}</span>
+                              <Button size="sm" variant="outline" className="h-6 w-6 p-0" onClick={() => updateQuantity(item.id, 1)}>
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
                         </div>;
                 })}
                   </div>
