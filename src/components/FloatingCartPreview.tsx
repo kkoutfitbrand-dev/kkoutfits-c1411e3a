@@ -25,13 +25,24 @@ export const FloatingCartPreview = ({ isVisible, onClose, item }: FloatingCartPr
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: -20, x: 20, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, x: 20, scale: 0.9 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="fixed top-20 right-4 z-50 w-80 max-w-[calc(100vw-2rem)]"
-        >
+        <>
+          {/* Backdrop overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/20 z-40"
+            onClick={onClose}
+          />
+          
+          {/* Centered bottom modal */}
+          <motion.div
+            initial={{ opacity: 0, y: 100, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 100, scale: 0.9 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-md"
+          >
           <div className="bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
             {/* Success Header */}
             <div className="bg-green-500 px-4 py-2 flex items-center justify-between">
@@ -143,7 +154,8 @@ export const FloatingCartPreview = ({ isVisible, onClose, item }: FloatingCartPr
               className="h-1 bg-primary origin-left"
             />
           </div>
-        </motion.div>
+          </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
