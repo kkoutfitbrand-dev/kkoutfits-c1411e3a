@@ -35,13 +35,13 @@ export const FloatingCartPreview = ({ isVisible, onClose, item }: FloatingCartPr
             onClick={onClose}
           />
           
-          {/* Centered cart preview */}
+          {/* Centered cart preview - top center on mobile */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={{ opacity: 0, scale: 0.9, y: -20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            exit={{ opacity: 0, scale: 0.9, y: -20 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[101] w-[340px] max-w-[calc(100vw-2rem)]"
+            className="fixed left-1/2 -translate-x-1/2 top-4 sm:top-8 z-[101] w-[calc(100vw-2rem)] sm:w-[360px]"
           >
             <div className="bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
             {/* Success Header */}
