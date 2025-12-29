@@ -87,7 +87,9 @@ serve(async (req) => {
           shipping_address: order_data.shipping_address,
           status: 'paid',
           payment_method: 'online',
-          stripe_payment_intent_id: razorpay_payment_id
+          stripe_payment_intent_id: razorpay_payment_id,
+          coupon_code: order_data.coupon_code || null,
+          coupon_discount_cents: order_data.coupon_discount_cents || 0
         }])
         .select('id')
         .single();
