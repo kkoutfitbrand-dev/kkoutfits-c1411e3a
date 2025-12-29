@@ -3,7 +3,8 @@ import { Footer } from "@/components/Footer";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Minus, Plus, Trash2, ShoppingBag, Loader2, X, CheckCircle } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Loader2, X, CheckCircle, Truck, Gift } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { SavedForLater } from "@/components/SavedForLater";
@@ -405,6 +406,35 @@ const Cart = () => {
               <div className="bg-card border border-border rounded-lg p-6 sticky top-24">
                 <h2 className="text-xl font-serif font-bold mb-6">Order Summary</h2>
                 
+                {/* Free Shipping Progress Bar - Desktop */}
+                {(() => {
+                  const freeShippingThreshold = 999;
+                  const progress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
+                  const remaining = freeShippingThreshold - subtotal;
+                  return (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-primary/5 to-primary/10 rounded-lg border border-primary/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        {remaining <= 0 ? (
+                          <>
+                            <Gift className="w-5 h-5 text-green-600" />
+                            <span className="text-sm font-medium text-green-600">🎉 You've unlocked FREE shipping!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Truck className="w-5 h-5 text-primary" />
+                            <span className="text-sm font-medium">Add ₹{remaining.toLocaleString()} more for FREE shipping</span>
+                          </>
+                        )}
+                      </div>
+                      <Progress value={progress} className="h-2" />
+                      <div className="flex justify-between mt-1 text-xs text-muted-foreground">
+                        <span>₹0</span>
+                        <span>₹{freeShippingThreshold}</span>
+                      </div>
+                    </div>
+                  );
+                })()}
+                
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
@@ -505,8 +535,30 @@ const Cart = () => {
         </div>
 
         {/* Sticky Mobile Order Summary */}
-        <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border p-4 lg:hidden z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+        <div className="sticky bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border p-4 lg:hidden z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
           <div className="space-y-3">
+            {/* Free Shipping Progress Bar - Mobile */}
+            {(() => {
+              const freeShippingThreshold = 999;
+              const progress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
+              const remaining = freeShippingThreshold - subtotal;
+              return (
+                <div className="flex items-center gap-3">
+                  {remaining <= 0 ? (
+                    <Gift className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  ) : (
+                    <Truck className="w-4 h-4 text-primary flex-shrink-0" />
+                  )}
+                  <div className="flex-1">
+                    <Progress value={progress} className="h-1.5" />
+                  </div>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    {remaining <= 0 ? '🎉 Free shipping!' : `₹${remaining} more`}
+                  </span>
+                </div>
+              );
+            })()}
+
             {/* Coupon Code - Mobile */}
             {!appliedCoupon ? (
               <div className="flex gap-2">
