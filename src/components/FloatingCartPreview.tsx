@@ -25,25 +25,14 @@ export const FloatingCartPreview = ({ isVisible, onClose, item }: FloatingCartPr
   return (
     <AnimatePresence>
       {isVisible && (
-        <>
-          {/* Backdrop overlay */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100]"
-            onClick={onClose}
-          />
-          
-          {/* Centered cart preview - top center on mobile */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: -20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: -20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed left-1/2 -translate-x-1/2 top-4 sm:top-8 z-[101] w-[calc(100vw-2rem)] sm:w-[360px]"
-          >
-            <div className="bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: -20, x: 20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, x: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -20, x: 20, scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300, damping: 25 }}
+          className="fixed top-20 right-4 z-50 w-80 max-w-[calc(100vw-2rem)]"
+        >
+          <div className="bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
             {/* Success Header */}
             <div className="bg-green-500 px-4 py-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -153,9 +142,8 @@ export const FloatingCartPreview = ({ isVisible, onClose, item }: FloatingCartPr
               transition={{ duration: 5, ease: "linear" }}
               className="h-1 bg-primary origin-left"
             />
-            </div>
-          </motion.div>
-        </>
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
