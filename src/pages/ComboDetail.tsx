@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
+import { FloatingCartPreview } from '@/components/FloatingCartPreview';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -63,6 +64,8 @@ const ComboDetail = () => {
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showCartPreview, setShowCartPreview] = useState(false);
+  const [cartPreviewItem, setCartPreviewItem] = useState<{name: string; image: string; price: number; details?: string} | null>(null);
   const [mainImage, setMainImage] = useState<string>('');
   useEffect(() => {
     if (id) fetchComboDetails();
@@ -196,6 +199,19 @@ const ComboDetail = () => {
       setTimeout(() => {
         setShowSuccess(false);
       }, 2500);
+      
+      // Show floating cart preview
+      const previewColorsList = selectedColors.map(sc => sc.item.color_name).join(', ');
+      setCartPreviewItem({
+        name: combo!.name,
+        image: selectedColors[0]?.item.image_url || combo!.images[0] || '',
+        price: combo!.combo_price_cents / 100,
+        details: `${combo!.min_quantity} items: ${previewColorsList}`
+      });
+      setShowCartPreview(true);
+      setTimeout(() => {
+        setShowCartPreview(false);
+      }, 5000);
       
       toast.success('Combo added to cart!', {
         icon: <PartyPopper className="h-4 w-4 text-green-500" />,
@@ -433,6 +449,12 @@ const ComboDetail = () => {
           </div>
         </div>
       </div>
+
+      <FloatingCartPreview
+        isVisible={showCartPreview}
+        onClose={() => setShowCartPreview(false)}
+        item={cartPreviewItem}
+      />
 
       <Footer />
     </div>;
