@@ -10,12 +10,19 @@ import { Separator } from '@/components/ui/separator';
 import { Package, MapPin, User, Calendar } from 'lucide-react';
 
 interface OrderItem {
-  product_id: string;
+  product_id?: string;
   title: string;
   price_cents: number;
   quantity: number;
   image?: string;
   size?: string;
+  is_combo?: boolean;
+  selected_size?: string;
+  combo_items?: Array<{
+    color_name: string;
+    quantity: number;
+    image_url: string;
+  }>;
 }
 
 interface ShippingAddress {
@@ -122,28 +129,59 @@ export const OrderDetailsModal = ({ order, open, onOpenChange }: OrderDetailsMod
               {order.order_items.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-4 bg-muted/50 rounded-lg p-4"
+                  className="bg-muted/50 rounded-lg p-4"
                 >
-                  {item.image && (
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-16 h-16 object-cover rounded-md"
-                    />
+                  <div className="flex items-center gap-4">
+                    {item.image && (
+                      <img
+                        src={item.image}
+                        alt={item.title}
+                        className="w-16 h-16 object-cover rounded-md"
+                      />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium">{item.title}</p>
+                      <div className="text-sm text-muted-foreground space-y-0.5">
+                        {item.is_combo && (
+                          <div className="flex items-center gap-1">
+                            <Package className="h-3 w-3 text-primary" />
+                            <span className="text-primary font-medium">Combo Bundle</span>
+                            {item.selected_size && (
+                              <span>• Size: {item.selected_size}</span>
+                            )}
+                          </div>
+                        )}
+                        {!item.is_combo && item.size && <span>Size: {item.size} • </span>}
+                        <span>Quantity: {item.quantity}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-medium">
+                        ₹{(item.price_cents / 100).toLocaleString('en-IN')}
+                      </p>
+                      <p className="text-sm text-muted-foreground">each</p>
+                    </div>
+                  </div>
+                  
+                  {/* Show combo items */}
+                  {item.is_combo && item.combo_items && item.combo_items.length > 0 && (
+                    <div className="mt-3 ml-20 space-y-2 border-l-2 border-primary/20 pl-3">
+                      <p className="text-xs font-medium text-muted-foreground">Combo Items:</p>
+                      {item.combo_items.map((ci, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-sm">
+                          {ci.image_url ? (
+                            <img src={ci.image_url} alt={ci.color_name} className="w-8 h-8 rounded object-cover" />
+                          ) : (
+                            <div className="w-8 h-8 rounded bg-muted flex items-center justify-center">
+                              <Package className="h-3 w-3" />
+                            </div>
+                          )}
+                          <span>{ci.color_name}</span>
+                          {ci.quantity > 1 && <span className="text-muted-foreground">×{ci.quantity}</span>}
+                        </div>
+                      ))}
+                    </div>
                   )}
-                  <div className="flex-1">
-                    <p className="font-medium">{item.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {item.size && <span>Size: {item.size} • </span>}
-                      Quantity: {item.quantity}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">
-                      ₹{(item.price_cents / 100).toLocaleString('en-IN')}
-                    </p>
-                    <p className="text-sm text-muted-foreground">each</p>
-                  </div>
                 </div>
               ))}
             </div>

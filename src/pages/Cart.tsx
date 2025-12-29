@@ -318,11 +318,21 @@ const Cart = () => {
                 
                 {/* Free Shipping Progress Bar - Desktop */}
                 {(() => {
-                const freeShippingThreshold = 999;
-                const progress = Math.min(subtotal / freeShippingThreshold * 100, 100);
-                const remaining = freeShippingThreshold - subtotal;
-                return;
-              })()}
+                  const freeShippingThreshold = 999;
+                  const progress = Math.min(subtotal / freeShippingThreshold * 100, 100);
+                  const remaining = freeShippingThreshold - subtotal;
+                  return (
+                    <div className="flex items-center gap-3 mb-4">
+                      {remaining <= 0 ? <Gift className="w-4 h-4 text-green-600 flex-shrink-0" /> : <Truck className="w-4 h-4 text-primary flex-shrink-0" />}
+                      <div className="flex-1">
+                        <Progress value={progress} className="h-1.5" />
+                      </div>
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {remaining <= 0 ? '🎉 Free shipping!' : `₹${remaining} more`}
+                      </span>
+                    </div>
+                  );
+                })()}
                 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">

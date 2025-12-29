@@ -34,9 +34,17 @@ interface ComboFormProps {
     discount_percentage: number;
     status: string;
     min_quantity: number;
+    size_type?: string;
+    available_sizes?: string[];
   } | null;
   onClose: () => void;
 }
+
+const SIZE_TYPE_OPTIONS = {
+  shirt: ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'],
+  pant: ['28', '30', '32', '34', '36', '38', '40', '42', '44'],
+  free: ['Free Size'],
+};
 
 export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
   const [loading, setLoading] = useState(false);
@@ -52,6 +60,10 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+  const [sizeType, setSizeType] = useState<'shirt' | 'pant' | 'free'>(
+    (combo?.size_type as 'shirt' | 'pant' | 'free') || 'free'
+  );
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(combo?.available_sizes || []);
 
   useEffect(() => {
     fetchCategories();
@@ -227,6 +239,8 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
         min_quantity: parseInt(minQuantity) || 1,
         category: selectedCategory || null,
         subcategories: selectedSubcategories,
+        size_type: sizeType,
+        available_sizes: sizeType === 'free' ? ['Free Size'] : selectedSizes,
       };
 
       if (combo?.id) {
@@ -404,6 +418,78 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
                         ) : null;
                       })}
                     </div>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Size Selection */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Select Size Type</CardTitle>
+              <p className="text-sm text-muted-foreground">Choose the size format for your product</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant={sizeType === 'shirt' ? 'default' : 'outline'}
+                  onClick={() => {
+                    setSizeType('shirt');
+                    setSelectedSizes([]);
+                  }}
+                >
+                  Shirt / Top Sizes
+                </Button>
+                <Button
+                  type="button"
+                  variant={sizeType === 'pant' ? 'default' : 'outline'}
+                  onClick={() => {
+                    setSizeType('pant');
+                    setSelectedSizes([]);
+                  }}
+                >
+                  Pant / Bottom Sizes
+                </Button>
+                <Button
+                  type="button"
+                  variant={sizeType === 'free' ? 'default' : 'outline'}
+                  onClick={() => {
+                    setSizeType('free');
+                    setSelectedSizes(['Free Size']);
+                  }}
+                >
+                  Free Size
+                </Button>
+              </div>
+
+              {sizeType !== 'free' && (
+                <div className="space-y-2">
+                  <Label>Available Sizes</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {SIZE_TYPE_OPTIONS[sizeType].map((size) => (
+                      <Button
+                        key={size}
+                        type="button"
+                        variant={selectedSizes.includes(size) ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => {
+                          if (selectedSizes.includes(size)) {
+                            setSelectedSizes(selectedSizes.filter(s => s !== size));
+                          } else {
+                            setSelectedSizes([...selectedSizes, size]);
+                          }
+                        }}
+                      >
+                        {size}
+                      </Button>
+                    ))}
+                  </div>
+                  {selectedSizes.length > 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      Selected: {selectedSizes.join(', ')}
+                    </p>
                   )}
                 </div>
               )}
