@@ -326,41 +326,6 @@ const ComboDetail = () => {
                             </div>
                           </div>
 
-                          {isSelected && selectedItem && (
-                            <div
-                              className="mt-3 flex items-center justify-between gap-2"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <span className="text-xs text-muted-foreground">Qty</span>
-                              <div className="flex items-center border border-border rounded-md">
-                                <button
-                                  type="button"
-                                  className="p-1.5 hover:bg-muted transition-colors"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    updateQuantity(item.id, -1);
-                                  }}
-                                  aria-label={`Decrease quantity for ${item.color_name}`}
-                                >
-                                  <Minus className="w-3 h-3" />
-                                </button>
-                                <span className="px-3 font-medium text-sm">{selectedItem.quantity}</span>
-                                <button
-                                  type="button"
-                                  className="p-1.5 hover:bg-muted transition-colors"
-                                  onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    updateQuantity(item.id, 1);
-                                  }}
-                                  aria-label={`Increase quantity for ${item.color_name}`}
-                                >
-                                  <Plus className="w-3 h-3" />
-                                </button>
-                              </div>
-                            </div>
-                          )}
                         </div>
                       );
                     })}
