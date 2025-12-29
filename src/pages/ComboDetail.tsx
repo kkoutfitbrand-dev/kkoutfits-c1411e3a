@@ -286,28 +286,84 @@ const ComboDetail = () => {
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {items.map(item => {
-                  const isSelected = selectedColors.some(sc => sc.item.id === item.id);
-                  const selectedItem = selectedColors.find(sc => sc.item.id === item.id);
-                  return <div key={item.id} className={`relative border rounded-lg p-3 cursor-pointer transition-all ${isSelected ? 'border-primary bg-primary/5' : 'hover:border-primary/50'}`} onClick={() => toggleColorSelection(item)}>
-                          {isSelected && <div className="absolute -top-2 -right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                    {items.map((item) => {
+                      const isSelected = selectedColors.some((sc) => sc.item.id === item.id);
+                      const selectedItem = selectedColors.find((sc) => sc.item.id === item.id);
+
+                      return (
+                        <div
+                          key={item.id}
+                          className={`relative border rounded-lg p-3 cursor-pointer transition-all ${
+                            isSelected ? "border-primary bg-primary/5" : "hover:border-primary/50"
+                          }`}
+                          onClick={() => toggleColorSelection(item)}
+                        >
+                          {isSelected && (
+                            <div className="absolute -top-2 -right-2 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                               <Check className="h-3 w-3 text-primary-foreground" />
-                            </div>}
+                            </div>
+                          )}
+
                           <div className="flex items-center gap-3">
-                            {item.image_url ? <img src={item.image_url} alt={item.color_name} className="w-12 h-12 rounded object-cover" /> : <div className="w-12 h-12 rounded border" style={{
-                        backgroundColor: item.color_code
-                      }} />}
+                            {item.image_url ? (
+                              <img
+                                src={item.image_url}
+                                alt={item.color_name}
+                                className="w-12 h-12 rounded object-cover"
+                              />
+                            ) : (
+                              <div
+                                className="w-12 h-12 rounded border"
+                                style={{ backgroundColor: item.color_code }}
+                              />
+                            )}
                             <div className="flex-1">
                               <p className="font-medium text-sm">{item.color_name}</p>
-                              <div className="w-4 h-4 rounded-full border mt-1" style={{
-                          backgroundColor: item.color_code
-                        }} />
+                              <div
+                                className="w-4 h-4 rounded-full border mt-1"
+                                style={{ backgroundColor: item.color_code }}
+                              />
                             </div>
                           </div>
-                          
-                          {isSelected && selectedItem}
-                        </div>;
-                })}
+
+                          {isSelected && selectedItem && (
+                            <div
+                              className="mt-3 flex items-center justify-between gap-2"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <span className="text-xs text-muted-foreground">Qty</span>
+                              <div className="flex items-center border border-border rounded-md">
+                                <button
+                                  type="button"
+                                  className="p-1.5 hover:bg-muted transition-colors"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    updateQuantity(item.id, -1);
+                                  }}
+                                  aria-label={`Decrease quantity for ${item.color_name}`}
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="px-3 font-medium text-sm">{selectedItem.quantity}</span>
+                                <button
+                                  type="button"
+                                  className="p-1.5 hover:bg-muted transition-colors"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    updateQuantity(item.id, 1);
+                                  }}
+                                  aria-label={`Increase quantity for ${item.color_name}`}
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>}
