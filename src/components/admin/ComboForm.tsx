@@ -1,19 +1,26 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Trash2, Upload, X } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Upload, X, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 interface ComboItem {
   id?: string;
   color_name: string;
-  color_code: string;
   image_url: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  parent_id: string | null;
 }
 
 interface ComboFormProps {
@@ -42,12 +49,51 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
   const [status, setStatus] = useState(combo?.status || 'draft');
   const [minQuantity, setMinQuantity] = useState(combo?.min_quantity?.toString() || '1');
   const [colorItems, setColorItems] = useState<ComboItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
 
   useEffect(() => {
+    fetchCategories();
     if (combo?.id) {
       fetchComboItems();
+      fetchComboCategories();
     }
   }, [combo?.id]);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order');
+      
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchComboCategories = async () => {
+    if (!combo?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('combo_products')
+        .select('category, subcategories')
+        .eq('id', combo.id)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        setSelectedCategory(data.category || '');
+        setSelectedSubcategories((data.subcategories as string[]) || []);
+      }
+    } catch (error) {
+      console.error('Error fetching combo categories:', error);
+    }
+  };
 
   const fetchComboItems = async () => {
     if (!combo?.id) return;
@@ -132,7 +178,7 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
   };
 
   const addColorItem = () => {
-    setColorItems([...colorItems, { color_name: '', color_code: '#000000', image_url: '' }]);
+    setColorItems([...colorItems, { color_name: '', image_url: '' }]);
   };
 
   const updateColorItem = (index: number, field: keyof ComboItem, value: string) => {
@@ -179,6 +225,8 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
         discount_percentage: calculateDiscount(),
         status,
         min_quantity: parseInt(minQuantity) || 1,
+        category: selectedCategory || null,
+        subcategories: selectedSubcategories,
       };
 
       if (combo?.id) {
@@ -197,7 +245,6 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
           const itemsToInsert = colorItems.map(item => ({
             combo_id: combo.id,
             color_name: item.color_name,
-            color_code: item.color_code,
             image_url: item.image_url,
           }));
           const { error: itemsError } = await supabase
@@ -221,7 +268,6 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
           const itemsToInsert = colorItems.map(item => ({
             combo_id: newCombo.id,
             color_name: item.color_name,
-            color_code: item.color_code,
             image_url: item.image_url,
           }));
           const { error: itemsError } = await supabase
@@ -291,6 +337,76 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
                   </SelectContent>
                 </Select>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Categories */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Categories</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Main Category</Label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select main category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.filter(c => !c.parent_id).map(cat => (
+                      <SelectItem key={cat.id} value={cat.slug}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {selectedCategory && (
+                <div>
+                  <Label>Subcategories (Multi-select)</Label>
+                  <div className="mt-2 border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                    {categories.filter(c => {
+                      const parent = categories.find(p => p.slug === selectedCategory);
+                      return c.parent_id === parent?.id;
+                    }).length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No subcategories available</p>
+                    ) : (
+                      categories.filter(c => {
+                        const parent = categories.find(p => p.slug === selectedCategory);
+                        return c.parent_id === parent?.id;
+                      }).map(subcat => (
+                        <div key={subcat.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={subcat.id}
+                            checked={selectedSubcategories.includes(subcat.slug)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedSubcategories([...selectedSubcategories, subcat.slug]);
+                              } else {
+                                setSelectedSubcategories(selectedSubcategories.filter(s => s !== subcat.slug));
+                              }
+                            }}
+                          />
+                          <Label htmlFor={subcat.id} className="cursor-pointer font-normal">{subcat.name}</Label>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  {selectedSubcategories.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {selectedSubcategories.map(slug => {
+                        const cat = categories.find(c => c.slug === slug);
+                        return cat ? (
+                          <span key={slug} className="inline-flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-1 rounded">
+                            {cat.name}
+                            <button type="button" onClick={() => setSelectedSubcategories(selectedSubcategories.filter(s => s !== slug))}>
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -424,32 +540,14 @@ export const ComboForm = ({ combo, onClose }: ComboFormProps) => {
                         </label>
                       )}
                     </div>
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label>Color Name *</Label>
-                        <Input
-                          value={item.color_name}
-                          onChange={(e) => updateColorItem(index, 'color_name', e.target.value)}
-                          placeholder="e.g., Navy Blue"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <Label>Color Code</Label>
-                        <div className="flex gap-2">
-                          <input
-                            type="color"
-                            value={item.color_code}
-                            onChange={(e) => updateColorItem(index, 'color_code', e.target.value)}
-                            className="w-10 h-10 rounded cursor-pointer border-0"
-                          />
-                          <Input
-                            value={item.color_code}
-                            onChange={(e) => updateColorItem(index, 'color_code', e.target.value)}
-                            placeholder="#000000"
-                          />
-                        </div>
-                      </div>
+                    <div className="flex-1">
+                      <Label>Color Name *</Label>
+                      <Input
+                        value={item.color_name}
+                        onChange={(e) => updateColorItem(index, 'color_name', e.target.value)}
+                        placeholder="e.g., Navy Blue"
+                        required
+                      />
                     </div>
                     <Button
                       type="button"

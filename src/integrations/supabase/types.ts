@@ -167,6 +167,7 @@ export type Database = {
       }
       combo_products: {
         Row: {
+          category: string | null
           combo_price_cents: number
           created_at: string | null
           description: string | null
@@ -177,9 +178,11 @@ export type Database = {
           name: string
           original_price_cents: number
           status: string | null
+          subcategories: Json | null
           updated_at: string | null
         }
         Insert: {
+          category?: string | null
           combo_price_cents: number
           created_at?: string | null
           description?: string | null
@@ -190,9 +193,11 @@ export type Database = {
           name: string
           original_price_cents: number
           status?: string | null
+          subcategories?: Json | null
           updated_at?: string | null
         }
         Update: {
+          category?: string | null
           combo_price_cents?: number
           created_at?: string | null
           description?: string | null
@@ -203,6 +208,7 @@ export type Database = {
           name?: string
           original_price_cents?: number
           status?: string | null
+          subcategories?: Json | null
           updated_at?: string | null
         }
         Relationships: []

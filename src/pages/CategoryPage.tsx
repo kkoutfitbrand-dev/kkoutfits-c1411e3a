@@ -53,9 +53,34 @@ const CategoryPage = () => {
   const [priceRange, setPriceRange] = useState([0, 20000]);
   const [sortBy, setSortBy] = useState("popularity");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [comboCategories, setComboCategories] = useState<Set<string>>(new Set());
+
   useEffect(() => {
     fetchProducts();
+    fetchCombos();
   }, [category]);
+
+  const fetchCombos = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('combo_products')
+        .select('category, subcategories')
+        .eq('status', 'published');
+
+      if (error) throw error;
+      
+      const categorySlugs = new Set<string>();
+      data?.forEach(combo => {
+        if (combo.category) categorySlugs.add(combo.category);
+        if (combo.subcategories && Array.isArray(combo.subcategories)) {
+          (combo.subcategories as string[]).forEach(sub => categorySlugs.add(sub));
+        }
+      });
+      setComboCategories(categorySlugs);
+    } catch (error) {
+      console.error('Error fetching combos:', error);
+    }
+  };
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -184,9 +209,10 @@ const CategoryPage = () => {
               </div> : sortedProducts.length > 0 ? viewMode === "grid" ? <div className="grid grid-cols-2 gap-4 md:gap-6">
                   {sortedProducts.map((product, index) => {
                     const { price, originalPrice } = getDisplayPrice(product);
+                    const hasCombo = product.category ? comboCategories.has(product.category) : false;
                     return (
                       <ScrollReveal key={product.id} delay={index * 0.05} direction="up">
-                        <ProductCard id={product.slug} productId={product.id} name={product.title} price={price} originalPrice={originalPrice} image={getFirstImage(product.images)} category={product.category} />
+                        <ProductCard id={product.slug} productId={product.id} name={product.title} price={price} originalPrice={originalPrice} image={getFirstImage(product.images)} category={product.category} hasCombo={hasCombo} />
                       </ScrollReveal>
                     );
                   })}
