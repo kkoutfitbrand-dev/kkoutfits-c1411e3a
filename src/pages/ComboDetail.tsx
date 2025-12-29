@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -9,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { ShoppingCart, Check, Minus, Plus, Package, ArrowLeft, Sparkles } from 'lucide-react';
+import { ShoppingCart, Check, Package, ArrowLeft, Sparkles, PartyPopper } from 'lucide-react';
 interface ComboProduct {
   id: string;
   name: string;
@@ -61,6 +62,7 @@ const ComboDetail = () => {
   const [selectedColors, setSelectedColors] = useState<SelectedColor[]>([]);
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [mainImage, setMainImage] = useState<string>('');
   useEffect(() => {
     if (id) fetchComboDetails();
@@ -188,7 +190,16 @@ const ComboDetail = () => {
         onConflict: 'user_id'
       });
       if (error) throw error;
-      toast.success('Added to cart successfully!');
+      
+      // Show success animation
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 2500);
+      
+      toast.success('Combo added to cart!', {
+        icon: <PartyPopper className="h-4 w-4 text-green-500" />,
+      });
       setSelectedColors([]);
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -339,10 +350,86 @@ const ComboDetail = () => {
               </Card>}
 
             {/* Add to Cart */}
-            <Button size="lg" className={`w-full ${isComboComplete() ? 'bg-green-600 hover:bg-green-700' : ''}`} onClick={handleAddToCart} disabled={addingToCart || !isComboComplete()}>
-              <ShoppingCart className="h-5 w-5 mr-2" />
-              {addingToCart ? 'Adding...' : !isComboComplete() ? `Select ${getRemainingCount()} more to unlock combo` : `Add Combo to Cart - ₹${getTotalPrice().toLocaleString()}`}
-            </Button>
+            <div className="relative">
+              <AnimatePresence>
+                {showSuccess && (
+                  <>
+                    {/* Flying cart icons */}
+                    {[...Array(6)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        initial={{ 
+                          opacity: 1, 
+                          scale: 0.5,
+                          x: 0,
+                          y: 0
+                        }}
+                        animate={{ 
+                          opacity: 0, 
+                          scale: 1.5,
+                          x: (i % 2 === 0 ? -1 : 1) * (50 + Math.random() * 100),
+                          y: -100 - Math.random() * 100,
+                          rotate: (i % 2 === 0 ? -1 : 1) * 45
+                        }}
+                        exit={{ opacity: 0 }}
+                        transition={{ 
+                          duration: 0.8, 
+                          delay: i * 0.1,
+                          ease: "easeOut"
+                        }}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+                      >
+                        <Sparkles className="h-5 w-5 text-primary" />
+                      </motion.div>
+                    ))}
+                    
+                    {/* Success overlay */}
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute inset-0 bg-green-500 rounded-lg flex items-center justify-center gap-2 z-20"
+                    >
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+                      >
+                        <Check className="h-6 w-6 text-white" />
+                      </motion.div>
+                      <motion.span
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="text-white font-semibold"
+                      >
+                        Added to Cart!
+                      </motion.span>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
+              
+              <Button 
+                size="lg" 
+                className={`w-full transition-all duration-300 ${isComboComplete() ? 'bg-green-600 hover:bg-green-700' : ''}`} 
+                onClick={handleAddToCart} 
+                disabled={addingToCart || !isComboComplete()}
+              >
+                {addingToCart ? (
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                  </motion.div>
+                ) : (
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                )}
+                {addingToCart ? 'Adding...' : !isComboComplete() ? `Select ${getRemainingCount()} more to unlock combo` : `Add Combo to Cart - ₹${getTotalPrice().toLocaleString()}`}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
