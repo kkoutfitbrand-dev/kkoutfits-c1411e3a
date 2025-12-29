@@ -31,7 +31,7 @@ export const FloatingCartPreview = ({ isVisible, onClose, item }: FloatingCartPr
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/20 z-40"
+            className="fixed inset-0 bg-black/30 z-[9998]"
             onClick={onClose}
           />
           
@@ -41,9 +41,9 @@ export const FloatingCartPreview = ({ isVisible, onClose, item }: FloatingCartPr
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-md"
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-[90vw] max-w-md"
           >
-          <div className="bg-card border border-border rounded-xl shadow-2xl overflow-hidden">
+          <div className="bg-card border border-border rounded-xl shadow-[0_-4px_30px_rgba(0,0,0,0.15)] overflow-hidden">
             {/* Success Header */}
             <div className="bg-green-500 px-4 py-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
