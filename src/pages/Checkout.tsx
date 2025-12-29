@@ -30,6 +30,7 @@ interface CartItem {
   color?: string;
   is_combo?: boolean;
   combo_id?: string;
+  selected_size?: string;
   combo_items?: Array<{
     color_name: string;
     quantity: number;
@@ -105,6 +106,9 @@ const ComboExpandableItem = ({ item }: { item: CartItem }) => {
             <div className="flex items-center gap-1 mt-0.5">
               <Package className="h-3 w-3 text-primary" />
               <span className="text-xs text-primary font-medium">Combo Bundle</span>
+              {item.selected_size && (
+                <span className="text-xs text-muted-foreground">• Size: {item.selected_size}</span>
+              )}
             </div>
             <CollapsibleTrigger asChild>
               <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground mt-1 transition-colors">

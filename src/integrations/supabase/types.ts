@@ -167,6 +167,7 @@ export type Database = {
       }
       combo_products: {
         Row: {
+          available_sizes: Json | null
           category: string | null
           combo_price_cents: number
           created_at: string | null
@@ -177,11 +178,13 @@ export type Database = {
           min_quantity: number
           name: string
           original_price_cents: number
+          size_type: string | null
           status: string | null
           subcategories: Json | null
           updated_at: string | null
         }
         Insert: {
+          available_sizes?: Json | null
           category?: string | null
           combo_price_cents: number
           created_at?: string | null
@@ -192,11 +195,13 @@ export type Database = {
           min_quantity?: number
           name: string
           original_price_cents: number
+          size_type?: string | null
           status?: string | null
           subcategories?: Json | null
           updated_at?: string | null
         }
         Update: {
+          available_sizes?: Json | null
           category?: string | null
           combo_price_cents?: number
           created_at?: string | null
@@ -207,6 +212,7 @@ export type Database = {
           min_quantity?: number
           name?: string
           original_price_cents?: number
+          size_type?: string | null
           status?: string | null
           subcategories?: Json | null
           updated_at?: string | null

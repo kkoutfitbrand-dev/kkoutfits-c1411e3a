@@ -21,6 +21,8 @@ interface ComboProduct {
   combo_price_cents: number;
   discount_percentage: number;
   min_quantity: number;
+  size_type: string;
+  available_sizes: string[];
 }
 interface ComboCartItem {
   id: string;
@@ -32,6 +34,7 @@ interface ComboCartItem {
   color: string;
   is_combo: true;
   combo_id: string;
+  selected_size: string;
   combo_items: Array<{
     color_name: string;
     quantity: number;
@@ -61,6 +64,7 @@ const ComboDetail = () => {
   const [combo, setCombo] = useState<ComboProduct | null>(null);
   const [items, setItems] = useState<ComboItem[]>([]);
   const [selectedColors, setSelectedColors] = useState<SelectedColor[]>([]);
+  const [selectedSize, setSelectedSize] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [addingToCart, setAddingToCart] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -81,12 +85,18 @@ const ComboDetail = () => {
         navigate('/combo');
         return;
       }
-      const formattedCombo = {
+      const formattedCombo: ComboProduct = {
         ...comboData,
-        images: Array.isArray(comboData.images) ? comboData.images as string[] : []
+        images: Array.isArray(comboData.images) ? comboData.images as string[] : [],
+        size_type: comboData.size_type || 'free',
+        available_sizes: Array.isArray(comboData.available_sizes) ? comboData.available_sizes as string[] : ['Free Size']
       };
       setCombo(formattedCombo);
       setMainImage(formattedCombo.images[0] || '');
+      // Set default size if available
+      if (formattedCombo.available_sizes.length > 0) {
+        setSelectedSize(formattedCombo.available_sizes[0]);
+      }
       const {
         data: itemsData,
         error: itemsError
@@ -153,6 +163,10 @@ const ComboDetail = () => {
       toast.error(`Please select exactly ${combo?.min_quantity} items to get this combo offer`);
       return;
     }
+    if (!selectedSize) {
+      toast.error('Please select a size');
+      return;
+    }
     setAddingToCart(true);
     try {
       // Get current cart
@@ -169,14 +183,13 @@ const ComboDetail = () => {
         id: `combo-${combo!.id}-${Date.now()}`,
         name: combo!.name,
         price: combo!.combo_price_cents / 100,
-        // This is the TOTAL combo price
         image: selectedColors[0]?.item.image_url || combo!.images[0] || '',
         quantity: 1,
-        // One combo bundle
         size: `${combo!.min_quantity} items`,
         color: colorsList,
         is_combo: true,
         combo_id: combo!.id,
+        selected_size: selectedSize,
         combo_items: selectedColors.map(sc => ({
           color_name: sc.item.color_name,
           quantity: sc.quantity,
@@ -359,6 +372,28 @@ const ComboDetail = () => {
                   </div>
                 </CardContent>
               </Card>}
+
+            {/* Size Selection */}
+            {combo.available_sizes && combo.available_sizes.length > 0 && (
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-semibold mb-3">Select Size</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {combo.available_sizes.map((size) => (
+                      <Button
+                        key={size}
+                        variant={selectedSize === size ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setSelectedSize(size)}
+                        className="min-w-[60px]"
+                      >
+                        {size}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Selection Summary */}
             {selectedColors.length > 0 && <Card className="bg-muted/50">
