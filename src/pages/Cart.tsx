@@ -505,7 +505,7 @@ const Cart = () => {
         </div>
 
         {/* Sticky Mobile Order Summary */}
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 lg:hidden z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border p-4 lg:hidden z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
           <div className="space-y-3">
             {/* Coupon Code - Mobile */}
             {!appliedCoupon ? (
