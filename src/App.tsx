@@ -52,6 +52,7 @@ import Combo from "./pages/Combo";
 import ComboDetail from "./pages/ComboDetail";
 import AdminCombos from "./pages/admin/Combos";
 import AdminCoupons from "./pages/admin/Coupons";
+
 const queryClient = new QueryClient();
 
 const AnimatedRoutes = () => {
