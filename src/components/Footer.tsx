@@ -2,26 +2,16 @@ import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-const footerLinks = {
-  "Shop": [{
-    label: "Sarees",
-    path: "/category/sarees"
-  }, {
-    label: "Lehengas",
-    path: "/category/lehengas"
-  }, {
-    label: "Kurtas",
-    path: "/category/kurtas"
-  }, {
-    label: "Sherwani",
-    path: "/category/sherwani"
-  }, {
-    label: "Salwar Kameez",
-    path: "/category/salwar-kameez"
-  }, {
-    label: "Bandhgala",
-    path: "/category/bandhgala"
-  }],
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+const staticFooterLinks = {
   "Customer Care": [{
     label: "Contact Us",
     path: "/contact"
@@ -63,6 +53,24 @@ const footerLinks = {
   }]
 };
 export const Footer = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true })
+        .limit(6);
+      
+      if (data) {
+        setCategories(data);
+      }
+    };
+    fetchCategories();
+  }, []);
+
   return <footer className="bg-muted mt-16">
       <div className="container px-4 py-12">
         {/* Newsletter */}
@@ -85,7 +93,22 @@ export const Footer = () => {
 
         {/* Footer Links */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-          {Object.entries(footerLinks).map(([title, links]) => <div key={title}>
+          {/* Shop - Dynamic Categories */}
+          <div>
+            <h4 className="font-semibold mb-4">Shop</h4>
+            <ul className="space-y-2">
+              {categories.map(category => (
+                <li key={category.id}>
+                  <Link to={`/category/${category.slug}`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+          
+          {/* Static Links */}
+          {Object.entries(staticFooterLinks).map(([title, links]) => <div key={title}>
               <h4 className="font-semibold mb-4">{title}</h4>
               <ul className="space-y-2">
                 {links.map(link => <li key={link.label}>
