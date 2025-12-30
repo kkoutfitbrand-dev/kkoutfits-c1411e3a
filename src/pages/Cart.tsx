@@ -265,16 +265,12 @@ const Cart = () => {
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <h3 className="font-semibold text-sm md:text-base line-clamp-2">{item.name}</h3>
-                        {item.is_combo && (
-                          <div className="flex items-center gap-2 mt-1">
+                        {item.is_combo && <div className="flex items-center gap-2 mt-1">
                             <span className="inline-block bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
                               Combo Bundle
                             </span>
-                            {item.selected_size && (
-                              <span className="text-xs text-muted-foreground">Size: {item.selected_size}</span>
-                            )}
-                          </div>
-                        )}
+                            {item.selected_size && <span className="text-xs text-muted-foreground">Size: {item.selected_size}</span>}
+                          </div>}
                       </div>
                       <button onClick={() => removeItem(item.id)} className="p-1.5 md:p-2 text-destructive hover:bg-destructive/10 rounded-md transition-colors flex-shrink-0">
                         <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
@@ -326,31 +322,19 @@ const Cart = () => {
                 
                 {/* Free Shipping Progress Bar - Desktop */}
                 {(() => {
-                  const freeShippingThreshold = 999;
-                  const progress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
-                  const remaining = freeShippingThreshold - subtotal;
-                  
-                  if (subtotal >= freeShippingThreshold) {
-                    return (
-                      <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+                const freeShippingThreshold = 999;
+                const progress = Math.min(subtotal / freeShippingThreshold * 100, 100);
+                const remaining = freeShippingThreshold - subtotal;
+                if (subtotal >= freeShippingThreshold) {
+                  return <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
                         <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
                           <CheckCircle className="h-4 w-4" />
                           <span className="text-sm font-medium">You've unlocked FREE shipping!</span>
                         </div>
-                      </div>
-                    );
-                  }
-                  
-                  return (
-                    <div className="mb-4 p-3 bg-muted/50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Truck className="h-4 w-4 text-primary" />
-                        <span className="text-sm">Add ₹{remaining.toLocaleString()} for FREE shipping</span>
-                      </div>
-                      <Progress value={progress} className="h-2" />
-                    </div>
-                  );
-                })()}
+                      </div>;
+                }
+                return;
+              })()}
                 
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
@@ -426,31 +410,25 @@ const Cart = () => {
           <div className="space-y-3">
             {/* Free Shipping Progress Bar - Mobile */}
             {(() => {
-              const freeShippingThreshold = 999;
-              const progress = Math.min((subtotal / freeShippingThreshold) * 100, 100);
-              const remaining = freeShippingThreshold - subtotal;
-              
-              if (subtotal >= freeShippingThreshold) {
-                return (
-                  <div className="p-2 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+            const freeShippingThreshold = 999;
+            const progress = Math.min(subtotal / freeShippingThreshold * 100, 100);
+            const remaining = freeShippingThreshold - subtotal;
+            if (subtotal >= freeShippingThreshold) {
+              return <div className="p-2 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
                     <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
                       <CheckCircle className="h-3 w-3" />
                       <span className="text-xs font-medium">FREE shipping unlocked!</span>
                     </div>
-                  </div>
-                );
-              }
-              
-              return (
-                <div className="p-2 bg-muted/50 rounded-lg">
+                  </div>;
+            }
+            return <div className="p-2 bg-muted/50 rounded-lg">
                   <div className="flex items-center gap-2 mb-1">
                     <Truck className="h-3 w-3 text-primary" />
                     <span className="text-xs">Add ₹{remaining.toLocaleString()} for FREE shipping</span>
                   </div>
                   <Progress value={progress} className="h-1.5" />
-                </div>
-              );
-            })()}
+                </div>;
+          })()}
 
             {/* Coupon Code - Mobile */}
             {!appliedCoupon ? <div className="flex gap-2">
