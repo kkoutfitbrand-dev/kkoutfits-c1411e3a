@@ -93,10 +93,6 @@ const ComboDetail = () => {
       };
       setCombo(formattedCombo);
       setMainImage(formattedCombo.images[0] || '');
-      // Set default size if available
-      if (formattedCombo.available_sizes.length > 0) {
-        setSelectedSize(formattedCombo.available_sizes[0]);
-      }
       const {
         data: itemsData,
         error: itemsError
@@ -464,9 +460,9 @@ const ComboDetail = () => {
               
               <Button 
                 size="lg" 
-                className={`w-full transition-all duration-300 ${isComboComplete() ? 'bg-green-600 hover:bg-green-700' : ''}`} 
+                className={`w-full transition-all duration-300 ${isComboComplete() && selectedSize ? 'bg-green-600 hover:bg-green-700' : ''}`} 
                 onClick={handleAddToCart} 
-                disabled={addingToCart || !isComboComplete()}
+                disabled={addingToCart || !isComboComplete() || !selectedSize}
               >
                 {addingToCart ? (
                   <motion.div
@@ -478,7 +474,7 @@ const ComboDetail = () => {
                 ) : (
                   <ShoppingCart className="h-5 w-5 mr-2" />
                 )}
-                {addingToCart ? 'Adding...' : !isComboComplete() ? `Select ${getRemainingCount()} more to unlock combo` : `Add Combo to Cart - ₹${getTotalPrice().toLocaleString()}`}
+                {addingToCart ? 'Adding...' : !isComboComplete() ? `Select ${getRemainingCount()} more to unlock combo` : !selectedSize ? 'Please select a size' : `Add Combo to Cart - ₹${getTotalPrice().toLocaleString()}`}
               </Button>
             </div>
           </div>
