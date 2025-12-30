@@ -340,19 +340,19 @@ export default function AdminDashboard() {
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground font-medium">Total Revenue</p>
                     <p className="text-lg font-bold">
-                      ₹{topProducts.reduce((sum, p) => sum + p.revenue, 0).toLocaleString('en-IN')}
+                      ₹{topProducts.reduce((sum, p) => sum + (p.revenue || 0), 0).toLocaleString('en-IN')}
                     </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground font-medium">Units Sold</p>
                     <p className="text-lg font-bold">
-                      {topProducts.reduce((sum, p) => sum + p.quantity, 0)}
+                      {topProducts.reduce((sum, p) => sum + (p.quantity || 0), 0)}
                     </p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-xs text-muted-foreground font-medium">Top Product</p>
                     <p className="text-lg font-bold truncate">
-                      {topProducts[0]?.title?.split(' ').slice(0, 2).join(' ') || 'N/A'}
+                      {topProducts[0]?.title ? topProducts[0].title.split(' ').slice(0, 2).join(' ') : '-'}
                     </p>
                   </div>
                 </div>
