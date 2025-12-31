@@ -15,47 +15,14 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
-import categoryShirts from "@/assets/category-shirts.jpg";
-import categoryPants from "@/assets/category-pants.jpg";
-import categoryTshirts from "@/assets/category-tshirts.jpg";
-import categorySaree from "@/assets/category-saree.jpg";
-import categorySalwar from "@/assets/category-salwar.jpg";
-import categoryKurta from "@/assets/category-kurta.jpg";
-import categoryLehenga from "@/assets/category-lehenga.jpg";
-import categoryJeans from "@/assets/category-jeans.jpg";
-const categories = [{
-  title: "Shirts",
-  image: categoryShirts,
-  link: "/category/shirts"
-}, {
-  title: "T-Shirts",
-  image: categoryTshirts,
-  link: "/category/tshirt"
-}, {
-  title: "Pants",
-  image: categoryPants,
-  link: "/category/pants-shorts"
-}, {
-  title: "Jeans",
-  image: categoryJeans,
-  link: "/category/jeans"
-}, {
-  title: "Kurtas",
-  image: categoryKurta,
-  link: "/category/kurtas"
-}, {
-  title: "Sarees",
-  image: categorySaree,
-  link: "/category/sarees"
-}, {
-  title: "Lehengas",
-  image: categoryLehenga,
-  link: "/category/lehengas"
-}, {
-  title: "Churidar",
-  image: categorySalwar,
-  link: "/category/churidar"
-}];
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  image_url: string | null;
+}
+
 interface Product {
   id: string;
   title: string;
@@ -65,24 +32,22 @@ interface Product {
   category: string | null;
   variants: Json;
 }
+
 const getFirstImage = (images: Json): string => {
   if (Array.isArray(images) && images.length > 0) {
     return images[0] as string;
   }
   return '/placeholder.svg';
 };
+
 const getSalePrice = (variants: Json): number | null => {
   if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
-    return (variants as {
-      sale_price_cents?: number;
-    }).sale_price_cents || null;
+    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
   }
   return null;
 };
-const getDisplayPrice = (product: Product): {
-  price: number;
-  originalPrice?: number;
-} => {
+
+const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
   const salePrice = getSalePrice(product.variants);
   if (salePrice && salePrice < product.price_cents) {
     return {
@@ -96,18 +61,42 @@ const getDisplayPrice = (product: Product): {
 };
 const Index = () => {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
   useEffect(() => {
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, slug, image_url')
+        .eq('is_active', true)
+        .is('parent_id', null) // Only get parent categories
+        .order('display_order', { ascending: true })
+        .limit(8);
+      
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
   const fetchProducts = async () => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('products').select('id, title, price_cents, images, slug, category, variants').eq('status', 'published').order('created_at', {
-        ascending: false
-      }).limit(6);
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, title, price_cents, images, slug, category, variants')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
+        .limit(6);
       if (error) throw error;
       setFeaturedProducts(data || []);
     } catch (error) {
@@ -154,10 +143,7 @@ const Index = () => {
         </section>
       </ScrollReveal>
 
-      {/* Brand Showcase */}
-      <ScrollReveal delay={0.1} direction="left">
-        
-      </ScrollReveal>
+      {/* Brand Showcase - Empty for now */}
 
       {/* Trending Products */}
       <ScrollReveal delay={0.1}>
@@ -178,28 +164,45 @@ const Index = () => {
             </ScrollReveal>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-            {categories.map((category, index) => <ScrollReveal key={category.title} delay={index * 0.05} direction="up">
-                <Link to={category.link} className="group relative overflow-hidden rounded-xl bg-card shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                  <div className="aspect-square overflow-hidden">
-                    <img src={category.image} alt={category.title} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
-                  </div>
-                  {/* Elegant gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-all duration-300" />
-                  {/* Professional text with border accent */}
-                  <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 border-t border-white/20">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm md:text-base font-bold text-white uppercase tracking-widest">
-                        {category.title}
-                      </h3>
-                      <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </span>
+            {categoriesLoading ? (
+              // Loading skeleton for categories
+              Array.from({ length: 8 }).map((_, index) => (
+                <div key={index} className="aspect-square rounded-xl bg-muted animate-pulse" />
+              ))
+            ) : categories.length === 0 ? (
+              <p className="col-span-full text-center text-muted-foreground">No categories available</p>
+            ) : (
+              categories.map((category, index) => (
+                <ScrollReveal key={category.id} delay={index * 0.05} direction="up">
+                  <Link to={`/category/${category.slug}`} className="group relative overflow-hidden rounded-xl bg-card shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
+                    <div className="aspect-square overflow-hidden">
+                      {category.image_url ? (
+                        <img src={category.image_url} alt={category.name} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <span className="text-muted-foreground text-lg font-medium">{category.name.charAt(0)}</span>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </Link>
-              </ScrollReveal>)}
+                    {/* Elegant gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-all duration-300" />
+                    {/* Professional text with border accent */}
+                    <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 border-t border-white/20">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm md:text-base font-bold text-white uppercase tracking-widest">
+                          {category.name}
+                        </h3>
+                        <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </ScrollReveal>
+              ))
+            )}
           </div>
         </section>
       </ScrollReveal>
