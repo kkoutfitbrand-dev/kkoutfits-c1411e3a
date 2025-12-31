@@ -11,16 +11,23 @@ import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { NewYearBanner } from "@/components/NewYearBanner";
-import { Link } from "react-router-dom";
+import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
+
+interface Subcategory {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 interface Category {
   id: string;
   name: string;
   slug: string;
   image_url: string | null;
+  subcategories: Subcategory[];
 }
 
 interface Product {
@@ -72,16 +79,36 @@ const Index = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch parent categories
+      const { data: parentCategories, error: parentError } = await supabase
         .from('categories')
         .select('id, name, slug, image_url')
         .eq('is_active', true)
-        .is('parent_id', null) // Only get parent categories
+        .is('parent_id', null)
         .order('display_order', { ascending: true })
         .limit(8);
       
-      if (error) throw error;
-      setCategories(data || []);
+      if (parentError) throw parentError;
+      
+      // Fetch all subcategories
+      const { data: allSubcategories, error: subError } = await supabase
+        .from('categories')
+        .select('id, name, slug, parent_id')
+        .eq('is_active', true)
+        .not('parent_id', 'is', null)
+        .order('display_order', { ascending: true });
+      
+      if (subError) throw subError;
+      
+      // Map subcategories to their parent categories
+      const categoriesWithSubs: Category[] = (parentCategories || []).map(parent => ({
+        ...parent,
+        subcategories: (allSubcategories || [])
+          .filter(sub => sub.parent_id === parent.id)
+          .map(sub => ({ id: sub.id, name: sub.name, slug: sub.slug }))
+      }));
+      
+      setCategories(categoriesWithSubs);
     } catch (error) {
       console.error('Error fetching categories:', error);
     } finally {
@@ -174,32 +201,13 @@ const Index = () => {
             ) : (
               categories.map((category, index) => (
                 <ScrollReveal key={category.id} delay={index * 0.05} direction="up">
-                  <Link to={`/category/${category.slug}`} className="group relative overflow-hidden rounded-xl bg-card shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2">
-                    <div className="aspect-square overflow-hidden">
-                      {category.image_url ? (
-                        <img src={category.image_url} alt={category.name} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110" />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <span className="text-muted-foreground text-lg font-medium">{category.name.charAt(0)}</span>
-                        </div>
-                      )}
-                    </div>
-                    {/* Elegant gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10 transition-all duration-300" />
-                    {/* Professional text with border accent */}
-                    <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 border-t border-white/20">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm md:text-base font-bold text-white uppercase tracking-widest">
-                          {category.name}
-                        </h3>
-                        <span className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-primary transition-colors duration-300">
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </span>
-                      </div>
-                    </div>
-                  </Link>
+                  <CategoryCardWithSubs
+                    id={category.id}
+                    name={category.name}
+                    slug={category.slug}
+                    image_url={category.image_url}
+                    subcategories={category.subcategories}
+                  />
                 </ScrollReveal>
               ))
             )}
