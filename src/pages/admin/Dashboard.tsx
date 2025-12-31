@@ -118,10 +118,14 @@ export default function AdminDashboard() {
         allOrders?.forEach((order) => {
           const items = order.order_items as any[];
           items?.forEach((item: any) => {
-            const current = productSales.get(item.product_id) || { title: item.title, quantity: 0, revenue: 0 };
-            current.quantity += item.quantity;
-            current.revenue += (item.price_cents / 100) * item.quantity;
-            productSales.set(item.product_id, current);
+            const itemId = item.product_id || item.combo_id || item.id;
+            const itemTitle = item.title || item.name || 'Unknown Product';
+            // Handle both price_cents (in paise) and price (in rupees)
+            const priceInRupees = item.price_cents ? item.price_cents / 100 : (item.price || 0);
+            const current = productSales.get(itemId) || { title: itemTitle, quantity: 0, revenue: 0 };
+            current.quantity += item.quantity || 1;
+            current.revenue += priceInRupees * (item.quantity || 1);
+            productSales.set(itemId, current);
           });
         });
 
