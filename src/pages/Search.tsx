@@ -53,15 +53,24 @@ const Search = () => {
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // Sync URL query to state
   useEffect(() => {
     setSearchQuery(query);
-    if (query) {
-      searchProducts(query);
+  }, [query]);
+
+  // Real-time search as user types with debounce
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    if (trimmed) {
+      const timer = setTimeout(() => {
+        searchProducts(trimmed);
+      }, 300); // 300ms debounce
+      return () => clearTimeout(timer);
     } else {
       setResults([]);
       fetchRelatedProducts();
     }
-  }, [query]);
+  }, [searchQuery]);
 
   const searchProducts = async (searchTerm: string) => {
     setLoading(true);
@@ -134,12 +143,6 @@ const Search = () => {
     setSearchQuery(e.target.value);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
@@ -152,18 +155,18 @@ const Search = () => {
             <Input
               value={searchQuery}
               onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
               placeholder="Search for products..."
               className="pl-12 h-14 text-lg"
             />
           </div>
         </form>
 
-        {query && (
+        {/* Show results when user has typed something */}
+        {searchQuery.trim() ? (
           <>
             <div className="mb-8">
               <h1 className="text-2xl md:text-3xl font-serif font-bold mb-2">
-                Search results for "{query}"
+                Search results for "{searchQuery}"
               </h1>
               <p className="text-muted-foreground">
                 {loading ? 'Searching...' : `${results.length} products found`}
@@ -171,13 +174,13 @@ const Search = () => {
             </div>
 
             {loading ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {[...Array(8)].map((_, i) => (
+              <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
+                {[...Array(4)].map((_, i) => (
                   <ProductCardSkeleton key={i} index={i} />
                 ))}
               </div>
             ) : results.length > 0 ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
                 {results.map(product => {
                   const { price, originalPrice } = getDisplayPrice(product);
                   return (
@@ -210,7 +213,7 @@ const Search = () => {
                 <h2 className="text-2xl font-serif font-bold mb-6 text-center">
                   You May Also Like
                 </h2>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
                   {relatedProducts.map(product => {
                     const { price, originalPrice } = getDisplayPrice(product);
                     return (
@@ -230,9 +233,7 @@ const Search = () => {
               </div>
             )}
           </>
-        )}
-
-        {!query && (
+        ) : (
           <div className="text-center py-16">
             <SearchIcon className="w-20 h-20 mx-auto mb-6 text-muted-foreground" />
             <h2 className="text-2xl font-serif font-bold mb-4">Start Searching</h2>
@@ -244,7 +245,7 @@ const Search = () => {
             {relatedProducts.length > 0 && (
               <div className="mt-8">
                 <h3 className="text-xl font-serif font-bold mb-6">Trending Products</h3>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-2xl mx-auto">
                   {relatedProducts.map(product => {
                     const { price, originalPrice } = getDisplayPrice(product);
                     return (
