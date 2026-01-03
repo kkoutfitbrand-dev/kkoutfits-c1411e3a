@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import pongalOffer1 from '@/assets/pongal-offer-1.jpg';
 import pongalOffer2 from '@/assets/pongal-offer-2.jpg';
@@ -29,40 +30,75 @@ const banners = [
 ];
 
 export const PongalOfferBanners = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentBanner = banners[currentIndex];
+
   return (
     <section className="container px-4 py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {banners.map((banner, index) => (
+      <div className="relative overflow-hidden rounded-2xl shadow-lg h-56 sm:h-64 md:h-72">
+        <AnimatePresence mode="wait">
           <motion.div
-            key={banner.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
+            key={currentBanner.id}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            className="absolute inset-0"
           >
-            <Link to={banner.link} className="block group">
-              <div className="relative overflow-hidden rounded-2xl shadow-lg">
-                <img
-                  src={banner.image}
-                  alt={banner.title}
-                  className="w-full h-48 sm:h-56 object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                
-                {/* Text Content */}
-                <div className="absolute bottom-0 left-0 right-0 p-4">
-                  <h3 className="text-white font-bold text-lg sm:text-xl drop-shadow-lg">
-                    {banner.title}
-                  </h3>
-                  <p className="text-amber-300 text-sm font-medium">
-                    {banner.subtitle}
-                  </p>
-                </div>
+            <Link to={currentBanner.link} className="block h-full">
+              <img
+                src={currentBanner.image}
+                alt={currentBanner.title}
+                className="w-full h-full object-cover"
+              />
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              
+              {/* Text Content with different animations */}
+              <div className="absolute bottom-0 left-0 right-0 p-6">
+                <motion.h3
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  className="text-white font-bold text-2xl sm:text-3xl drop-shadow-lg"
+                >
+                  {currentBanner.title}
+                </motion.h3>
+                <motion.p
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.4 }}
+                  className="text-amber-300 text-lg font-semibold mt-1"
+                >
+                  {currentBanner.subtitle}
+                </motion.p>
               </div>
             </Link>
           </motion.div>
-        ))}
+        </AnimatePresence>
+
+        {/* Dots Indicator */}
+        <div className="absolute bottom-3 right-4 flex gap-2 z-10">
+          {banners.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentIndex
+                  ? 'bg-amber-400 w-6'
+                  : 'bg-white/50 hover:bg-white/80'
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
