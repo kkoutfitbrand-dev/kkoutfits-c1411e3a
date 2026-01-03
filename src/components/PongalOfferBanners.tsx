@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import pongalOffer1 from '@/assets/pongal-offer-1.jpg';
 import pongalOffer2 from '@/assets/pongal-offer-2.jpg';
@@ -29,8 +29,91 @@ const banners = [
   },
 ];
 
+// Sparkle particle component
+const Sparkle = ({ delay, duration, size, left, top }: { 
+  delay: number; 
+  duration: number; 
+  size: number; 
+  left: string; 
+  top: string;
+}) => (
+  <motion.div
+    className="absolute pointer-events-none"
+    style={{ left, top }}
+    initial={{ opacity: 0, scale: 0, rotate: 0 }}
+    animate={{
+      opacity: [0, 1, 1, 0],
+      scale: [0, 1, 1, 0],
+      rotate: [0, 180, 360],
+      y: [0, -30, -60],
+    }}
+    transition={{
+      duration,
+      delay,
+      repeat: Infinity,
+      ease: 'easeOut',
+    }}
+  >
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      className="text-amber-300 drop-shadow-[0_0_6px_rgba(251,191,36,0.8)]"
+    >
+      <path
+        d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"
+        fill="currentColor"
+      />
+    </svg>
+  </motion.div>
+);
+
+// Floating confetti particle
+const Confetti = ({ delay, color, left }: { delay: number; color: string; left: string }) => (
+  <motion.div
+    className="absolute w-2 h-3 rounded-sm pointer-events-none"
+    style={{ left, backgroundColor: color, top: '-10px' }}
+    initial={{ opacity: 0, y: -20, rotateZ: 0 }}
+    animate={{
+      opacity: [0, 1, 1, 0],
+      y: ['-20px', '120%'],
+      rotateZ: [0, 360, 720],
+      rotateX: [0, 180, 360],
+    }}
+    transition={{
+      duration: 4,
+      delay,
+      repeat: Infinity,
+      ease: 'linear',
+    }}
+  />
+);
+
 export const PongalOfferBanners = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Generate random sparkle positions
+  const sparkles = useMemo(() => 
+    Array.from({ length: 15 }, (_, i) => ({
+      id: i,
+      delay: Math.random() * 3,
+      duration: 2 + Math.random() * 2,
+      size: 12 + Math.random() * 16,
+      left: `${5 + Math.random() * 90}%`,
+      top: `${10 + Math.random() * 70}%`,
+    })), []
+  );
+
+  // Generate confetti particles
+  const confettiPieces = useMemo(() => 
+    Array.from({ length: 20 }, (_, i) => ({
+      id: i,
+      delay: Math.random() * 5,
+      color: ['#FCD34D', '#FB923C', '#F87171', '#A78BFA', '#34D399'][Math.floor(Math.random() * 5)],
+      left: `${Math.random() * 100}%`,
+    })), []
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,6 +127,16 @@ export const PongalOfferBanners = () => {
   return (
     <section className="container px-4 py-8">
       <div className="relative overflow-hidden rounded-2xl shadow-lg h-56 sm:h-64 md:h-72">
+        {/* Floating Sparkles */}
+        {sparkles.map((sparkle) => (
+          <Sparkle key={sparkle.id} {...sparkle} />
+        ))}
+
+        {/* Falling Confetti */}
+        {confettiPieces.map((piece) => (
+          <Confetti key={piece.id} {...piece} />
+        ))}
+
         <AnimatePresence mode="wait">
           <motion.div
             key={currentBanner.id}

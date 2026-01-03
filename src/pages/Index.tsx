@@ -178,6 +178,11 @@ const Index = () => {
 
       {/* Brand Showcase - Empty for now */}
 
+      {/* Another Pongal Offer Banners before Trending */}
+      <ScrollReveal delay={0.1}>
+        <PongalOfferBanners />
+      </ScrollReveal>
+
       {/* Trending Products */}
       <ScrollReveal delay={0.1}>
         <TrendingProducts />
