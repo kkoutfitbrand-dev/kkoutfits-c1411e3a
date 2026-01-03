@@ -111,7 +111,7 @@ export const PongalBanner = () => {
             delay: 0.2
           }} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4">
               <span className="bg-gradient-to-r from-amber-200 via-yellow-300 to-amber-400 bg-clip-text text-transparent drop-shadow-lg">
-                Happy Pongal
+                Pongal Season Started
               </span>
             </motion.h1>
 
