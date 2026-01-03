@@ -47,39 +47,57 @@ export const PongalOfferBanners = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={currentBanner.id}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            initial={{ opacity: 0, scale: 1.2, filter: 'blur(10px)' }}
+            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, scale: 0.8, filter: 'blur(10px)', rotate: -3 }}
+            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
             className="absolute inset-0"
           >
             <Link to={currentBanner.link} className="block h-full">
-              <img
+              <motion.img
                 src={currentBanner.image}
                 alt={currentBanner.title}
                 className="w-full h-full object-cover"
+                initial={{ scale: 1 }}
+                animate={{ scale: 1.05 }}
+                transition={{ duration: 3, ease: 'linear' }}
               />
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               
-              {/* Text Content with different animations */}
-              <div className="absolute bottom-0 left-0 right-0 p-6">
+              {/* Text Content with creative animations */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 overflow-hidden">
                 <motion.h3
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
+                  initial={{ opacity: 0, x: -50, rotateY: 90 }}
+                  animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                  transition={{ 
+                    duration: 0.6, 
+                    delay: 0.3,
+                    type: 'spring',
+                    stiffness: 100
+                  }}
                   className="text-white font-bold text-2xl sm:text-3xl drop-shadow-lg"
                 >
                   {currentBanner.title}
                 </motion.h3>
                 <motion.p
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.4 }}
+                  initial={{ opacity: 0, y: 20, letterSpacing: '0.5em' }}
+                  animate={{ opacity: 1, y: 0, letterSpacing: '0.05em' }}
+                  transition={{ 
+                    duration: 0.5, 
+                    delay: 0.5,
+                    ease: 'easeOut'
+                  }}
                   className="text-amber-300 text-lg font-semibold mt-1"
                 >
                   {currentBanner.subtitle}
                 </motion.p>
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
+                  className="h-0.5 w-24 bg-gradient-to-r from-amber-400 to-orange-500 mt-3 origin-left"
+                />
               </div>
             </Link>
           </motion.div>
