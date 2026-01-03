@@ -6,6 +6,7 @@ import { TrendingProducts } from "@/components/TrendingProducts";
 import { OccasionShopping } from "@/components/OccasionShopping";
 import { BrandShowcase } from "@/components/BrandShowcase";
 import { ComboBanner } from "@/components/ComboBanner";
+import { PongalOfferBanners } from "@/components/PongalOfferBanners";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
@@ -148,6 +149,11 @@ const Index = () => {
       {/* Combo Offer Banner */}
       <ScrollReveal delay={0.1}>
         <ComboBanner />
+      </ScrollReveal>
+
+      {/* Pongal Offer Banners */}
+      <ScrollReveal delay={0.1}>
+        <PongalOfferBanners />
       </ScrollReveal>
 
       {/* Deals of the Day */}
