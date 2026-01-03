@@ -13,6 +13,35 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('Missing authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', verified: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate JWT and get user
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      console.error('Authentication failed:', authError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized', verified: false }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Authenticated user:', user.id);
+
     const { 
       razorpay_order_id, 
       razorpay_payment_id, 
@@ -21,7 +50,7 @@ serve(async (req) => {
       order_data
     } = await req.json();
 
-    console.log('Verifying Razorpay payment:', { razorpay_order_id, razorpay_payment_id });
+    console.log('Verifying Razorpay payment:', { razorpay_order_id, razorpay_payment_id, userId: user.id });
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       console.error('Missing payment details');
@@ -72,16 +101,25 @@ serve(async (req) => {
     }
 
     // Create order in database only after successful payment verification
+    // Use the authenticated user's ID, NOT the client-supplied user_id
     let orderId = null;
     if (order_data) {
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      // Validate that the order belongs to the authenticated user
+      if (order_data.user_id && order_data.user_id !== user.id) {
+        console.error('User ID mismatch:', { orderUserId: order_data.user_id, authUserId: user.id });
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized: user mismatch', verified: false }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
 
-      const { data: orderResult, error: insertError } = await supabase
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+      const { data: orderResult, error: insertError } = await supabaseAdmin
         .from('orders')
         .insert([{
-          user_id: order_data.user_id,
+          user_id: user.id, // Always use authenticated user's ID
           order_items: order_data.order_items,
           total_cents: order_data.total_cents,
           shipping_address: order_data.shipping_address,
@@ -105,11 +143,11 @@ serve(async (req) => {
       orderId = orderResult.id;
       console.log('Order created successfully:', orderId);
 
-      // Clear user's cart
-      const { error: cartError } = await supabase
+      // Clear user's cart using authenticated user's ID
+      const { error: cartError } = await supabaseAdmin
         .from('carts')
         .update({ items: [] })
-        .eq('user_id', order_data.user_id);
+        .eq('user_id', user.id);
 
       if (cartError) {
         console.error('Error clearing cart:', cartError);
