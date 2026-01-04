@@ -137,13 +137,13 @@ export const PongalOfferBanners = () => {
           <Confetti key={piece.id} {...piece} />
         ))}
 
-        <AnimatePresence mode="wait">
+        <AnimatePresence initial={false}>
           <motion.div
             key={currentBanner.id}
-            initial={{ opacity: 0, scale: 1.2, filter: 'blur(10px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            exit={{ opacity: 0, scale: 0.8, filter: 'blur(10px)', rotate: -3 }}
-            transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
             className="absolute inset-0"
           >
             <Link to={currentBanner.link} className="block h-full">
@@ -151,9 +151,9 @@ export const PongalOfferBanners = () => {
                 src={currentBanner.image}
                 alt={currentBanner.title}
                 className="w-full h-full object-cover"
-                initial={{ scale: 1 }}
-                animate={{ scale: 1.05 }}
-                transition={{ duration: 3, ease: 'linear' }}
+                initial={{ scale: 1.1 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
               />
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
