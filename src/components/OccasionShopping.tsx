@@ -12,25 +12,25 @@ const occasionMeta = {
     title: "Wedding Collection",
     subtitle: "Royal sherwanis for your special day",
     fallbackImage: heroSherwani,
-    link: "/category/sherwanis",
+    link: "/occasion/wedding",
   },
   festival: {
     title: "Festival Wear",
     subtitle: "Traditional kurtas for celebrations",
     fallbackImage: heroKurta,
-    link: "/category/kurtas",
+    link: "/occasion/festival",
   },
   party: {
     title: "Party Essentials",
     subtitle: "Elegant bandhgalas for parties",
     fallbackImage: heroBandhgala,
-    link: "/category/bandhgalas",
+    link: "/occasion/party",
   },
   casual: {
     title: "Casual Collection",
     subtitle: "Comfortable daily wear",
     fallbackImage: heroSaree,
-    link: "/category/indo-western",
+    link: "/occasion/casual",
   },
 };
 
