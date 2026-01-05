@@ -54,6 +54,7 @@ import ComboDetail from "./pages/ComboDetail";
 import AdminCombos from "./pages/admin/Combos";
 import AdminCoupons from "./pages/admin/Coupons";
 import OccasionPage from "./pages/OccasionPage";
+import FloatingWhatsApp from "./components/FloatingWhatsApp";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -128,6 +129,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <AnimatedRoutes />
+          <FloatingWhatsApp />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
