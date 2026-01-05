@@ -10,7 +10,6 @@ import { PongalOfferBanners } from "@/components/PongalOfferBanners";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
-import { InstagramReels } from "@/components/InstagramReels";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { PongalBanner } from "@/components/PongalBanner";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
@@ -230,11 +229,6 @@ const Index = () => {
       {/* Occasion Shopping */}
       <ScrollReveal delay={0.1} direction="right">
         <OccasionShopping />
-      </ScrollReveal>
-
-      {/* Instagram Reels */}
-      <ScrollReveal delay={0.1}>
-        <InstagramReels />
       </ScrollReveal>
 
       {/* Google Reviews */}
