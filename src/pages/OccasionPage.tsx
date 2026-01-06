@@ -142,12 +142,7 @@ const OccasionPage = () => {
         </div>
 
         {/* Controls */}
-        <div className="flex items-center justify-between mb-6">
-          <p className="text-sm text-muted-foreground">
-            {loading ? "Loading..." : `${products.length} products`}
-          </p>
-          
-        </div>
+        
 
         {/* Products Grid */}
         {loading ? <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1"}`}>
