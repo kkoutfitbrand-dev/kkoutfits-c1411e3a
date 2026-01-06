@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
+import { Instagram } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -123,18 +123,15 @@ export const Footer = () => {
         {/* Social & Copyright */}
         <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="hover:text-accent">
-              <Facebook className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="hover:text-accent">
-              <Instagram className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="hover:text-accent">
-              <Twitter className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon" className="hover:text-accent">
-              <Youtube className="h-5 w-5" />
-            </Button>
+            <a 
+              href="https://www.instagram.com/kk_out_fits?igsh=aWt6cGo1b2lxaGN1" 
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <Button variant="ghost" size="icon" className="hover:text-accent">
+                <Instagram className="h-5 w-5" />
+              </Button>
+            </a>
           </div>
           <p className="text-sm text-muted-foreground">© 2025 KKOUTFITS. All rights reserved.</p>
         </div>
