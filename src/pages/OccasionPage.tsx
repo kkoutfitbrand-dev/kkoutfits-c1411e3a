@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Grid3X3, List, SlidersHorizontal, Sparkles } from "lucide-react";
 import { Json } from "@/integrations/supabase/types";
-
 interface Product {
   id: string;
   title: string;
@@ -19,37 +18,38 @@ interface Product {
   variants: Json;
   description: string | null;
 }
-
-const occasionMeta: Record<string, { title: string; subtitle: string; keywords: string[] }> = {
+const occasionMeta: Record<string, {
+  title: string;
+  subtitle: string;
+  keywords: string[];
+}> = {
   wedding: {
     title: "Wedding Collection",
     subtitle: "Royal attire for your special day",
-    keywords: ["wedding", "bridal", "sherwani", "lehenga", "reception", "marriage", "ceremony", "groom", "bride", "sangeet", "mehendi"],
+    keywords: ["wedding", "bridal", "sherwani", "lehenga", "reception", "marriage", "ceremony", "groom", "bride", "sangeet", "mehendi"]
   },
   festival: {
     title: "Festival Wear",
     subtitle: "Traditional outfits for celebrations",
-    keywords: ["festival", "diwali", "holi", "pongal", "onam", "eid", "navratri", "durga", "puja", "traditional", "ethnic", "kurta", "saree"],
+    keywords: ["festival", "diwali", "holi", "pongal", "onam", "eid", "navratri", "durga", "puja", "traditional", "ethnic", "kurta", "saree"]
   },
   party: {
     title: "Party Essentials",
     subtitle: "Elegant styles for every occasion",
-    keywords: ["party", "cocktail", "evening", "bandhgala", "formal", "elegant", "dinner", "reception", "celebration", "club", "night"],
+    keywords: ["party", "cocktail", "evening", "bandhgala", "formal", "elegant", "dinner", "reception", "celebration", "club", "night"]
   },
   casual: {
     title: "Casual Collection",
     subtitle: "Comfortable everyday wear",
-    keywords: ["casual", "daily", "comfortable", "everyday", "relaxed", "simple", "indo-western", "fusion", "office", "work", "cotton"],
-  },
+    keywords: ["casual", "daily", "comfortable", "everyday", "relaxed", "simple", "indo-western", "fusion", "office", "work", "cotton"]
+  }
 };
-
 const getFirstImage = (images: Json): string => {
   if (Array.isArray(images) && images.length > 0) {
     return images[0] as string;
   }
   return "/placeholder.svg";
 };
-
 const getSalePrice = (variants: Json): number | null => {
   if (Array.isArray(variants)) {
     for (const variant of variants) {
@@ -60,52 +60,52 @@ const getSalePrice = (variants: Json): number | null => {
   }
   return null;
 };
-
-const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
+const getDisplayPrice = (product: Product): {
+  price: number;
+  originalPrice?: number;
+} => {
   const salePrice = getSalePrice(product.variants);
   if (salePrice) {
     // salePrice is already in rupees, price_cents needs conversion
-    return { price: salePrice, originalPrice: product.price_cents / 100 };
+    return {
+      price: salePrice,
+      originalPrice: product.price_cents / 100
+    };
   }
   // Convert cents to rupees
-  return { price: product.price_cents / 100 };
+  return {
+    price: product.price_cents / 100
+  };
 };
-
 const classifyProduct = (product: Product, occasionKey: string): boolean => {
   const meta = occasionMeta[occasionKey];
   if (!meta) return false;
-
   const searchText = `${product.title} ${product.category || ''} ${product.description || ''}`.toLowerCase();
-  
   return meta.keywords.some(keyword => searchText.includes(keyword.toLowerCase()));
 };
-
 const OccasionPage = () => {
-  const { occasion } = useParams<{ occasion: string }>();
+  const {
+    occasion
+  } = useParams<{
+    occasion: string;
+  }>();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
   const meta = occasion ? occasionMeta[occasion] : null;
-
   useEffect(() => {
     const fetchProducts = async () => {
       if (!occasion || !meta) return;
-      
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from("products")
-          .select("id, title, price_cents, images, slug, category, variants, description")
-          .eq("status", "published");
-
+        const {
+          data,
+          error
+        } = await supabase.from("products").select("id, title, price_cents, images, slug, category, variants, description").eq("status", "published");
         if (error) throw error;
 
         // Filter products based on occasion keywords
-        const filteredProducts = (data || []).filter(product => 
-          classifyProduct(product as Product, occasion)
-        );
-
+        const filteredProducts = (data || []).filter(product => classifyProduct(product as Product, occasion));
         setProducts(filteredProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -113,13 +113,10 @@ const OccasionPage = () => {
         setLoading(false);
       }
     };
-
     fetchProducts();
   }, [occasion, meta]);
-
   if (!meta) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Occasion not found</h1>
@@ -128,12 +125,9 @@ const OccasionPage = () => {
           </Link>
         </div>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Navigation />
       
       <div className="container px-4 py-8">
@@ -152,62 +146,31 @@ const OccasionPage = () => {
           <p className="text-sm text-muted-foreground">
             {loading ? "Loading..." : `${products.length} products`}
           </p>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
-              size="icon"
-              onClick={() => setViewMode("grid")}
-            >
-              <Grid3X3 className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "outline"}
-              size="icon"
-              onClick={() => setViewMode("list")}
-            >
-              <List className="w-4 h-4" />
-            </Button>
-          </div>
+          
         </div>
 
         {/* Products Grid */}
-        {loading ? (
-          <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1"}`}>
-            {Array.from({ length: 8 }).map((_, i) => (
-              <ProductCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : products.length > 0 ? (
-          <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1"}`}>
-            {products.map((product) => {
-              const { price, originalPrice } = getDisplayPrice(product);
-              return (
-                <ProductCard
-                  key={product.id}
-                  id={product.slug}
-                  name={product.title}
-                  price={price}
-                  originalPrice={originalPrice}
-                  image={getFirstImage(product.images)}
-                  productId={product.id}
-                  category={product.category || undefined}
-                />
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-16">
+        {loading ? <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1"}`}>
+            {Array.from({
+          length: 8
+        }).map((_, i) => <ProductCardSkeleton key={i} />)}
+          </div> : products.length > 0 ? <div className={`grid gap-4 ${viewMode === "grid" ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4" : "grid-cols-1"}`}>
+            {products.map(product => {
+          const {
+            price,
+            originalPrice
+          } = getDisplayPrice(product);
+          return <ProductCard key={product.id} id={product.slug} name={product.title} price={price} originalPrice={originalPrice} image={getFirstImage(product.images)} productId={product.id} category={product.category || undefined} />;
+        })}
+          </div> : <div className="text-center py-16">
             <p className="text-muted-foreground mb-4">No products found for this occasion.</p>
             <Link to="/shop">
               <Button>Browse All Products</Button>
             </Link>
-          </div>
-        )}
+          </div>}
       </div>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default OccasionPage;
