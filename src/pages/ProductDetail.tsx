@@ -215,7 +215,8 @@ const ProductDetail = () => {
 
   const salePrice = getSalePrice();
   const mrp = product.price_cents / 100; // MRP stored in products.price_cents
-  const displayPrice = salePrice && salePrice < product.price_cents ? salePrice / 100 : mrp;
+  // Always show selling price if available, otherwise show MRP
+  const displayPrice = salePrice ? salePrice / 100 : mrp;
   const productImages = product.images.length > 0 ? product.images : [product1];
 
   // Calculate discount percentage
