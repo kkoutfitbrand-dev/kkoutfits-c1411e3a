@@ -64,9 +64,11 @@ const getSalePrice = (variants: Json): number | null => {
 const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
   const salePrice = getSalePrice(product.variants);
   if (salePrice) {
-    return { price: salePrice, originalPrice: product.price_cents };
+    // salePrice is already in rupees, price_cents needs conversion
+    return { price: salePrice, originalPrice: product.price_cents / 100 };
   }
-  return { price: product.price_cents };
+  // Convert cents to rupees
+  return { price: product.price_cents / 100 };
 };
 
 const classifyProduct = (product: Product, occasionKey: string): boolean => {
