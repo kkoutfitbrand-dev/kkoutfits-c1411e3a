@@ -53,8 +53,8 @@ const getFirstImage = (images: Json): string => {
 const getSalePrice = (variants: Json): number | null => {
   if (Array.isArray(variants)) {
     for (const variant of variants) {
-      if (typeof variant === 'object' && variant !== null && 'salePrice' in variant) {
-        return variant.salePrice as number;
+      if (typeof variant === 'object' && variant !== null && 'sale_price_cents' in variant && variant.sale_price_cents) {
+        return (variant.sale_price_cents as number) / 100;
       }
     }
   }
