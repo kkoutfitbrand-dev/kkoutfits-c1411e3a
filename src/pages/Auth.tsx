@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import EmailConfirmationModal from '@/components/EmailConfirmationModal';
 
 const signUpSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
@@ -37,6 +38,8 @@ const Auth = () => {
   const { signUp, signIn, user } = useAuth();
   const [isSignUpLoading, setIsSignUpLoading] = useState(false);
   const [isSignInLoading, setIsSignInLoading] = useState(false);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [signUpEmail, setSignUpEmail] = useState('');
 
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -82,11 +85,8 @@ const Auth = () => {
         });
       }
     } else {
-      toast({
-        title: "Welcome to KK OUTFIT!",
-        description: "Your account has been created successfully."
-      });
-      navigate('/');
+      setSignUpEmail(data.email);
+      setShowConfirmationModal(true);
     }
   };
 
@@ -261,6 +261,12 @@ const Auth = () => {
       </div>
 
       <Footer />
+
+      <EmailConfirmationModal
+        isOpen={showConfirmationModal}
+        onClose={() => setShowConfirmationModal(false)}
+        email={signUpEmail}
+      />
     </div>
   );
 };
