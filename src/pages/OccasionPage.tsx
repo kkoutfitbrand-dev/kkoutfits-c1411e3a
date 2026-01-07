@@ -57,6 +57,8 @@ const getSalePrice = (variants: Json): number | null => {
         return (variant.sale_price_cents as number) / 100;
       }
     }
+  } else if (typeof variants === 'object' && variants !== null && 'sale_price_cents' in variants && variants.sale_price_cents) {
+    return (variants.sale_price_cents as number) / 100;
   }
   return null;
 };
