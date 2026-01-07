@@ -130,16 +130,16 @@ export const ProductCard = ({
               </div> : <div className="flex items-center gap-1 mb-2">
                 <span className="text-xs text-muted-foreground">No reviews yet</span>
               </div>}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {originalPrice ? (
                 <>
-                  <span className="text-xs text-muted-foreground line-through">
+                  <span className="text-sm text-muted-foreground line-through">
                     ₹{originalPrice.toLocaleString("en-IN")}
                   </span>
                   <span className="text-sm font-bold text-foreground">
                     ₹{price.toLocaleString("en-IN")}
                   </span>
-                  <span className="text-xs text-myntra-orange font-semibold">
+                  <span className="text-sm text-myntra-orange font-semibold">
                     ({discount}% OFF)
                   </span>
                 </>
