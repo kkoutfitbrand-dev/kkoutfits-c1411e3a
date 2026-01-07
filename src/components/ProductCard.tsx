@@ -131,17 +131,23 @@ export const ProductCard = ({
                 <span className="text-xs text-muted-foreground">No reviews yet</span>
               </div>}
             <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-foreground">
-                ₹{price.toLocaleString("en-IN")}
-              </span>
-              {originalPrice && <>
+              {originalPrice ? (
+                <>
                   <span className="text-xs text-muted-foreground line-through">
                     ₹{originalPrice.toLocaleString("en-IN")}
+                  </span>
+                  <span className="text-sm font-bold text-foreground">
+                    ₹{price.toLocaleString("en-IN")}
                   </span>
                   <span className="text-xs text-myntra-orange font-semibold">
                     ({discount}% OFF)
                   </span>
-                </>}
+                </>
+              ) : (
+                <span className="text-sm font-bold text-foreground">
+                  ₹{price.toLocaleString("en-IN")}
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
