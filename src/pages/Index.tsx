@@ -158,7 +158,7 @@ const Index = () => {
 
       {/* Deals of the Day */}
       <ScrollReveal delay={0.1}>
-        <section className="container px-4 py-6">
+        <section className="container px-4 py-8">
           <h2 className="text-xl md:text-2xl font-bold mb-4 font-sans uppercase">
             Deals of the Day
           </h2>
@@ -168,7 +168,9 @@ const Index = () => {
               price,
               originalPrice
             } = getDisplayPrice(product);
-            return <ProductCard key={product.id} id={product.slug} productId={product.id} name={product.title} price={price} originalPrice={originalPrice} image={getFirstImage(product.images)} category={product.category} />;
+            return <ScrollReveal key={product.id} delay={index * 0.05} direction="up">
+                    <ProductCard id={product.slug} productId={product.id} name={product.title} price={price} originalPrice={originalPrice} image={getFirstImage(product.images)} category={product.category} />
+                  </ScrollReveal>;
           })}
             </div>}
         </section>
@@ -188,32 +190,36 @@ const Index = () => {
 
       {/* Categories Section */}
       <ScrollReveal delay={0.1}>
-        <section className="container px-4 py-6 md:py-8">
-          <div className="text-center mb-6">
-            <h2 className="text-2xl md:text-3xl font-bold mb-2 font-sans text-foreground tracking-tight">
-              Shop by Category
-            </h2>
-            <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
-              Discover our curated collection across various styles and occasions
-            </p>
+        <section className="container px-4 py-8 md:py-12">
+          <div className="text-center mb-8">
+            <ScrollReveal delay={0.05}>
+              <h2 className="text-2xl md:text-3xl font-bold mb-2 font-sans text-foreground tracking-tight">
+                Shop by Category
+              </h2>
+              <p className="text-muted-foreground text-sm md:text-base max-w-2xl mx-auto">
+                Discover our curated collection across various styles and occasions
+              </p>
+            </ScrollReveal>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
             {categoriesLoading ? (
+              // Loading skeleton for categories
               Array.from({ length: 8 }).map((_, index) => (
                 <div key={index} className="aspect-square rounded-xl bg-muted animate-pulse" />
               ))
             ) : categories.length === 0 ? (
               <p className="col-span-full text-center text-muted-foreground">No categories available</p>
             ) : (
-              categories.map((category) => (
-                <CategoryCardWithSubs
-                  key={category.id}
-                  id={category.id}
-                  name={category.name}
-                  slug={category.slug}
-                  image_url={category.image_url}
-                  subcategories={category.subcategories}
-                />
+              categories.map((category, index) => (
+                <ScrollReveal key={category.id} delay={index * 0.05} direction="up">
+                  <CategoryCardWithSubs
+                    id={category.id}
+                    name={category.name}
+                    slug={category.slug}
+                    image_url={category.image_url}
+                    subcategories={category.subcategories}
+                  />
+                </ScrollReveal>
               ))
             )}
           </div>
@@ -232,7 +238,7 @@ const Index = () => {
 
       {/* USP Section */}
       <ScrollReveal delay={0.1}>
-        <section className="bg-muted py-6">
+        <section className="bg-muted py-8">
           <div className="container px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[{
@@ -251,15 +257,17 @@ const Index = () => {
               icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z",
               title: "Secure Payment",
               desc: "Multiple options"
-            }].map((item) => <div key={item.title} className="text-center">
-                  <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-accent/10 flex items-center justify-center">
-                    <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
-                    </svg>
+            }].map((item, index) => <ScrollReveal key={item.title} delay={index * 0.1} direction="up">
+                  <div className="text-center">
+                    <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-accent/10 flex items-center justify-center">
+                      <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={item.icon} />
+                      </svg>
+                    </div>
+                    <h3 className="font-bold text-sm mb-1 font-sans">{item.title}</h3>
+                    <p className="text-xs text-muted-foreground">{item.desc}</p>
                   </div>
-                  <h3 className="font-bold text-sm mb-1 font-sans">{item.title}</h3>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
-                </div>)}
+                </ScrollReveal>)}
             </div>
           </div>
         </section>
