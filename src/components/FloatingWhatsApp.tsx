@@ -88,34 +88,25 @@ const FloatingWhatsApp = () => {
         )}
       </AnimatePresence>
 
-      {/* Floating WhatsApp Button with Pulse Animation */}
+      {/* Floating WhatsApp Button with Wave Animation */}
       <div className="fixed bottom-6 right-6 z-50">
-        {/* Pulsing rings */}
-        <motion.div
-          className="absolute inset-0 rounded-full bg-[#25D366]"
-          animate={{
-            scale: [1, 1.4, 1.4],
-            opacity: [0.4, 0, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeOut",
-          }}
-        />
-        <motion.div
-          className="absolute inset-0 rounded-full bg-[#25D366]"
-          animate={{
-            scale: [1, 1.3, 1.3],
-            opacity: [0.3, 0, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeOut",
-            delay: 0.3,
-          }}
-        />
+        {/* Wave effect rings */}
+        {[0, 1, 2].map((index) => (
+          <motion.div
+            key={index}
+            className="absolute inset-0 rounded-full border-2 border-[#25D366]"
+            animate={{
+              scale: [1, 1.8],
+              opacity: [0.6, 0],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: "easeOut",
+              delay: index * 0.5,
+            }}
+          />
+        ))}
 
         {/* Notification Badge */}
         <motion.div
