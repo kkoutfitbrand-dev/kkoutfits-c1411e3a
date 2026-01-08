@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { EmailVerificationSteps } from '@/components/EmailVerificationSteps';
 import { Loader2 } from 'lucide-react';
 
 const signUpSchema = z.object({
@@ -37,6 +38,8 @@ const Auth = () => {
   const { signUp, signIn, user } = useAuth();
   const [isSignUpLoading, setIsSignUpLoading] = useState(false);
   const [isSignInLoading, setIsSignInLoading] = useState(false);
+  const [showVerificationSteps, setShowVerificationSteps] = useState(false);
+  const [signUpEmail, setSignUpEmail] = useState('');
 
   const signUpForm = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
@@ -82,11 +85,12 @@ const Auth = () => {
         });
       }
     } else {
+      setSignUpEmail(data.email);
+      setShowVerificationSteps(true);
       toast({
-        title: "Welcome to KK OUTFIT!",
-        description: "Your account has been created successfully."
+        title: "Account Created!",
+        description: "Please check your email to verify your account."
       });
-      navigate('/');
     }
   };
 
@@ -261,6 +265,12 @@ const Auth = () => {
       </div>
 
       <Footer />
+
+      <EmailVerificationSteps
+        isOpen={showVerificationSteps}
+        onClose={() => setShowVerificationSteps(false)}
+        email={signUpEmail}
+      />
     </div>
   );
 };
