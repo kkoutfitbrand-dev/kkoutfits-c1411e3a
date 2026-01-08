@@ -1,17 +1,24 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MessageCircle, Users } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 const FloatingWhatsApp = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const location = useLocation();
+
+  // Only show on home page
+  const isHomePage = location.pathname === "/";
 
   const channelUrl = "https://whatsapp.com/channel/0029VbBp02p1XquWF4WonW1P";
   const chatUrl = "https://wa.me/916384209409";
 
-  // Show welcome message after 5 seconds
+  // Show welcome message after 5 seconds (only on home page)
   useEffect(() => {
+    if (!isHomePage) return;
+    
     const timer = setTimeout(() => {
       if (!hasInteracted) {
         setShowWelcome(true);
@@ -19,7 +26,7 @@ const FloatingWhatsApp = () => {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [hasInteracted]);
+  }, [hasInteracted, isHomePage]);
 
   const handleButtonClick = () => {
     setIsOpen(true);
@@ -31,6 +38,9 @@ const FloatingWhatsApp = () => {
     setShowWelcome(false);
     setHasInteracted(true);
   };
+
+  // Don't render anything if not on home page
+  if (!isHomePage) return null;
 
   return (
     <>
@@ -88,25 +98,21 @@ const FloatingWhatsApp = () => {
         )}
       </AnimatePresence>
 
-      {/* Floating WhatsApp Button with Wave Animation */}
+      {/* Floating WhatsApp Button with Breathing Glow Animation */}
       <div className="fixed bottom-6 right-6 z-50">
-        {/* Wave effect rings */}
-        {[0, 1, 2].map((index) => (
-          <motion.div
-            key={index}
-            className="absolute inset-0 rounded-full border-2 border-[#25D366]"
-            animate={{
-              scale: [1, 1.8],
-              opacity: [0.6, 0],
-            }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeOut",
-              delay: index * 0.5,
-            }}
-          />
-        ))}
+        {/* Breathing glow effect */}
+        <motion.div
+          className="absolute inset-0 rounded-full bg-[#25D366] blur-md"
+          animate={{
+            scale: [1, 1.3, 1],
+            opacity: [0.5, 0.8, 0.5],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
 
         {/* Notification Badge */}
         <motion.div
