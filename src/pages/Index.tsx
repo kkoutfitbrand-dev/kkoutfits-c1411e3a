@@ -11,18 +11,16 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
-import { RepublicDayBanner } from "@/components/RepublicDayBanner";
+import { PongalBanner } from "@/components/PongalBanner";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
-
 interface Subcategory {
   id: string;
   name: string;
   slug: string;
 }
-
 interface Category {
   id: string;
   name: string;
@@ -30,7 +28,6 @@ interface Category {
   image_url: string | null;
   subcategories: Subcategory[];
 }
-
 interface Product {
   id: string;
   title: string;
@@ -40,22 +37,24 @@ interface Product {
   category: string | null;
   variants: Json;
 }
-
 const getFirstImage = (images: Json): string => {
   if (Array.isArray(images) && images.length > 0) {
     return images[0] as string;
   }
   return '/placeholder.svg';
 };
-
 const getSalePrice = (variants: Json): number | null => {
   if (variants && typeof variants === 'object' && 'sale_price_cents' in variants) {
-    return (variants as { sale_price_cents?: number }).sale_price_cents || null;
+    return (variants as {
+      sale_price_cents?: number;
+    }).sale_price_cents || null;
   }
   return null;
 };
-
-const getDisplayPrice = (product: Product): { price: number; originalPrice?: number } => {
+const getDisplayPrice = (product: Product): {
+  price: number;
+  originalPrice?: number;
+} => {
   const salePrice = getSalePrice(product.variants);
   if (salePrice && salePrice < product.price_cents) {
     return {
@@ -72,43 +71,39 @@ const Index = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-
   useEffect(() => {
     fetchProducts();
     fetchCategories();
   }, []);
-
   const fetchCategories = async () => {
     try {
       // Fetch parent categories
-      const { data: parentCategories, error: parentError } = await supabase
-        .from('categories')
-        .select('id, name, slug, image_url')
-        .eq('is_active', true)
-        .is('parent_id', null)
-        .order('display_order', { ascending: true })
-        .limit(8);
-      
+      const {
+        data: parentCategories,
+        error: parentError
+      } = await supabase.from('categories').select('id, name, slug, image_url').eq('is_active', true).is('parent_id', null).order('display_order', {
+        ascending: true
+      }).limit(8);
       if (parentError) throw parentError;
-      
+
       // Fetch all subcategories
-      const { data: allSubcategories, error: subError } = await supabase
-        .from('categories')
-        .select('id, name, slug, parent_id')
-        .eq('is_active', true)
-        .not('parent_id', 'is', null)
-        .order('display_order', { ascending: true });
-      
+      const {
+        data: allSubcategories,
+        error: subError
+      } = await supabase.from('categories').select('id, name, slug, parent_id').eq('is_active', true).not('parent_id', 'is', null).order('display_order', {
+        ascending: true
+      });
       if (subError) throw subError;
-      
+
       // Map subcategories to their parent categories
       const categoriesWithSubs: Category[] = (parentCategories || []).map(parent => ({
         ...parent,
-        subcategories: (allSubcategories || [])
-          .filter(sub => sub.parent_id === parent.id)
-          .map(sub => ({ id: sub.id, name: sub.name, slug: sub.slug }))
+        subcategories: (allSubcategories || []).filter(sub => sub.parent_id === parent.id).map(sub => ({
+          id: sub.id,
+          name: sub.name,
+          slug: sub.slug
+        }))
       }));
-      
       setCategories(categoriesWithSubs);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -116,15 +111,14 @@ const Index = () => {
       setCategoriesLoading(false);
     }
   };
-
   const fetchProducts = async () => {
     try {
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, title, price_cents, images, slug, category, variants')
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
-        .limit(6);
+      const {
+        data,
+        error
+      } = await supabase.from('products').select('id, title, price_cents, images, slug, category, variants').eq('status', 'published').order('created_at', {
+        ascending: false
+      }).limit(6);
       if (error) throw error;
       setFeaturedProducts(data || []);
     } catch (error) {
@@ -141,9 +135,9 @@ const Index = () => {
         <HeroCarousel />
       </ScrollReveal>
 
-      {/* Republic Day Banner */}
+      {/* Pongal Festival Banner */}
       <ScrollReveal delay={0.1}>
-        <RepublicDayBanner />
+        <PongalBanner />
       </ScrollReveal>
 
       {/* Combo Offer Banner */}
@@ -153,7 +147,7 @@ const Index = () => {
 
       {/* Pongal Offer Banners */}
       <ScrollReveal delay={0.1}>
-        <PongalOfferBanners />
+        
       </ScrollReveal>
 
       {/* Deals of the Day */}
@@ -180,7 +174,7 @@ const Index = () => {
 
       {/* Another Pongal Offer Banners before Trending */}
       <ScrollReveal delay={0.1}>
-        <PongalOfferBanners />
+        
       </ScrollReveal>
 
       {/* Trending Products */}
@@ -202,26 +196,13 @@ const Index = () => {
             </ScrollReveal>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-            {categoriesLoading ? (
-              // Loading skeleton for categories
-              Array.from({ length: 8 }).map((_, index) => (
-                <div key={index} className="aspect-square rounded-xl bg-muted animate-pulse" />
-              ))
-            ) : categories.length === 0 ? (
-              <p className="col-span-full text-center text-muted-foreground">No categories available</p>
-            ) : (
-              categories.map((category, index) => (
-                <ScrollReveal key={category.id} delay={index * 0.05} direction="up">
-                  <CategoryCardWithSubs
-                    id={category.id}
-                    name={category.name}
-                    slug={category.slug}
-                    image_url={category.image_url}
-                    subcategories={category.subcategories}
-                  />
-                </ScrollReveal>
-              ))
-            )}
+            {categoriesLoading ?
+          // Loading skeleton for categories
+          Array.from({
+            length: 8
+          }).map((_, index) => <div key={index} className="aspect-square rounded-xl bg-muted animate-pulse" />) : categories.length === 0 ? <p className="col-span-full text-center text-muted-foreground">No categories available</p> : categories.map((category, index) => <ScrollReveal key={category.id} delay={index * 0.05} direction="up">
+                  <CategoryCardWithSubs id={category.id} name={category.name} slug={category.slug} image_url={category.image_url} subcategories={category.subcategories} />
+                </ScrollReveal>)}
           </div>
         </section>
       </ScrollReveal>
