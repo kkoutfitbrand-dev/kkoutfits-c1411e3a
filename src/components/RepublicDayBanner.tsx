@@ -87,43 +87,88 @@ export const RepublicDayBanner = () => {
 
   return (
     <section ref={ref} className="relative overflow-hidden">
-      <div className="relative min-h-[500px] md:min-h-[600px]">
+      <div className="relative min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
         {/* Gradient Background */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
         
-        {/* Animated Flag Stripes Background */}
-        <div className="absolute inset-0 opacity-20 overflow-hidden">
-          <FlagStripe color={saffron} delay={0} yOffset={0} />
-          <FlagStripe color={white} delay={0.5} yOffset={33} />
-          <FlagStripe color={green} delay={1} yOffset={66} />
+        {/* Indian Flag Background - Diagonal stripes */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(135deg, 
+                ${saffron}15 0%, 
+                ${saffron}08 25%, 
+                ${white}05 40%, 
+                ${white}08 50%, 
+                ${green}08 65%, 
+                ${green}15 100%)`
+            }}
+            animate={{ opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          
+          {/* Waving flag stripes - horizontal */}
+          <motion.div
+            className="absolute -left-10 -right-10 h-24 sm:h-32 md:h-40"
+            style={{ 
+              top: '5%',
+              background: `linear-gradient(90deg, transparent, ${saffron}30, ${saffron}40, ${saffron}30, transparent)`,
+              transform: 'skewY(-3deg)'
+            }}
+            animate={{ x: [-20, 20, -20] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute -left-10 -right-10 h-20 sm:h-28 md:h-36"
+            style={{ 
+              top: '35%',
+              background: `linear-gradient(90deg, transparent, ${white}15, ${white}25, ${white}15, transparent)`,
+              transform: 'skewY(-3deg)'
+            }}
+            animate={{ x: [20, -20, 20] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute -left-10 -right-10 h-24 sm:h-32 md:h-40"
+            style={{ 
+              bottom: '10%',
+              background: `linear-gradient(90deg, transparent, ${green}30, ${green}40, ${green}30, transparent)`,
+              transform: 'skewY(-3deg)'
+            }}
+            animate={{ x: [-20, 20, -20] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
         </div>
 
-        {/* Glowing Orbs */}
-        <GlowOrb x={10} y={20} color={saffron} delay={0} />
-        <GlowOrb x={80} y={60} color={green} delay={1.5} />
-        <GlowOrb x={50} y={10} color={navyBlue} delay={0.8} />
+        {/* Glowing Orbs - Adjusted for mobile */}
+        <GlowOrb x={5} y={15} color={saffron} delay={0} />
+        <GlowOrb x={75} y={55} color={green} delay={1.5} />
+        <GlowOrb x={40} y={5} color={navyBlue} delay={0.8} />
 
         {/* Floating Tricolor Particles */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[10, 20, 35, 50, 65, 80, 90].map((x, i) => (
+          {[15, 30, 50, 70, 85].map((x, i) => (
             <TricolorParticle 
               key={i} 
               x={x} 
-              delay={i * 0.7} 
+              delay={i * 0.8} 
               color={i % 3 === 0 ? saffron : i % 3 === 1 ? white : green} 
             />
           ))}
         </div>
 
-        {/* Ashoka Chakra Watermarks */}
+        {/* Ashoka Chakra Watermarks - Responsive sizing */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <AshokaChakra size={300} className="absolute -right-20 top-1/2 -translate-y-1/2 opacity-10" />
-          <AshokaChakra size={150} className="absolute left-10 bottom-20 opacity-5" />
+          <AshokaChakra size={150} className="absolute -right-10 sm:-right-12 md:-right-20 top-1/2 -translate-y-1/2 opacity-10 sm:hidden" />
+          <AshokaChakra size={200} className="absolute -right-12 md:-right-20 top-1/2 -translate-y-1/2 opacity-10 hidden sm:block md:hidden" />
+          <AshokaChakra size={300} className="absolute -right-20 top-1/2 -translate-y-1/2 opacity-10 hidden md:block" />
+          <AshokaChakra size={80} className="absolute left-4 sm:left-10 bottom-16 sm:bottom-20 opacity-5" />
         </div>
 
-        {/* Diagonal Tricolor Accent */}
+        {/* Diagonal Tricolor Accent - Mobile adjusted */}
         <motion.div 
-          className="absolute top-0 right-0 w-2 h-full"
+          className="absolute top-0 right-0 w-1.5 sm:w-2 h-full"
           initial={{ opacity: 0 }}
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8 }}
@@ -133,22 +178,34 @@ export const RepublicDayBanner = () => {
           <div className="h-1/3 w-full" style={{ backgroundColor: green }} />
         </motion.div>
 
+        {/* Left Tricolor Accent - Mobile */}
+        <motion.div 
+          className="absolute top-0 left-0 w-1 sm:w-1.5 h-full sm:hidden"
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 0.5 } : {}}
+          transition={{ duration: 0.8 }}
+        >
+          <div className="h-1/3 w-full" style={{ backgroundColor: saffron }} />
+          <div className="h-1/3 w-full" style={{ backgroundColor: white }} />
+          <div className="h-1/3 w-full" style={{ backgroundColor: green }} />
+        </motion.div>
+
         {/* Main Content */}
-        <div className="container mx-auto px-4 relative z-10 flex items-center min-h-[500px] md:min-h-[600px]">
-          <div className="max-w-2xl py-12">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 flex items-center min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
+          <div className="max-w-2xl py-8 sm:py-10 md:py-12">
             {/* Festival Badge */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6 }}
-              className="mb-6"
+              className="mb-4 sm:mb-6"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/20 via-white/10 to-green-500/20 border border-white/20 backdrop-blur-sm">
-                <span className="text-lg">🇮🇳</span>
-                <span className="text-white/90 text-sm font-semibold tracking-wide">
-                  KKOUTFITS – REPUBLIC DAY CELEBRATION 2026
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-orange-500/20 via-white/10 to-green-500/20 border border-white/20 backdrop-blur-sm">
+                <span className="text-base sm:text-lg">🇮🇳</span>
+                <span className="text-white/90 text-xs sm:text-sm font-semibold tracking-wide text-center">
+                  KKOUTFITS – REPUBLIC DAY 2026
                 </span>
-                <span className="text-lg">🇮🇳</span>
+                <span className="text-base sm:text-lg">🇮🇳</span>
               </div>
             </motion.div>
 
@@ -157,14 +214,14 @@ export const RepublicDayBanner = () => {
               initial={{ opacity: 0, x: -30 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 sm:mb-4"
             >
               <span className="bg-gradient-to-r from-orange-400 via-white to-green-400 bg-clip-text text-transparent drop-shadow-lg">
                 Republic Day Season
               </span>
               <br />
               <motion.span 
-                className="text-white"
+                className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
                 initial={{ opacity: 0 }}
                 animate={isInView ? { opacity: 1 } : {}}
                 transition={{ duration: 0.6, delay: 0.4 }}
@@ -178,7 +235,7 @@ export const RepublicDayBanner = () => {
               initial={{ opacity: 0, x: -30 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-xl sm:text-2xl text-white/90 font-light mb-2"
+              className="text-lg sm:text-xl md:text-2xl text-white/90 font-light mb-1.5 sm:mb-2"
             >
               Wear the <span className="font-semibold bg-gradient-to-r from-orange-400 to-green-400 bg-clip-text text-transparent">Pride of India</span>
             </motion.p>
@@ -188,7 +245,7 @@ export const RepublicDayBanner = () => {
               initial={{ opacity: 0, x: -30 }}
               animate={isInView ? { opacity: 1, x: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-base sm:text-lg text-orange-300/80 font-medium mb-8"
+              className="text-sm sm:text-base md:text-lg text-orange-300/80 font-medium mb-6 sm:mb-8"
             >
               இந்திய குடியரசு தினத்தை ஸ்டைலாக கொண்டாடுங்கள்
             </motion.p>
@@ -198,7 +255,7 @@ export const RepublicDayBanner = () => {
               initial={{ scaleX: 0 }}
               animate={isInView ? { scaleX: 1 } : {}}
               transition={{ duration: 0.8, delay: 0.5 }}
-              className="h-1 w-32 mb-8 rounded-full origin-left"
+              className="h-0.5 sm:h-1 w-24 sm:w-32 mb-6 sm:mb-8 rounded-full origin-left"
               style={{ 
                 background: `linear-gradient(90deg, ${saffron}, ${white}, ${green})`
               }}
@@ -213,10 +270,10 @@ export const RepublicDayBanner = () => {
               <Link to="/shop">
                 <Button
                   size="lg"
-                  className="group relative overflow-hidden text-white font-bold px-8 py-6 text-lg rounded-full transition-all duration-300 hover:scale-105"
+                  className="group relative overflow-hidden text-white font-bold px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-full transition-all duration-300 hover:scale-105 w-full sm:w-auto"
                   style={{
                     background: `linear-gradient(135deg, ${saffron}, ${green})`,
-                    boxShadow: `0 0 30px rgba(255, 153, 51, 0.4), 0 0 30px rgba(19, 136, 8, 0.3)`
+                    boxShadow: `0 0 20px rgba(255, 153, 51, 0.4), 0 0 20px rgba(19, 136, 8, 0.3)`
                   }}
                 >
                   {/* Hover glow overlay */}
@@ -226,10 +283,11 @@ export const RepublicDayBanner = () => {
                       background: `linear-gradient(135deg, rgba(255,255,255,0.2), transparent, rgba(255,255,255,0.1))`
                     }}
                   />
-                  <span className="relative z-10 flex items-center gap-2">
-                    <Flag className="w-5 h-5" />
-                    Shop Republic Day Collection
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <Flag className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="hidden xs:inline">Shop Republic Day Collection</span>
+                    <span className="xs:hidden">Shop Now</span>
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Button>
               </Link>
@@ -240,13 +298,13 @@ export const RepublicDayBanner = () => {
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
               transition={{ duration: 0.6, delay: 0.8 }}
-              className="mt-6 text-sm text-white/50"
+              className="mt-4 sm:mt-6 text-xs sm:text-sm text-white/50 text-center sm:text-left"
             >
               Celebrate freedom with fashion • Limited edition collection
             </motion.p>
           </div>
 
-          {/* Right Side Decorative Element */}
+          {/* Right Side Decorative Element - Hidden on mobile */}
           <motion.div
             className="hidden lg:block absolute right-10 top-1/2 -translate-y-1/2"
             initial={{ opacity: 0, scale: 0.8 }}
@@ -273,7 +331,7 @@ export const RepublicDayBanner = () => {
 
         {/* Bottom Wave with Tricolor */}
         <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-12 sm:h-16 md:h-auto">
             <defs>
               <linearGradient id="tricolorWave" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stopColor={saffron} stopOpacity="0.3" />
