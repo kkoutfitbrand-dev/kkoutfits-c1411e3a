@@ -1,353 +1,257 @@
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Flag } from 'lucide-react';
+import { ArrowRight, Sparkles, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// Floating tricolor particle
-const TricolorParticle = ({ delay, x, color }: { delay: number; x: number; color: string }) => (
+// Animated star burst
+const StarBurst = ({ delay, size, x, y }: { delay: number; size: number; x: number; y: number }) => (
   <motion.div
-    className="absolute w-2 h-2 rounded-full"
-    style={{ left: `${x}%`, backgroundColor: color }}
-    initial={{ y: '100%', opacity: 0 }}
-    animate={{ y: '-100%', opacity: [0, 0.8, 0.8, 0] }}
-    transition={{ duration: 5, delay, repeat: Infinity, ease: 'linear' }}
-  />
-);
-
-// Ashoka Chakra component
-const AshokaChakra = ({ size = 120, className = '' }: { size?: number; className?: string }) => (
-  <motion.svg
-    viewBox="0 0 100 100"
-    width={size}
-    height={size}
-    className={className}
-    animate={{ rotate: 360 }}
-    transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
-  >
-    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(0, 56, 147, 0.3)" strokeWidth="2" />
-    <circle cx="50" cy="50" r="8" fill="rgba(0, 56, 147, 0.4)" />
-    {/* 24 spokes */}
-    {Array.from({ length: 24 }).map((_, i) => (
-      <line
-        key={i}
-        x1="50"
-        y1="50"
-        x2="50"
-        y2="10"
-        stroke="rgba(0, 56, 147, 0.3)"
-        strokeWidth="1.5"
-        transform={`rotate(${i * 15} 50 50)`}
-      />
-    ))}
-  </motion.svg>
-);
-
-// Waving flag stripe
-const FlagStripe = ({ color, delay, yOffset }: { color: string; delay: number; yOffset: number }) => (
-  <motion.div
-    className="absolute h-1/3 w-full"
-    style={{ backgroundColor: color, top: `${yOffset}%` }}
+    className="absolute"
+    style={{ left: `${x}%`, top: `${y}%` }}
+    initial={{ scale: 0, rotate: 0, opacity: 0 }}
     animate={{ 
-      scaleX: [1, 1.02, 1],
-      opacity: [0.15, 0.25, 0.15]
+      scale: [0, 1, 0],
+      rotate: [0, 180],
+      opacity: [0, 1, 0]
     }}
     transition={{ duration: 3, delay, repeat: Infinity, ease: 'easeInOut' }}
-  />
+  >
+    <Star className="text-amber-300/60" style={{ width: size, height: size }} fill="currentColor" />
+  </motion.div>
 );
 
-// Glowing orb
-const GlowOrb = ({ x, y, color, delay }: { x: number; y: number; color: string; delay: number }) => (
-  <motion.div
-    className="absolute rounded-full blur-3xl"
-    style={{
-      left: `${x}%`,
-      top: `${y}%`,
-      width: '200px',
-      height: '200px',
-      backgroundColor: color,
-    }}
-    animate={{ 
-      opacity: [0.2, 0.4, 0.2],
-      scale: [1, 1.2, 1]
-    }}
-    transition={{ duration: 4, delay, repeat: Infinity, ease: 'easeInOut' }}
-  />
+// Tricolor ribbon
+const TricolorRibbon = ({ className }: { className?: string }) => (
+  <div className={`flex ${className}`}>
+    <div className="flex-1 bg-gradient-to-r from-orange-500 to-orange-400" />
+    <div className="flex-1 bg-gradient-to-r from-white to-gray-100" />
+    <div className="flex-1 bg-gradient-to-r from-green-600 to-green-500" />
+  </div>
+);
+
+// Animated Ashoka Chakra with glow
+const GlowingChakra = ({ size = 120, className = '' }: { size?: number; className?: string }) => (
+  <motion.div className={`relative ${className}`}>
+    <motion.div
+      className="absolute inset-0 rounded-full blur-xl"
+      style={{ background: 'radial-gradient(circle, rgba(0,56,147,0.4) 0%, transparent 70%)' }}
+      animate={{ scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+    />
+    <motion.svg
+      viewBox="0 0 100 100"
+      width={size}
+      height={size}
+      animate={{ rotate: 360 }}
+      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+    >
+      <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(0, 56, 147, 0.6)" strokeWidth="3" />
+      <circle cx="50" cy="50" r="10" fill="rgba(0, 56, 147, 0.8)" />
+      {Array.from({ length: 24 }).map((_, i) => (
+        <line
+          key={i}
+          x1="50"
+          y1="50"
+          x2="50"
+          y2="8"
+          stroke="rgba(0, 56, 147, 0.6)"
+          strokeWidth="2"
+          transform={`rotate(${i * 15} 50 50)`}
+        />
+      ))}
+    </motion.svg>
+  </motion.div>
 );
 
 export const RepublicDayBanner = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, amount: 0.3 });
 
-  // Tricolor palette
-  const saffron = '#FF9933';
-  const white = '#FFFFFF';
-  const green = '#138808';
-  const navyBlue = '#003893';
-
   return (
     <section ref={ref} className="relative overflow-hidden">
-      <div className="relative min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
-        {/* Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900" />
+      <div className="relative min-h-[420px] sm:min-h-[480px] md:min-h-[560px]">
+        {/* Luxurious dark gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-neutral-900 to-zinc-950" />
         
-        {/* Indian Flag Background - Diagonal stripes */}
-        <div className="absolute inset-0 overflow-hidden">
-          <motion.div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(135deg, 
-                ${saffron}15 0%, 
-                ${saffron}08 25%, 
-                ${white}05 40%, 
-                ${white}08 50%, 
-                ${green}08 65%, 
-                ${green}15 100%)`
-            }}
-            animate={{ opacity: [0.3, 0.5, 0.3] }}
-            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          
-          {/* Waving flag stripes - horizontal */}
-          <motion.div
-            className="absolute -left-10 -right-10 h-24 sm:h-32 md:h-40"
-            style={{ 
-              top: '5%',
-              background: `linear-gradient(90deg, transparent, ${saffron}30, ${saffron}40, ${saffron}30, transparent)`,
-              transform: 'skewY(-3deg)'
-            }}
-            animate={{ x: [-20, 20, -20] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute -left-10 -right-10 h-20 sm:h-28 md:h-36"
-            style={{ 
-              top: '35%',
-              background: `linear-gradient(90deg, transparent, ${white}15, ${white}25, ${white}15, transparent)`,
-              transform: 'skewY(-3deg)'
-            }}
-            animate={{ x: [20, -20, 20] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute -left-10 -right-10 h-24 sm:h-32 md:h-40"
-            style={{ 
-              bottom: '10%',
-              background: `linear-gradient(90deg, transparent, ${green}30, ${green}40, ${green}30, transparent)`,
-              transform: 'skewY(-3deg)'
-            }}
-            animate={{ x: [-20, 20, -20] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </div>
+        {/* Golden mesh pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `radial-gradient(circle at 25% 25%, rgba(251, 191, 36, 0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 75% 75%, rgba(34, 197, 94, 0.15) 0%, transparent 50%),
+                              radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.1) 0%, transparent 60%)`
+          }}
+        />
 
-        {/* Glowing Orbs - Adjusted for mobile */}
-        <GlowOrb x={5} y={15} color={saffron} delay={0} />
-        <GlowOrb x={75} y={55} color={green} delay={1.5} />
-        <GlowOrb x={40} y={5} color={navyBlue} delay={0.8} />
+        {/* Animated tricolor glow bands */}
+        <motion.div
+          className="absolute top-0 left-0 right-0 h-1 sm:h-1.5"
+          style={{ background: 'linear-gradient(90deg, #FF9933, #FFFFFF, #138808)' }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+        <motion.div
+          className="absolute bottom-0 left-0 right-0 h-1 sm:h-1.5"
+          style={{ background: 'linear-gradient(90deg, #138808, #FFFFFF, #FF9933)' }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+        />
 
-        {/* Floating Tricolor Particles */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[15, 30, 50, 70, 85].map((x, i) => (
-            <TricolorParticle 
-              key={i} 
-              x={x} 
-              delay={i * 0.8} 
-              color={i % 3 === 0 ? saffron : i % 3 === 1 ? white : green} 
-            />
-          ))}
-        </div>
-
-        {/* Ashoka Chakra Watermarks - Responsive sizing */}
+        {/* Star bursts */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <AshokaChakra size={150} className="absolute -right-10 sm:-right-12 md:-right-20 top-1/2 -translate-y-1/2 opacity-10 sm:hidden" />
-          <AshokaChakra size={200} className="absolute -right-12 md:-right-20 top-1/2 -translate-y-1/2 opacity-10 hidden sm:block md:hidden" />
-          <AshokaChakra size={300} className="absolute -right-20 top-1/2 -translate-y-1/2 opacity-10 hidden md:block" />
-          <AshokaChakra size={80} className="absolute left-4 sm:left-10 bottom-16 sm:bottom-20 opacity-5" />
+          <StarBurst x={10} y={20} size={16} delay={0} />
+          <StarBurst x={85} y={15} size={12} delay={0.5} />
+          <StarBurst x={70} y={70} size={14} delay={1} />
+          <StarBurst x={20} y={75} size={10} delay={1.5} />
+          <StarBurst x={50} y={10} size={18} delay={2} />
         </div>
 
-        {/* Diagonal Tricolor Accent - Mobile adjusted */}
-        <motion.div 
-          className="absolute top-0 right-0 w-1.5 sm:w-2 h-full"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 1 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="h-1/3 w-full" style={{ backgroundColor: saffron }} />
-          <div className="h-1/3 w-full" style={{ backgroundColor: white }} />
-          <div className="h-1/3 w-full" style={{ backgroundColor: green }} />
-        </motion.div>
-
-        {/* Left Tricolor Accent - Mobile */}
-        <motion.div 
-          className="absolute top-0 left-0 w-1 sm:w-1.5 h-full sm:hidden"
-          initial={{ opacity: 0 }}
-          animate={isInView ? { opacity: 0.5 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="h-1/3 w-full" style={{ backgroundColor: saffron }} />
-          <div className="h-1/3 w-full" style={{ backgroundColor: white }} />
-          <div className="h-1/3 w-full" style={{ backgroundColor: green }} />
-        </motion.div>
+        {/* Glowing Chakra - Right side */}
+        <div className="absolute right-4 sm:right-8 md:right-16 top-1/2 -translate-y-1/2 opacity-20 sm:opacity-30">
+          <GlowingChakra size={120} className="sm:hidden" />
+          <GlowingChakra size={180} className="hidden sm:block md:hidden" />
+          <GlowingChakra size={240} className="hidden md:block" />
+        </div>
 
         {/* Main Content */}
-        <div className="container mx-auto px-4 sm:px-6 relative z-10 flex items-center min-h-[400px] sm:min-h-[500px] md:min-h-[600px]">
-          <div className="max-w-2xl py-8 sm:py-10 md:py-12">
-            {/* Festival Badge */}
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 flex items-center justify-center min-h-[420px] sm:min-h-[480px] md:min-h-[560px]">
+          <div className="text-center max-w-3xl py-8 sm:py-10">
+            
+            {/* Premium Badge */}
             <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6 }}
-              className="mb-4 sm:mb-6"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={isInView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.5 }}
+              className="mb-4 sm:mb-6 inline-block"
             >
-              <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-gradient-to-r from-orange-500/20 via-white/10 to-green-500/20 border border-white/20 backdrop-blur-sm">
-                <span className="text-base sm:text-lg">🇮🇳</span>
-                <span className="text-white/90 text-xs sm:text-sm font-semibold tracking-wide text-center">
-                  KKOUTFITS – REPUBLIC DAY 2026
-                </span>
-                <span className="text-base sm:text-lg">🇮🇳</span>
+              <div className="relative">
+                <TricolorRibbon className="h-1 w-full absolute -top-2 rounded-full" />
+                <div className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-lg">
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <span 
+                    className="text-xs sm:text-sm font-bold tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-white to-green-400"
+                    style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
+                  >
+                    KKOUTFITS • REPUBLIC DAY 2026
+                  </span>
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                </div>
+                <TricolorRibbon className="h-1 w-full absolute -bottom-2 rounded-full" />
               </div>
             </motion.div>
 
-            {/* Main Heading */}
+            {/* Main Heading - Elegant serif */}
             <motion.h1
-              initial={{ opacity: 0, x: -30 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold mb-3 sm:mb-4"
+              className="mb-3 sm:mb-4"
             >
-              <span className="bg-gradient-to-r from-orange-400 via-white to-green-400 bg-clip-text text-transparent drop-shadow-lg">
-                Republic Day Season
+              <span 
+                className="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight"
+                style={{ 
+                  fontFamily: "'Playfair Display', Georgia, serif",
+                  background: 'linear-gradient(135deg, #FF9933 0%, #FFD700 25%, #FFFFFF 50%, #90EE90 75%, #138808 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  textShadow: '0 0 60px rgba(255, 153, 51, 0.3)'
+                }}
+              >
+                Republic Day
               </span>
-              <br />
               <motion.span 
-                className="text-white text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+                className="block text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-light text-white/90 mt-1 sm:mt-2"
+                style={{ fontFamily: "'Playfair Display', Georgia, serif", letterSpacing: '0.1em' }}
                 initial={{ opacity: 0 }}
                 animate={isInView ? { opacity: 1 } : {}}
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
-                Started
+                Season Started
               </motion.span>
             </motion.h1>
 
-            {/* Subheading */}
+            {/* Subheading - Modern sans */}
             <motion.p
-              initial={{ opacity: 0, x: -30 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="text-lg sm:text-xl md:text-2xl text-white/90 font-light mb-1.5 sm:mb-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="text-lg sm:text-xl md:text-2xl text-white/80 font-light mb-2 tracking-wide"
             >
-              Wear the <span className="font-semibold bg-gradient-to-r from-orange-400 to-green-400 bg-clip-text text-transparent">Pride of India</span>
+              Wear the{' '}
+              <span 
+                className="font-semibold italic"
+                style={{ 
+                  background: 'linear-gradient(90deg, #FF9933, #138808)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}
+              >
+                Pride of India
+              </span>
             </motion.p>
 
-            {/* Tamil Text */}
+            {/* Tamil Text - Elegant styling */}
             <motion.p
-              initial={{ opacity: 0, x: -30 }}
-              animate={isInView ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.4 }}
-              className="text-sm sm:text-base md:text-lg text-orange-300/80 font-medium mb-6 sm:mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.6 }}
+              className="text-sm sm:text-base text-amber-300/70 mb-6 sm:mb-8 font-medium"
             >
               இந்திய குடியரசு தினத்தை ஸ்டைலாக கொண்டாடுங்கள்
             </motion.p>
 
-            {/* Decorative Line */}
+            {/* Decorative divider */}
             <motion.div
               initial={{ scaleX: 0 }}
               animate={isInView ? { scaleX: 1 } : {}}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              className="h-0.5 sm:h-1 w-24 sm:w-32 mb-6 sm:mb-8 rounded-full origin-left"
-              style={{ 
-                background: `linear-gradient(90deg, ${saffron}, ${white}, ${green})`
-              }}
-            />
+              transition={{ duration: 0.8, delay: 0.7 }}
+              className="flex items-center justify-center gap-3 mb-6 sm:mb-8"
+            >
+              <div className="h-px w-12 sm:w-20 bg-gradient-to-r from-transparent to-orange-400" />
+              <Star className="w-4 h-4 text-amber-400" fill="currentColor" />
+              <div className="h-px w-12 sm:w-20 bg-gradient-to-l from-transparent to-green-400" />
+            </motion.div>
 
-            {/* CTA Button */}
+            {/* CTA Button - Premium style */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.6, delay: 0.6 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
             >
               <Link to="/shop">
                 <Button
                   size="lg"
-                  className="group relative overflow-hidden text-white font-bold px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-full transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+                  className="group relative overflow-hidden text-zinc-900 font-bold px-8 sm:px-10 py-5 sm:py-6 text-base sm:text-lg rounded-full transition-all duration-300 hover:scale-105 shadow-2xl"
                   style={{
-                    background: `linear-gradient(135deg, ${saffron}, ${green})`,
-                    boxShadow: `0 0 20px rgba(255, 153, 51, 0.4), 0 0 20px rgba(19, 136, 8, 0.3)`
+                    background: 'linear-gradient(135deg, #FFD700, #FFA500, #FFD700)',
+                    boxShadow: '0 0 40px rgba(255, 215, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.3)'
                   }}
                 >
-                  {/* Hover glow overlay */}
                   <motion.div
                     className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{
-                      background: `linear-gradient(135deg, rgba(255,255,255,0.2), transparent, rgba(255,255,255,0.1))`
+                      background: 'linear-gradient(135deg, rgba(255,255,255,0.4), transparent, rgba(255,255,255,0.2))'
                     }}
                   />
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    <Flag className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="hidden xs:inline">Shop Republic Day Collection</span>
-                    <span className="xs:hidden">Shop Now</span>
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                  <span className="relative z-10 flex items-center gap-2 sm:gap-3">
+                    Shop Republic Day Collection
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
                 </Button>
               </Link>
             </motion.div>
 
-            {/* Small tagline */}
+            {/* Tagline */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={isInView ? { opacity: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.8 }}
-              className="mt-4 sm:mt-6 text-xs sm:text-sm text-white/50 text-center sm:text-left"
+              transition={{ duration: 0.6, delay: 1 }}
+              className="mt-5 sm:mt-6 text-xs sm:text-sm text-white/40 tracking-widest uppercase"
             >
-              Celebrate freedom with fashion • Limited edition collection
+              Celebrate Freedom with Fashion
             </motion.p>
           </div>
-
-          {/* Right Side Decorative Element - Hidden on mobile */}
-          <motion.div
-            className="hidden lg:block absolute right-10 top-1/2 -translate-y-1/2"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={isInView ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.8, delay: 0.4 }}
-          >
-            <div className="relative">
-              <AshokaChakra size={200} className="opacity-30" />
-              <motion.div
-                className="absolute inset-0 flex items-center justify-center"
-                animate={{ scale: [1, 1.05, 1] }}
-                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              >
-                <div 
-                  className="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
-                  style={{ backgroundColor: 'rgba(0, 56, 147, 0.3)' }}
-                >
-                  🇮🇳
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Bottom Wave with Tricolor */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-12 sm:h-16 md:h-auto">
-            <defs>
-              <linearGradient id="tricolorWave" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor={saffron} stopOpacity="0.3" />
-                <stop offset="50%" stopColor={white} stopOpacity="0.2" />
-                <stop offset="100%" stopColor={green} stopOpacity="0.3" />
-              </linearGradient>
-            </defs>
-            <path
-              d="M0 40L60 35C120 30 240 20 360 25C480 30 600 50 720 55C840 60 960 50 1080 40C1200 30 1320 20 1380 15L1440 10V80H1380C1320 80 1200 80 1080 80C960 80 840 80 720 80C600 80 480 80 360 80C240 80 120 80 60 80H0V40Z"
-              fill="url(#tricolorWave)"
-            />
-            <path
-              d="M0 50L60 45C120 40 240 30 360 35C480 40 600 55 720 58C840 62 960 55 1080 48C1200 40 1320 32 1380 28L1440 24V80H1380C1320 80 1200 80 1080 80C960 80 840 80 720 80C600 80 480 80 360 80C240 80 120 80 60 80H0V50Z"
-              fill="hsl(var(--background))"
-            />
-          </svg>
         </div>
       </div>
     </section>
