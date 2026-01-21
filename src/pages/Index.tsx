@@ -11,7 +11,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
-import { PongalBanner } from "@/components/PongalBanner";
+import { RepublicDayBanner } from "@/components/RepublicDayBanner";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -141,9 +141,9 @@ const Index = () => {
         <HeroCarousel />
       </ScrollReveal>
 
-      {/* Pongal Festival Banner */}
+      {/* Republic Day Banner */}
       <ScrollReveal delay={0.1}>
-        <PongalBanner />
+        <RepublicDayBanner />
       </ScrollReveal>
 
       {/* Combo Offer Banner */}
