@@ -11,7 +11,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
-import { RepublicDayBanner } from "@/components/RepublicDayBanner";
+import { MegaSaleBanner } from "@/components/MegaSaleBanner";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -135,9 +135,9 @@ const Index = () => {
         <HeroCarousel />
       </ScrollReveal>
 
-      {/* Republic Day Banner */}
+      {/* Mega Sale Banner */}
       <ScrollReveal delay={0.1}>
-        <RepublicDayBanner />
+        <MegaSaleBanner />
       </ScrollReveal>
 
       {/* Combo Offer Banner */}
@@ -145,10 +145,7 @@ const Index = () => {
         <ComboBanner />
       </ScrollReveal>
 
-      {/* Pongal Offer Banners */}
-      <ScrollReveal delay={0.1}>
-        
-      </ScrollReveal>
+      {/* Pongal Offer Banners - placeholder */}
 
       {/* Deals of the Day */}
       <ScrollReveal delay={0.1}>
@@ -172,10 +169,7 @@ const Index = () => {
 
       {/* Brand Showcase - Empty for now */}
 
-      {/* Another Pongal Offer Banners before Trending */}
-      <ScrollReveal delay={0.1}>
-        
-      </ScrollReveal>
+      {/* Another Pongal Offer - placeholder */}
 
       {/* Trending Products */}
       <ScrollReveal delay={0.1}>
