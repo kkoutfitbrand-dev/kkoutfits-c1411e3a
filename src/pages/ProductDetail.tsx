@@ -6,7 +6,7 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check, Copy, MessageCircle, Star } from "lucide-react";
+import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check, Copy, MessageCircle, Star, Zap } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -340,6 +340,54 @@ const ProductDetail = () => {
       setAddingToCart(false);
     }
   };
+
+  const handleBuyNow = () => {
+    if (!user) {
+      toast({
+        title: "Please log in",
+        description: "You need to be logged in to purchase",
+        variant: "destructive"
+      });
+      navigate('/auth', { state: { from: `/product/${id}` } });
+      return;
+    }
+
+    if (availableSizes.length > 0 && !selectedSize) {
+      toast({
+        title: "Please select a size",
+        description: "Choose a size before purchasing",
+        variant: "destructive"
+      });
+      return;
+    }
+    if (colorVariants.length > 0 && !selectedColor) {
+      toast({
+        title: "Please select a color",
+        description: "Choose a color before purchasing",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Get the selected variant's image if available
+    const selectedVariant = variants.find(v => 
+      v.option1_value === selectedColor && v.option2_value === selectedSize
+    );
+    const variantImage = selectedVariant?.image_url || productImages[0];
+
+    const buyNowItem = {
+      id: `buynow-${product.id}-${Date.now()}`,
+      productId: product.id,
+      name: product.title,
+      price: displayPrice,
+      image: variantImage,
+      quantity: quantity,
+      size: selectedSize,
+      color: selectedColor
+    };
+
+    navigate('/checkout', { state: { buyNowItem } });
+  };
   
   const handleAddToWishlist = async () => {
     if (!user) {
@@ -590,19 +638,34 @@ const ProductDetail = () => {
             </div>
 
             {/* Action Buttons */}
-            <div id="product-actions" className="flex gap-3 mb-6">
-              <Button size="lg" className="flex-1" onClick={handleAddToCart} disabled={addingToCart}>
-                {addingToCart ? "Adding..." : "Add to Cart"}
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                onClick={handleAddToWishlist}
-                disabled={wishlistLoading}
-                className={inWishlist ? "bg-red-500 text-white border-red-500 hover:bg-red-600 hover:text-white" : ""}
-              >
-                <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
-              </Button>
+            <div id="product-actions" className="flex flex-col gap-3 mb-6">
+              {/* Primary Row: Buy Now + Add to Cart */}
+              <div className="flex gap-3">
+                <Button 
+                  size="lg" 
+                  className="flex-1 relative overflow-hidden bg-gradient-to-r from-primary via-primary to-accent hover:opacity-90 transition-all shadow-lg hover:shadow-xl group"
+                  onClick={handleBuyNow}
+                >
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  <Zap className="h-5 w-5 mr-2 fill-current" />
+                  <span className="font-semibold">Buy Now</span>
+                </Button>
+                <Button size="lg" variant="outline" className="flex-1" onClick={handleAddToCart} disabled={addingToCart}>
+                  {addingToCart ? "Adding..." : "Add to Cart"}
+                </Button>
+              </div>
+              {/* Secondary Row: Wishlist + Share */}
+              <div className="flex gap-3">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  onClick={handleAddToWishlist}
+                  disabled={wishlistLoading}
+                  className={`flex-1 ${inWishlist ? "bg-red-500 text-white border-red-500 hover:bg-red-600 hover:text-white" : ""}`}
+                >
+                  <Heart className={`h-5 w-5 mr-2 ${inWishlist ? "fill-current" : ""}`} />
+                  {inWishlist ? "Wishlisted" : "Add to Wishlist"}
+                </Button>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button size="lg" variant="outline">
@@ -665,6 +728,7 @@ const ProductDetail = () => {
                   </div>
                 </PopoverContent>
               </Popover>
+              </div>
             </div>
 
             {/* Features */}

@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Card } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Check, Loader2, Plus, Pencil, Trash2, CreditCard, ChevronDown, Package, X, CheckCircle, Tag } from "lucide-react";
+import { Check, Loader2, Plus, Pencil, Trash2, CreditCard, ChevronDown, Package, X, CheckCircle, Tag, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,8 +16,19 @@ import { useToast } from "@/hooks/use-toast";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useRazorpay } from "@/hooks/useRazorpay";
+
+interface BuyNowItem {
+  id: string;
+  productId: string;
+  name: string;
+  price: number;
+  image: string;
+  quantity: number;
+  size?: string;
+  color?: string;
+}
 
 interface CartItem {
   id: string;
@@ -165,6 +176,12 @@ const Checkout = () => {
   }>(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Check for Buy Now item in location state
+  const buyNowItem = (location.state as { buyNowItem?: BuyNowItem })?.buyNowItem;
+  const isBuyNowMode = !!buyNowItem;
+  
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [savedAddresses, setSavedAddresses] = useState<SavedAddress[]>([]);
@@ -394,6 +411,22 @@ const Checkout = () => {
   }, [user, navigate]);
 
   useEffect(() => {
+    // If Buy Now mode, use the buyNowItem instead of fetching cart
+    if (isBuyNowMode && buyNowItem) {
+      setCartItems([{
+        id: buyNowItem.id,
+        productId: buyNowItem.productId,
+        name: buyNowItem.name,
+        price: buyNowItem.price,
+        image: buyNowItem.image,
+        quantity: buyNowItem.quantity,
+        size: buyNowItem.size,
+        color: buyNowItem.color
+      }]);
+      setCartLoading(false);
+      return;
+    }
+
     const fetchCart = async () => {
       if (!user) return;
       
@@ -449,7 +482,7 @@ const Checkout = () => {
     };
 
     fetchCart();
-  }, [user]);
+  }, [user, isBuyNowMode, buyNowItem]);
 
   // Fetch saved addresses from database
   useEffect(() => {
@@ -801,11 +834,13 @@ const Checkout = () => {
 
       if (orderError) throw orderError;
 
-      // Clear cart for COD orders
-      await supabase
-        .from('carts')
-        .update({ items: [] })
-        .eq('user_id', user.id);
+      // Clear cart for COD orders (but not for Buy Now mode)
+      if (!isBuyNowMode) {
+        await supabase
+          .from('carts')
+          .update({ items: [] })
+          .eq('user_id', user.id);
+      }
 
       // Navigate to confirmation for COD
       navigate('/order-confirmation', {
@@ -836,7 +871,17 @@ const Checkout = () => {
         <Navigation />
       
       <div className="container px-4 py-8 md:py-12">
-        <h1 className="text-3xl md:text-4xl font-serif font-bold mb-8">Checkout</h1>
+        <div className="flex items-center gap-3 mb-8">
+          <h1 className="text-3xl md:text-4xl font-serif font-bold">
+            {isBuyNowMode ? "Express Checkout" : "Checkout"}
+          </h1>
+          {isBuyNowMode && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary to-accent text-primary-foreground text-sm font-medium">
+              <Zap className="h-3.5 w-3.5 fill-current" />
+              Buy Now
+            </span>
+          )}
+        </div>
         
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-8 md:mb-12">
