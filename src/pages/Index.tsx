@@ -12,6 +12,7 @@ import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { MegaSaleBanner } from "@/components/MegaSaleBanner";
+import { ValentineGiftGuide } from "@/components/ValentineGiftGuide";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -138,6 +139,11 @@ const Index = () => {
       {/* Mega Sale Banner */}
       <ScrollReveal delay={0.1}>
         <MegaSaleBanner />
+      </ScrollReveal>
+
+      {/* Valentine's Gift Guide */}
+      <ScrollReveal delay={0.1}>
+        <ValentineGiftGuide />
       </ScrollReveal>
 
       {/* Combo Offer Banner */}

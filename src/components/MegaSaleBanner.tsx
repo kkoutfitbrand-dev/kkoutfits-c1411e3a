@@ -1,9 +1,10 @@
 import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, Heart, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useValentineCountdown } from '@/hooks/useValentineCountdown';
+import { HeartConfetti } from '@/components/HeartConfetti';
 
 // Floating hearts animation
 const FloatingHeart = ({
@@ -169,9 +170,23 @@ export const MegaSaleBanner = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, amount: 0.3 });
   const countdown = useValentineCountdown();
+  const navigate = useNavigate();
+  const [showConfetti, setShowConfetti] = useState(false);
+
+  const handleShopClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowConfetti(true);
+    // Navigate after a short delay to let confetti start
+    setTimeout(() => {
+      navigate('/valentine-collection');
+    }, 500);
+  };
 
   return (
     <section ref={ref} className="relative overflow-hidden">
+      {/* Heart Confetti */}
+      <HeartConfetti isActive={showConfetti} onComplete={() => setShowConfetti(false)} />
+      
       <div className="relative min-h-[480px] sm:min-h-[500px] md:min-h-[520px]">
         
         {/* Base gradient background - romantic rose colors */}
@@ -392,24 +407,23 @@ export const MegaSaleBanner = () => {
               transition={{ duration: 0.6, delay: 0.7 }}
               className="flex flex-col sm:flex-row gap-3 sm:gap-4"
             >
-              <Link to="/shop">
-                <Button
-                  size="lg"
-                  className="group relative overflow-hidden font-bold px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl w-full sm:w-auto text-white"
-                  style={{
-                    background: 'linear-gradient(135deg, hsl(340 82% 52%) 0%, hsl(0 80% 50%) 100%)',
-                  }}
-                >
-                  <ShimmerLine />
-                  <span className="relative z-10 flex items-center justify-center gap-2">
-                    <Heart className="w-4 h-4 fill-current" />
-                    Shop the Sale
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-                  </span>
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                onClick={handleShopClick}
+                className="group relative overflow-hidden font-bold px-6 sm:px-8 py-5 sm:py-6 text-sm sm:text-base rounded-full transition-all duration-300 hover:scale-105 shadow-xl hover:shadow-2xl w-full sm:w-auto text-white"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(340 82% 52%) 0%, hsl(0 80% 50%) 100%)',
+                }}
+              >
+                <ShimmerLine />
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  <Heart className="w-4 h-4 fill-current" />
+                  Shop the Sale
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Button>
               
-              <Link to="/trending">
+              <Link to="/valentine-collection">
                 <Button
                   size="lg"
                   variant="outline"
