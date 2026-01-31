@@ -49,6 +49,7 @@ import AdminOrders from "./pages/admin/Orders";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminSettings from "./pages/admin/Settings";
 import NewYearCollection from "./pages/NewYearCollection";
+import ValentineCollection from "./pages/ValentineCollection";
 import Combo from "./pages/Combo";
 import ComboDetail from "./pages/ComboDetail";
 import AdminCombos from "./pages/admin/Combos";
@@ -93,6 +94,7 @@ const AnimatedRoutes = () => {
         <Route path="/shop" element={<PageTransition><Shop /></PageTransition>} />
         <Route path="/trending" element={<PageTransition><Trending /></PageTransition>} />
         <Route path="/new-year-collection" element={<PageTransition><NewYearCollection /></PageTransition>} />
+        <Route path="/valentine-collection" element={<PageTransition><ValentineCollection /></PageTransition>} />
         <Route path="/combo" element={<PageTransition><Combo /></PageTransition>} />
         <Route path="/combo/:id" element={<PageTransition><ComboDetail /></PageTransition>} />
         <Route path="/shipping-policy" element={<PageTransition><ShippingPolicy /></PageTransition>} />
