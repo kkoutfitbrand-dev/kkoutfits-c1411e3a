@@ -13,6 +13,10 @@ import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { MegaSaleBanner } from "@/components/MegaSaleBanner";
 import { ValentineGiftGuide } from "@/components/ValentineGiftGuide";
+import { ValentineFloatingHearts } from "@/components/ValentineFloatingHearts";
+import { ValentineCoupleSection } from "@/components/ValentineCoupleSection";
+import { ValentineCountdownBanner } from "@/components/ValentineCountdownBanner";
+import { ValentineLoveQuotes } from "@/components/ValentineLoveQuotes";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -128,8 +132,14 @@ const Index = () => {
       setLoading(false);
     }
   };
-  return <div className="min-h-screen bg-background overflow-x-hidden">
+  return <div className="min-h-screen bg-background overflow-x-hidden relative">
+      {/* Floating hearts background animation */}
+      <ValentineFloatingHearts />
+      
       <Navigation />
+      
+      {/* Valentine's Countdown Banner */}
+      <ValentineCountdownBanner />
       
       {/* Hero Section */}
       <ScrollReveal>
@@ -145,6 +155,9 @@ const Index = () => {
       <ScrollReveal delay={0.1}>
         <ValentineGiftGuide />
       </ScrollReveal>
+      
+      {/* Valentine's Love Quotes */}
+      <ValentineLoveQuotes />
 
       {/* Combo Offer Banner */}
       <ScrollReveal delay={0.1}>
@@ -206,6 +219,9 @@ const Index = () => {
           </div>
         </section>
       </ScrollReveal>
+
+      {/* Valentine's Couple Section */}
+      <ValentineCoupleSection />
 
       {/* Occasion Shopping */}
       <ScrollReveal delay={0.1} direction="right">
