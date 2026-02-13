@@ -101,9 +101,9 @@ const Index = () => {
       if (subError) throw subError;
 
       // Map subcategories to their parent categories
-      const categoriesWithSubs: Category[] = (parentCategories || []).map(parent => ({
+      const categoriesWithSubs: Category[] = (parentCategories || []).map((parent) => ({
         ...parent,
-        subcategories: (allSubcategories || []).filter(sub => sub.parent_id === parent.id).map(sub => ({
+        subcategories: (allSubcategories || []).filter((sub) => sub.parent_id === parent.id).map((sub) => ({
           id: sub.id,
           name: sub.name,
           slug: sub.slug
@@ -221,7 +221,7 @@ const Index = () => {
       </ScrollReveal>
 
       {/* Valentine's Couple Section */}
-      <ValentineCoupleSection />
+      
 
       {/* Occasion Shopping */}
       <ScrollReveal delay={0.1} direction="right">
