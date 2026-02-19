@@ -188,7 +188,8 @@ const Trending = () => {
                   return (
                     <ProductCard
                       key={product.id}
-                      id={product.id}
+                      id={product.slug}
+                      productId={product.id}
                       name={product.title}
                       price={price}
                       image={getFirstImage(product.images)}
