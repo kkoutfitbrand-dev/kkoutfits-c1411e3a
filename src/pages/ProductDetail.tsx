@@ -90,9 +90,18 @@ const ProductDetail = () => {
           .from('products')
           .select('*')
           .eq('slug', id)
-          .single();
+          .maybeSingle();
 
         if (productError) throw productError;
+        if (!productData) {
+          toast({
+            title: "Product not found",
+            description: "The product you're looking for doesn't exist",
+            variant: "destructive"
+          });
+          setLoading(false);
+          return;
+        }
 
         const { data: variantsData, error: variantsError } = await supabase
           .from('product_variants')
