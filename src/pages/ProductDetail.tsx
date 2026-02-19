@@ -6,7 +6,8 @@ import { Navigation } from "@/components/Navigation";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Heart, Share2, Truck, RefreshCcw, Shield, ZoomIn, Minus, Plus, ChevronRight, Check, Copy, MessageCircle, Star, Zap } from "lucide-react";
+import { Heart, Share2, Truck, RefreshCcw, Shield, Minus, Plus, ChevronRight, Check, Copy, MessageCircle, Star, Zap } from "lucide-react";
+import { ProductImageCarousel } from "@/components/ProductImageCarousel";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -75,7 +76,7 @@ const ProductDetail = () => {
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [isZoomed, setIsZoomed] = useState(false);
+  const [isZoomed] = useState(false);
   const [manualImageSelect, setManualImageSelect] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
 
@@ -436,33 +437,15 @@ const ProductDetail = () => {
 
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
           {/* Image Gallery */}
-          <div id="product-image-gallery">
-            <div className="mb-4 rounded-lg overflow-hidden bg-muted relative group cursor-zoom-in" onClick={() => setIsZoomed(!isZoomed)}>
-              <img 
-                src={productImages[selectedImage]} 
-                alt={product.title} 
-                className={`w-full aspect-[3/4] object-cover transition-transform duration-300 ${isZoomed ? "scale-150" : "group-hover:scale-105"}`} 
-              />
-              <div className="absolute top-4 right-4 bg-background/80 backdrop-blur-sm rounded-full p-2">
-                <ZoomIn className="h-5 w-5 text-foreground" />
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {productImages.map((image, index) => (
-                <button 
-                  key={index} 
-                  onClick={() => {
-                    setManualImageSelect(true);
-                    setSelectedImage(index);
-                    setIsZoomed(false);
-                  }}
-                  className={`rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index ? "border-accent" : "border-border"}`}
-                >
-                  <img src={image} alt={`${product.title} ${index + 1}`} className="w-full aspect-[3/4] object-cover" />
-                </button>
-              ))}
-            </div>
-          </div>
+          <ProductImageCarousel
+            images={productImages}
+            title={product.title}
+            selectedImage={selectedImage}
+            onImageChange={(index) => {
+              setManualImageSelect(true);
+              setSelectedImage(index);
+            }}
+          />
 
           {/* Product Info */}
           <div>
