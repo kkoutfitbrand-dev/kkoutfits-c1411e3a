@@ -165,13 +165,13 @@ export const ProductImageCarousel = ({
 
 
 
-            <button
-            onClick={(e) => {e.stopPropagation();handleArrowClick("next");}}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/90 backdrop-blur-sm shadow-lg rounded-full p-2 opacity-0 group-hover:opacity-100 transition-all hover:bg-background hover:scale-110"
-            aria-label="Next image">
+            
 
-              <ChevronRight className="h-5 w-5 text-foreground" />
-            </button>
+
+
+
+
+
           </>
         }
 
