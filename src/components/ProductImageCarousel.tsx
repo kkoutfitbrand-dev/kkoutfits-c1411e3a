@@ -212,13 +212,13 @@ export const ProductImageCarousel = ({
 
       {/* Thumbnail strip - vertical on desktop, horizontal scroll on mobile */}
       {totalImages > 1 &&
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide md:grid md:grid-cols-5 lg:grid-cols-6 md:overflow-visible">
+      <div className="flex gap-2 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide md:grid md:grid-cols-5 lg:grid-cols-6 md:overflow-visible md:snap-none">
           {images.map((image, index) =>
         <button
           key={index}
           onClick={() => handleThumbnailClick(index)}
           className={cn(
-            "relative flex-shrink-0 w-16 h-20 md:w-auto md:h-auto rounded-lg overflow-hidden border-2 transition-all duration-200",
+            "relative flex-shrink-0 w-14 h-[72px] snap-start md:w-auto md:h-auto rounded-lg overflow-hidden border-2 transition-all duration-200",
             selectedImage === index ?
             "border-primary ring-2 ring-primary/20 scale-[1.03]" :
             "border-border hover:border-muted-foreground/50 opacity-70 hover:opacity-100"
