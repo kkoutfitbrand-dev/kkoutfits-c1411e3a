@@ -1,4 +1,7 @@
 import { ProductCard } from "@/components/ProductCard";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -74,6 +77,8 @@ export const RelatedProducts = () => {
         </p>
       </div>
 
+      {/* Product grid */}
+
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
           {[...Array(10)].map((_, i) => (
@@ -98,6 +103,14 @@ export const RelatedProducts = () => {
           })}
         </div>
       )}
+
+      <div className="text-center mt-8">
+        <Button asChild variant="outline" size="lg">
+          <Link to="/shop">
+            View All Products <ArrowRight className="ml-2" />
+          </Link>
+        </Button>
+      </div>
     </section>
   );
 };
