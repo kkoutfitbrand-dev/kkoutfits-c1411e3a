@@ -53,7 +53,7 @@ export const RelatedProducts = () => {
         .select('id, title, price_cents, images, slug, variants')
         .eq('status', 'published')
         .order('created_at', { ascending: false })
-        .limit(4);
+        .limit(10);
 
       if (error) throw error;
       setRelatedProducts(data || []);
@@ -75,14 +75,14 @@ export const RelatedProducts = () => {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+          {[...Array(10)].map((_, i) => (
             <ProductCardSkeleton key={i} index={i} />
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 md:gap-6 max-w-3xl mx-auto">
-          {relatedProducts.slice(0, 4).map((product) => {
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+          {relatedProducts.map((product) => {
             const { price, originalPrice } = getDisplayPrice(product);
             return (
               <ProductCard 
