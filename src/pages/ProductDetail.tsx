@@ -414,10 +414,10 @@ const ProductDetail = () => {
 
   const inWishlist = product ? isInWishlist(product.id) : false;
 
-  return <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background overflow-x-hidden">
       <Navigation />
       
-      <div className="container px-4 py-8 md:py-12">
+      <div className="container px-4 py-6 md:py-12 max-w-full overflow-hidden">
         {/* Breadcrumb Navigation */}
         <Breadcrumb className="mb-6">
           <BreadcrumbList>
@@ -435,7 +435,7 @@ const ProductDetail = () => {
           </BreadcrumbList>
         </Breadcrumb>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 overflow-hidden">
           {/* Image Gallery */}
           <ProductImageCarousel
             images={productImages}
@@ -448,7 +448,7 @@ const ProductDetail = () => {
           />
 
           {/* Product Info */}
-          <div>
+          <div className="min-w-0">
             <h1 className="text-3xl md:text-4xl font-serif font-bold mb-4">{product.title}</h1>
             
             {/* Product Tags */}
