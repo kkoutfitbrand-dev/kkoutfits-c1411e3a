@@ -635,17 +635,14 @@ const ProductDetail = () => {
               <div className="flex gap-3">
                 <Button 
                   size="lg" 
-                  className="flex-1 relative overflow-hidden bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 hover:from-orange-600 hover:via-red-600 hover:to-pink-600 text-white border-0 transition-all duration-300 shadow-[0_4px_20px_rgba(239,68,68,0.4)] hover:shadow-[0_6px_30px_rgba(239,68,68,0.6)] hover:scale-[1.02] active:scale-[0.98] group h-14 text-base rounded-xl"
+                  className="flex-1 relative overflow-hidden bg-gradient-to-r from-amber-400 via-orange-500 to-pink-500 hover:from-amber-500 hover:via-orange-600 hover:to-pink-600 text-white border-0 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.98] group h-12 text-base rounded-xl"
                   onClick={handleBuyNow}
                 >
-                  {/* Shimmer sweep */}
-                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
-                  {/* Pulse ring */}
-                  <span className="absolute inset-0 rounded-xl animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite] bg-red-400/20" />
-                  <Zap className="h-5 w-5 mr-2 fill-current drop-shadow-sm animate-[pulse_1.5s_ease-in-out_infinite]" />
-                  <span className="font-bold tracking-wide text-shadow">Buy Now</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  <Zap className="h-5 w-5 mr-2 fill-current" />
+                  <span className="font-bold tracking-wide">Buy Now</span>
                 </Button>
-                <Button size="lg" variant="outline" className="flex-1" onClick={handleAddToCart} disabled={addingToCart}>
+                <Button size="lg" variant="outline" className="flex-1 h-12 text-base rounded-xl hover:bg-muted/50" onClick={handleAddToCart} disabled={addingToCart}>
                   {addingToCart ? "Adding..." : "Add to Cart"}
                 </Button>
               </div>
