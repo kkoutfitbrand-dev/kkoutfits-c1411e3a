@@ -35,12 +35,12 @@ export const PromoTicker = () => {
   }, []);
 
   return (
-    <div className="w-full bg-gradient-to-r from-[hsl(270,60%,30%)] via-[hsl(280,50%,25%)] to-[hsl(260,60%,30%)] text-white overflow-hidden">
-      <div className="flex animate-marquee whitespace-nowrap py-2">
-        {[...items, ...items].map((item, index) => (
+    <div className="w-full bg-black text-white overflow-hidden">
+      <div className="flex whitespace-nowrap py-2 animate-marquee">
+        {[...items, ...items, ...items, ...items].map((item, index) => (
           <span
             key={`${item.id}-${index}`}
-            className="mx-6 text-xs md:text-sm font-medium tracking-wider uppercase inline-flex items-center gap-1.5"
+            className="mx-6 text-xs md:text-sm font-medium tracking-wider uppercase inline-flex items-center gap-1.5 shrink-0"
           >
             {item.emoji && <span>{item.emoji}</span>}
             {item.text}
