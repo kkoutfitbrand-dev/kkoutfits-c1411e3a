@@ -1,4 +1,5 @@
 import { Navigation } from "@/components/Navigation";
+import { PromoTicker } from "@/components/PromoTicker";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { ProductCard } from "@/components/ProductCard";
 import { Footer } from "@/components/Footer";
@@ -133,6 +134,9 @@ const Index = () => {
     }
   };
   return <div className="min-h-screen bg-background overflow-x-hidden relative">
+      {/* Promo Ticker Banner */}
+      <PromoTicker />
+
       {/* Floating hearts background animation */}
       <ValentineFloatingHearts />
       

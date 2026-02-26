@@ -132,3 +132,12 @@ All colors MUST be HSL.
   from { width: 0%; }
   to { width: 100%; }
 }
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
