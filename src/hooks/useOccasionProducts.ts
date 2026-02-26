@@ -30,76 +30,57 @@ export const useOccasionProducts = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchClassifiedProducts = async () => {
+    const fetchAndClassify = async () => {
       try {
         setLoading(true);
-        
-        const { data, error: fnError } = await supabase.functions.invoke("classify-products");
-        
-        if (fnError) {
-          throw fnError;
-        }
 
-        if (data?.error) {
-          throw new Error(data.error);
-        }
+        const { data: allProducts, error: dbError } = await supabase
+          .from("products")
+          .select("id, title, images, category, description, price_cents, slug")
+          .eq("status", "published")
+          .limit(50);
 
-        if (data?.classified) {
-          setProducts(data.classified);
+        if (dbError) throw dbError;
+
+        if (allProducts) {
+          const classified: ClassifiedProducts = {
+            wedding: [],
+            festival: [],
+            party: [],
+            casual: [],
+          };
+
+          for (const product of allProducts) {
+            const title = product.title.toLowerCase();
+            const desc = (product.description || "").toLowerCase();
+            const category = (product.category || "").toLowerCase();
+
+            if (title.includes("sherwani") || title.includes("lehenga") || title.includes("bridal") || category.includes("wedding") || desc.includes("wedding")) {
+              classified.wedding.push(product);
+            } else if (title.includes("kurta") || title.includes("saree") || title.includes("salwar") || title.includes("chudithar") || category.includes("ethnic") || category.includes("sarees") || category.includes("chudithar")) {
+              classified.festival.push(product);
+            } else if (title.includes("bandhgala") || title.includes("blazer") || title.includes("formal") || title.includes("party") || category.includes("formal") || category.includes("women")) {
+              classified.party.push(product);
+            } else {
+              classified.casual.push(product);
+            }
+          }
+
+          for (const key of Object.keys(classified) as (keyof ClassifiedProducts)[]) {
+            classified[key] = classified[key].slice(0, 4);
+          }
+
+          setProducts(classified);
         }
       } catch (e) {
-        console.error("Failed to fetch classified products:", e);
+        console.error("Failed to fetch products:", e);
         setError(e instanceof Error ? e.message : "Failed to load products");
-        
-        // Fallback: fetch products directly without ML classification
-        try {
-          const { data: fallbackProducts } = await supabase
-            .from("products")
-            .select("id, title, images, category, description, price_cents, slug")
-            .eq("status", "published")
-            .limit(16);
-
-          if (fallbackProducts) {
-            // Simple rule-based fallback classification
-            const classified: ClassifiedProducts = {
-              wedding: [],
-              festival: [],
-              party: [],
-              casual: [],
-            };
-
-            for (const product of fallbackProducts) {
-              const title = product.title.toLowerCase();
-              const category = (product.category || "").toLowerCase();
-              
-              if (title.includes("sherwani") || title.includes("lehenga") || title.includes("bridal") || category.includes("wedding")) {
-                classified.wedding.push(product);
-              } else if (title.includes("kurta") || title.includes("saree") || title.includes("salwar") || category.includes("ethnic")) {
-                classified.festival.push(product);
-              } else if (title.includes("bandhgala") || title.includes("blazer") || title.includes("formal") || category.includes("formal")) {
-                classified.party.push(product);
-              } else {
-                classified.casual.push(product);
-              }
-            }
-
-            // Limit each category
-            for (const key of Object.keys(classified) as (keyof ClassifiedProducts)[]) {
-              classified[key] = classified[key].slice(0, 4);
-            }
-
-            setProducts(classified);
-            setError(null);
-          }
-        } catch (fallbackError) {
-          console.error("Fallback fetch failed:", fallbackError);
-        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchClassifiedProducts();
+    fetchAndClassify();
   }, []);
 
   return { products, loading, error };
