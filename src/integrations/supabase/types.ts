@@ -529,6 +529,36 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_ticker_items: {
+        Row: {
+          created_at: string
+          display_order: number
+          emoji: string | null
+          id: string
+          is_active: boolean
+          text: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          emoji?: string | null
+          id?: string
+          is_active?: boolean
+          text: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          emoji?: string | null
+          id?: string
+          is_active?: boolean
+          text?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
