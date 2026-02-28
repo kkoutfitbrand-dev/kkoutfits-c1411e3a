@@ -162,6 +162,23 @@ export default function AdminSettings() {
                 </TableBody>
               </Table>
             )}
+            {/* Speed Control */}
+            <div className="pt-4 border-t space-y-2">
+              <Label>Scroll Speed: {tickerSpeed}s (lower = faster)</Label>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-muted-foreground">Fast</span>
+                <Slider
+                  value={[tickerSpeed]}
+                  onValueCommit={(val) => saveSpeed(val[0])}
+                  onValueChange={(val) => setTickerSpeed(val[0])}
+                  min={3}
+                  max={30}
+                  step={1}
+                  className="flex-1"
+                />
+                <span className="text-xs text-muted-foreground">Slow</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
