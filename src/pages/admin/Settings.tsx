@@ -25,6 +25,8 @@ export default function AdminSettings() {
   const [newText, setNewText] = useState('');
   const [newEmoji, setNewEmoji] = useState('');
   const [saving, setSaving] = useState(false);
+  const [tickerSpeed, setTickerSpeed] = useState(8);
+  const [speedSaving, setSpeedSaving] = useState(false);
 
   const db = supabase as any;
 
