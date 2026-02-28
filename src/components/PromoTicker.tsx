@@ -36,7 +36,7 @@ export const PromoTicker = () => {
 
   return (
     <div className="w-full bg-black text-white overflow-hidden">
-      <div className="flex whitespace-nowrap py-2 animate-marquee">
+      <div className="flex whitespace-nowrap py-2 animate-marquee w-max">
         {[...items, ...items, ...items, ...items].map((item, index) => (
           <span
             key={`${item.id}-${index}`}
