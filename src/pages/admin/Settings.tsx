@@ -31,15 +31,28 @@ export default function AdminSettings() {
   const db = supabase as any;
 
   const fetchItems = async () => {
-    const { data, error } = await db
-      .from('promo_ticker_items')
-      .select('*')
-      .order('display_order', { ascending: true });
-    if (!error) setItems(data || []);
+    const [itemsRes, speedRes] = await Promise.all([
+      db.from('promo_ticker_items').select('*').order('display_order', { ascending: true }),
+      db.from('site_settings').select('value').eq('key', 'ticker_speed').single(),
+    ]);
+    if (!itemsRes.error) setItems(itemsRes.data || []);
+    if (!speedRes.error && speedRes.data) setTickerSpeed(Number(speedRes.data.value) || 8);
     setLoading(false);
   };
 
   useEffect(() => { fetchItems(); }, []);
+
+  const saveSpeed = async (val: number) => {
+    setTickerSpeed(val);
+    setSpeedSaving(true);
+    const { error } = await db
+      .from('site_settings')
+      .update({ value: String(val) })
+      .eq('key', 'ticker_speed');
+    if (error) toast.error('Failed to save speed');
+    else toast.success(`Speed set to ${val}s`);
+    setSpeedSaving(false);
+  };
 
   const addItem = async () => {
     if (!newText.trim()) return;
