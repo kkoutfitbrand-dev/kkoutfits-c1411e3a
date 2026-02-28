@@ -18,25 +18,32 @@ const DEFAULT_ITEMS: TickerItem[] = [
 
 export const PromoTicker = () => {
   const [items, setItems] = useState<TickerItem[]>(DEFAULT_ITEMS);
+  const [speed, setSpeed] = useState(8);
 
   useEffect(() => {
-    const fetchItems = async () => {
-      const { data, error } = await (supabase as any)
-        .from("promo_ticker_items")
-        .select("id, text, emoji")
-        .eq("is_active", true)
-        .order("display_order", { ascending: true });
+    const fetchData = async () => {
+      const db = supabase as any;
+      const [itemsRes, speedRes] = await Promise.all([
+        db.from("promo_ticker_items").select("id, text, emoji").eq("is_active", true).order("display_order", { ascending: true }),
+        db.from("site_settings").select("value").eq("key", "ticker_speed").single(),
+      ]);
 
-      if (!error && data && data.length > 0) {
-        setItems(data);
+      if (!itemsRes.error && itemsRes.data?.length > 0) {
+        setItems(itemsRes.data);
+      }
+      if (!speedRes.error && speedRes.data) {
+        setSpeed(Number(speedRes.data.value) || 8);
       }
     };
-    fetchItems();
+    fetchData();
   }, []);
 
   return (
     <div className="w-full bg-black text-white overflow-hidden">
-      <div className="flex whitespace-nowrap py-2 animate-marquee w-max">
+      <div
+        className="flex whitespace-nowrap py-2 w-max"
+        style={{ animation: `marquee ${speed}s linear infinite` }}
+      >
         {[...items, ...items, ...items, ...items].map((item, index) => (
           <span
             key={`${item.id}-${index}`}
