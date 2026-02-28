@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Slider } from '@/components/ui/slider';
 import { Plus, Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -24,19 +25,34 @@ export default function AdminSettings() {
   const [newText, setNewText] = useState('');
   const [newEmoji, setNewEmoji] = useState('');
   const [saving, setSaving] = useState(false);
+  const [tickerSpeed, setTickerSpeed] = useState(8);
+  const [speedSaving, setSpeedSaving] = useState(false);
 
   const db = supabase as any;
 
   const fetchItems = async () => {
-    const { data, error } = await db
-      .from('promo_ticker_items')
-      .select('*')
-      .order('display_order', { ascending: true });
-    if (!error) setItems(data || []);
+    const [itemsRes, speedRes] = await Promise.all([
+      db.from('promo_ticker_items').select('*').order('display_order', { ascending: true }),
+      db.from('site_settings').select('value').eq('key', 'ticker_speed').single(),
+    ]);
+    if (!itemsRes.error) setItems(itemsRes.data || []);
+    if (!speedRes.error && speedRes.data) setTickerSpeed(Number(speedRes.data.value) || 8);
     setLoading(false);
   };
 
   useEffect(() => { fetchItems(); }, []);
+
+  const saveSpeed = async (val: number) => {
+    setTickerSpeed(val);
+    setSpeedSaving(true);
+    const { error } = await db
+      .from('site_settings')
+      .update({ value: String(val) })
+      .eq('key', 'ticker_speed');
+    if (error) toast.error('Failed to save speed');
+    else toast.success(`Speed set to ${val}s`);
+    setSpeedSaving(false);
+  };
 
   const addItem = async () => {
     if (!newText.trim()) return;
@@ -146,6 +162,23 @@ export default function AdminSettings() {
                 </TableBody>
               </Table>
             )}
+            {/* Speed Control */}
+            <div className="pt-4 border-t space-y-2">
+              <Label>Scroll Speed: {tickerSpeed}s (lower = faster)</Label>
+              <div className="flex items-center gap-4">
+                <span className="text-xs text-muted-foreground">Fast</span>
+                <Slider
+                  value={[tickerSpeed]}
+                  onValueCommit={(val) => saveSpeed(val[0])}
+                  onValueChange={(val) => setTickerSpeed(val[0])}
+                  min={3}
+                  max={30}
+                  step={1}
+                  className="flex-1"
+                />
+                <span className="text-xs text-muted-foreground">Slow</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
