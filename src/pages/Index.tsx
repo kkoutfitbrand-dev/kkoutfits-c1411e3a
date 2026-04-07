@@ -13,11 +13,10 @@ import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { MegaSaleBanner } from "@/components/MegaSaleBanner";
-import { ValentineGiftGuide } from "@/components/ValentineGiftGuide";
-import { ValentineFloatingHearts } from "@/components/ValentineFloatingHearts";
-import { ValentineCoupleSection } from "@/components/ValentineCoupleSection";
-import { ValentineCountdownBanner } from "@/components/ValentineCountdownBanner";
-import { ValentineLoveQuotes } from "@/components/ValentineLoveQuotes";
+import { SummerStyleGuide } from "@/components/SummerStyleGuide";
+import { FloatingParticles } from "@/components/FloatingParticles";
+import { SummerSaleBanner } from "@/components/SummerSaleBanner";
+import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -137,13 +136,13 @@ const Index = () => {
       {/* Promo Ticker Banner */}
       <PromoTicker />
 
-      {/* Floating hearts background animation */}
-      <ValentineFloatingHearts />
+      {/* Floating sparkle particles */}
+      <FloatingParticles />
       
       <Navigation />
       
-      {/* Valentine's Countdown Banner */}
-      <ValentineCountdownBanner />
+      {/* Summer Sale Banner */}
+      <SummerSaleBanner />
       
       {/* Hero Section */}
       <ScrollReveal>
@@ -155,13 +154,13 @@ const Index = () => {
         <MegaSaleBanner />
       </ScrollReveal>
 
-      {/* Valentine's Gift Guide */}
+      {/* Summer Style Guide */}
       <ScrollReveal delay={0.1}>
-        <ValentineGiftGuide />
+        <SummerStyleGuide />
       </ScrollReveal>
       
-      {/* Valentine's Love Quotes */}
-      <ValentineLoveQuotes />
+      {/* Style Tips */}
+      <StyleTipsCarousel />
 
       {/* Combo Offer Banner */}
       <ScrollReveal delay={0.1}>
@@ -224,7 +223,7 @@ const Index = () => {
         </section>
       </ScrollReveal>
 
-      {/* Valentine's Couple Section */}
+      {/* (removed seasonal section) */}
       
 
       {/* Occasion Shopping */}
