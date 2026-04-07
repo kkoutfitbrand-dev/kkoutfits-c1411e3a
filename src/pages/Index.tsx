@@ -223,7 +223,7 @@ const Index = () => {
         </section>
       </ScrollReveal>
 
-      {/* Valentine's Couple Section */}
+      {/* (removed seasonal section) */}
       
 
       {/* Occasion Shopping */}
