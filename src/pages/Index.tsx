@@ -136,13 +136,13 @@ const Index = () => {
       {/* Promo Ticker Banner */}
       <PromoTicker />
 
-      {/* Floating hearts background animation */}
-      <ValentineFloatingHearts />
+      {/* Floating sparkle particles */}
+      <FloatingParticles />
       
       <Navigation />
       
-      {/* Valentine's Countdown Banner */}
-      <ValentineCountdownBanner />
+      {/* Summer Sale Banner */}
+      <SummerSaleBanner />
       
       {/* Hero Section */}
       <ScrollReveal>
