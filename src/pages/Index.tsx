@@ -154,13 +154,13 @@ const Index = () => {
         <MegaSaleBanner />
       </ScrollReveal>
 
-      {/* Valentine's Gift Guide */}
+      {/* Summer Style Guide */}
       <ScrollReveal delay={0.1}>
-        <ValentineGiftGuide />
+        <SummerStyleGuide />
       </ScrollReveal>
       
-      {/* Valentine's Love Quotes */}
-      <ValentineLoveQuotes />
+      {/* Style Tips */}
+      <StyleTipsCarousel />
 
       {/* Combo Offer Banner */}
       <ScrollReveal delay={0.1}>
