@@ -1,55 +1,68 @@
 
 
-## Plan: Infinite Scrolling Promo Ticker Banner (Admin-Controlled)
+## Plan: Replace Valentine's Theme with Summer Collection 2026
 
-### What This Feature Does
-Adds a horizontally scrolling marquee/ticker banner at the very top of the site (above the navigation), similar to the reference image. It will display promotional messages like "FAST DELIVERY", "24/7 CUSTOMER SUPPORT", "GRAND SALE!", "4.4/5 FROM 690+ REVIEWS", etc. The content will be managed by admins from the admin settings page.
+Since it's April 2026, Valentine's Day is long past. We'll replace all Valentine's-themed components with a fresh, professional **"Summer Style Collection"** theme — clean, modern, and season-appropriate.
 
-### Architecture
+### What Changes
 
-**Database**: Create a new `promo_ticker_items` table in Supabase with columns:
-- `id` (uuid, PK)
-- `text` (text, required) — the message to display
-- `emoji` (text, nullable) — optional emoji shown before text
-- `is_active` (boolean, default true)
-- `display_order` (integer, default 0)
-- `created_at` / `updated_at` (timestamps)
+**Remove/Replace these Valentine components:**
+- `ValentineFloatingHearts` → Replace with subtle floating sparkle/sun particles
+- `ValentineCountdownBanner` → Replace with a **Summer Sale countdown banner** (gold/amber gradient)
+- `ValentineGiftGuide` → Replace with **Summer Style Guide** (Beach, Casual, Formal, Party categories)
+- `ValentineLoveQuotes` → Replace with **Style Tips carousel** (fashion quotes/tips)
+- `MegaSaleBanner` → Re-theme from hearts/pink to a sleek summer gradient (sky blue to amber)
+- `ValentineCoupleSection` → Remove from homepage (already commented out)
+- `HeartConfetti` → Replace with a **sparkle/star confetti** effect
 
-**Frontend Components**:
+**Color Palette Change:**
+- From: Rose/pink/red hearts
+- To: Sky blue, amber/gold, warm white — clean summer feel
 
-1. **`src/components/PromoTicker.tsx`** — The infinite scrolling marquee banner
-   - Fetches active ticker items from Supabase, ordered by `display_order`
-   - Uses pure CSS `@keyframes marquee` animation for smooth infinite scroll (duplicates the list twice for seamless looping)
-   - Purple/dark gradient background matching the reference image style
-   - Items separated by decorators (dots or pipes)
-   - Falls back to hardcoded defaults if no DB items exist (Fast Delivery, 24/7 Support, Grand Sale, 4.4/5 Reviews, Free Returns, etc.)
+### Files to Modify
 
-2. **Admin Settings page update** (`src/pages/admin/Settings.tsx`) — Add a "Promo Ticker" management card
-   - List all ticker items with text, emoji, active toggle, and order
-   - Add/edit/delete ticker items via inline form
-   - Toggle items active/inactive
-   - Reorder items
+1. **`src/hooks/useValentineCountdown.ts`** → Rename to `src/hooks/useSummerCountdown.ts`
+   - Target date: June 1, 2026 (Summer Sale launch)
+   - Same countdown logic, new naming
 
-**Integration Points**:
-- `src/pages/Index.tsx`: Add `<PromoTicker />` as the very first element, before `<Navigation />`
-- `src/integrations/supabase/types.ts`: Will need updating after migration (can use `.from('promo_ticker_items' as any)` workaround)
-- New Supabase migration for the table + RLS policies (public read, admin write)
+2. **`src/components/ValentineCountdownBanner.tsx`** → Rewrite as `src/components/SummerSaleBanner.tsx`
+   - Gradient: sky-500 → amber-500
+   - Icons: Sun, Sparkles, ShoppingBag instead of Heart, Gift
+   - Text: "Summer Sale — Up to 50% Off"
 
-### CSS Animation Approach
-Uses a pure CSS `marquee` keyframe that translates `-50%` horizontally on a doubled list, creating seamless infinite scroll without JavaScript timers. This is performant and smooth.
+3. **`src/components/ValentineGiftGuide.tsx`** → Rewrite as `src/components/SummerStyleGuide.tsx`
+   - Categories: "Beach Vibes", "Smart Casuals", "Formal Elegance", "Party Wear"
+   - Clean, modern card design with gradient accents
+   - Links to shop/trending pages
 
-### Default Ticker Items (if no DB data)
-- 🚚 FAST DELIVERY
-- 📞 24/7 CUSTOMER SUPPORT
-- 🔥 GRAND SALE!
-- ⭐ 4.4/5 FROM 690+ REVIEWS
-- 💰 BEST PRICE GUARANTEE
-- 🔄 EASY RETURNS
+4. **`src/components/ValentineLoveQuotes.tsx`** → Rewrite as `src/components/StyleTipsCarousel.tsx`
+   - Fashion/style quotes instead of love quotes
+   - Neutral elegant design (dark background, gold accents)
 
-### Files to Create/Modify
-1. **Create** `supabase/migrations/[timestamp]_create_promo_ticker.sql` — table + RLS
-2. **Create** `src/components/PromoTicker.tsx` — marquee component
-3. **Modify** `src/pages/Index.tsx` — add PromoTicker above Navigation
-4. **Modify** `src/pages/admin/Settings.tsx` — add ticker management UI
-5. **Modify** `src/index.css` — add marquee keyframe animation
+5. **`src/components/ValentineFloatingHearts.tsx`** → Rewrite as `src/components/FloatingParticles.tsx`
+   - Subtle floating dots/sparkles instead of hearts
+   - Light, professional feel
+
+6. **`src/components/MegaSaleBanner.tsx`** → Re-theme
+   - Remove heart decorations, rose gradients
+   - Summer gradient (sky blue to warm amber)
+   - "Summer Collection 2026" branding
+   - Sun/sparkle decorations instead of hearts
+   - Navigate to `/shop` instead of `/valentine-collection`
+
+7. **`src/components/HeartConfetti.tsx`** → Rewrite as `src/components/StarConfetti.tsx`
+   - Star/sparkle particles instead of hearts
+   - Gold/amber/white color palette
+
+8. **`src/pages/Index.tsx`** → Update imports
+   - Swap all Valentine imports for new Summer components
+   - Clean, professional layout order
+
+9. **`src/App.tsx`** → Remove `/valentine-collection` route (optional, can keep as redirect to `/shop`)
+
+### Design Direction
+- Professional, clean, modern e-commerce feel
+- No seasonal gimmicks — just polished promotional sections
+- Subtle animations (no floating hearts everywhere)
+- Color scheme: deep navy, sky blue, amber gold, clean white
 
