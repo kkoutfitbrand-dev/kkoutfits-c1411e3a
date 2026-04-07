@@ -49,7 +49,7 @@ import AdminOrders from "./pages/admin/Orders";
 import AdminCustomers from "./pages/admin/Customers";
 import AdminSettings from "./pages/admin/Settings";
 import NewYearCollection from "./pages/NewYearCollection";
-import Shop2 from "./pages/Shop";
+// Valentine collection now redirects to Shop
 import Combo from "./pages/Combo";
 import ComboDetail from "./pages/ComboDetail";
 import AdminCombos from "./pages/admin/Combos";
