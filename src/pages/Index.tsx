@@ -153,6 +153,11 @@ const Index = () => {
         <MegaSaleBanner />
       </ScrollReveal>
 
+      {/* Summer Special Banner */}
+      <ScrollReveal delay={0.1}>
+        <SummerSpecialBanner />
+      </ScrollReveal>
+
       {/* Summer Style Guide */}
       <ScrollReveal delay={0.1}>
         <SummerStyleGuide />
