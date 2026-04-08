@@ -243,6 +243,9 @@ const Index = () => {
         <GoogleReviewsBanner />
       </ScrollReveal>
 
+      {/* Summer CTA Banner */}
+      <SummerCTABanner />
+
       {/* USP Section */}
       <ScrollReveal delay={0.1}>
         <section className="bg-muted py-8">
