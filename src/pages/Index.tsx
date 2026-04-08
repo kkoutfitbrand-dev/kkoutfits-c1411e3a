@@ -141,8 +141,6 @@ const Index = () => {
       
       <Navigation />
       
-      {/* Summer Sale Banner */}
-      <SummerSaleBanner />
       
       {/* Hero Section */}
       <ScrollReveal>
