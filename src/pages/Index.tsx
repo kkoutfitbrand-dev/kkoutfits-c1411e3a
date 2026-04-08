@@ -155,6 +155,9 @@ const Index = () => {
         <MegaSaleBanner />
       </ScrollReveal>
 
+      {/* Summer Countdown Strip */}
+      <SummerCountdownStrip />
+
       {/* Summer Style Guide */}
       <ScrollReveal delay={0.1}>
         <SummerStyleGuide />
@@ -162,6 +165,9 @@ const Index = () => {
       
       {/* Style Tips */}
       <StyleTipsCarousel />
+
+      {/* Summer Lifestyle Banner */}
+      <SummerLifestyleBanner />
 
       {/* Combo Offer Banner */}
       <ScrollReveal delay={0.1}>
