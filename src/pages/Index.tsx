@@ -15,6 +15,9 @@ import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { MegaSaleBanner } from "@/components/MegaSaleBanner";
 import { SummerStyleGuide } from "@/components/SummerStyleGuide";
 import { FloatingParticles } from "@/components/FloatingParticles";
+import { SummerCountdownStrip } from "@/components/SummerCountdownStrip";
+import { SummerLifestyleBanner } from "@/components/SummerLifestyleBanner";
+import { SummerCTABanner } from "@/components/SummerCTABanner";
 
 import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
