@@ -15,6 +15,9 @@ import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { MegaSaleBanner } from "@/components/MegaSaleBanner";
 import { SummerStyleGuide } from "@/components/SummerStyleGuide";
 import { FloatingParticles } from "@/components/FloatingParticles";
+import { SummerCountdownStrip } from "@/components/SummerCountdownStrip";
+import { SummerLifestyleBanner } from "@/components/SummerLifestyleBanner";
+import { SummerCTABanner } from "@/components/SummerCTABanner";
 
 import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
@@ -152,6 +155,9 @@ const Index = () => {
         <MegaSaleBanner />
       </ScrollReveal>
 
+      {/* Summer Countdown Strip */}
+      <SummerCountdownStrip />
+
       {/* Summer Style Guide */}
       <ScrollReveal delay={0.1}>
         <SummerStyleGuide />
@@ -159,6 +165,9 @@ const Index = () => {
       
       {/* Style Tips */}
       <StyleTipsCarousel />
+
+      {/* Summer Lifestyle Banner */}
+      <SummerLifestyleBanner />
 
       {/* Combo Offer Banner */}
       <ScrollReveal delay={0.1}>
@@ -233,6 +242,9 @@ const Index = () => {
       <ScrollReveal delay={0.1}>
         <GoogleReviewsBanner />
       </ScrollReveal>
+
+      {/* Summer CTA Banner */}
+      <SummerCTABanner />
 
       {/* USP Section */}
       <ScrollReveal delay={0.1}>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Sun, Shirt, Gem, PartyPopper, ArrowRight } from 'lucide-react';
+import { Sun, Shirt, Gem, PartyPopper, ArrowRight, Flame } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ScrollReveal } from '@/components/ScrollReveal';
@@ -47,6 +47,7 @@ const styleCategories = [
     icon: Sun,
     gradient: 'from-sky-400 to-cyan-500',
     link: '/shop',
+    hot: true,
   },
   {
     id: 'casual',
@@ -122,7 +123,7 @@ export const SummerStyleGuide = () => {
           </div>
         </ScrollReveal>
 
-        {/* Category cards */}
+        {/* Category cards with glow and badges */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-10">
           {styleCategories.map((cat, i) => (
             <ScrollReveal key={cat.id} delay={i * 0.08} direction="up">
@@ -131,6 +132,26 @@ export const SummerStyleGuide = () => {
                   whileHover={{ y: -4, scale: 1.02 }}
                   className={`relative rounded-2xl bg-gradient-to-br ${cat.gradient} p-5 md:p-6 text-white overflow-hidden group cursor-pointer shadow-lg`}
                 >
+                  {/* Glow border effect */}
+                  <motion.div
+                    className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{
+                      boxShadow: 'inset 0 0 20px rgba(255,255,255,0.2), 0 0 30px rgba(255,255,255,0.1)',
+                    }}
+                  />
+
+                  {/* HOT badge */}
+                  {cat.hot && (
+                    <motion.div
+                      className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold uppercase"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      <Flame className="w-3 h-3" />
+                      HOT
+                    </motion.div>
+                  )}
+
                   <cat.icon className="w-8 h-8 mb-3 opacity-90" />
                   <h3 className="font-bold text-sm md:text-base">{cat.title}</h3>
                   <p className="text-white/70 text-xs mt-1">{cat.subtitle}</p>
@@ -141,7 +162,7 @@ export const SummerStyleGuide = () => {
           ))}
         </div>
 
-        {/* Featured products */}
+        {/* Featured products with stagger */}
         <ScrollReveal>
           <h3 className="text-lg font-bold text-foreground mb-4">Top Picks for You</h3>
         </ScrollReveal>
@@ -152,7 +173,7 @@ export const SummerStyleGuide = () => {
             {products.map((product, i) => {
               const { price, originalPrice } = getDisplayPrice(product);
               return (
-                <ScrollReveal key={product.id} delay={i * 0.05} direction="up">
+                <ScrollReveal key={product.id} delay={i * 0.08} direction="up">
                   <ProductCard
                     id={product.slug}
                     productId={product.id}

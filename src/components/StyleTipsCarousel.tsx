@@ -23,10 +23,19 @@ export const StyleTipsCarousel = () => {
 
   return (
     <section className="py-12 relative overflow-hidden">
+      {/* Background with subtle pattern */}
       <div
         className="absolute inset-0"
         style={{
           background: 'linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(43 40% 97%) 50%, hsl(0 0% 100%) 100%)',
+        }}
+      />
+      {/* Diagonal dot pattern overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.03]"
+        style={{
+          backgroundImage: 'radial-gradient(circle, currentColor 1px, transparent 1px)',
+          backgroundSize: '20px 20px',
         }}
       />
 
@@ -78,7 +87,8 @@ export const StyleTipsCarousel = () => {
                   <p className="text-xl md:text-2xl text-foreground font-serif italic mb-4">
                     "{styleTips[currentIndex].quote}"
                   </p>
-                  <p className="text-muted-foreground font-medium">
+                  {/* Gradient author name */}
+                  <p className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-sky-600">
                     — {styleTips[currentIndex].author}
                   </p>
                 </motion.div>
