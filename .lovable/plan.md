@@ -1,35 +1,68 @@
 
 
-## Plan: Add Summer Special Promotional Banner
+## Plan: Replace Valentine's Theme with Summer Collection 2026
 
-### What We're Building
-A new eye-catching promotional banner component (`SummerSpecialBanner`) placed between the MegaSaleBanner and SummerStyleGuide on the homepage. It will feature a split-layout design with animated gradient background, floating decorative elements, and a sleek parallax-inspired feel — matching the premium KKOutfits aesthetic.
+Since it's April 2026, Valentine's Day is long past. We'll replace all Valentine's-themed components with a fresh, professional **"Summer Style Collection"** theme — clean, modern, and season-appropriate.
 
-### Design
-- **Layout**: Full-width banner with a dark navy-to-sky gradient background, gold accent text, and a frosted-glass feature card on the right
-- **Left side**: "Summer Specials" headline with animated gradient text, tagline, and 3 highlight chips (e.g. "New Arrivals", "Limited Edition", "Flat 40% Off")
-- **Right side**: A glassmorphism card showing 3 key offers (Free Shipping, Premium Quality, Exclusive Styles) with icons
-- **Animations**: Framer Motion entrance animations (staggered fade+slide), subtle floating sparkle particles, shimmer effect on CTA button, breathing glow on the accent border
-- **CTA**: "Explore Summer Collection" button linking to `/shop`
-- **Mobile**: Stacks vertically, card moves below text
+### What Changes
+
+**Remove/Replace these Valentine components:**
+- `ValentineFloatingHearts` → Replace with subtle floating sparkle/sun particles
+- `ValentineCountdownBanner` → Replace with a **Summer Sale countdown banner** (gold/amber gradient)
+- `ValentineGiftGuide` → Replace with **Summer Style Guide** (Beach, Casual, Formal, Party categories)
+- `ValentineLoveQuotes` → Replace with **Style Tips carousel** (fashion quotes/tips)
+- `MegaSaleBanner` → Re-theme from hearts/pink to a sleek summer gradient (sky blue to amber)
+- `ValentineCoupleSection` → Remove from homepage (already commented out)
+- `HeartConfetti` → Replace with a **sparkle/star confetti** effect
+
+**Color Palette Change:**
+- From: Rose/pink/red hearts
+- To: Sky blue, amber/gold, warm white — clean summer feel
 
 ### Files to Modify
 
-1. **Create `src/components/SummerSpecialBanner.tsx`**
-   - Dark gradient banner (slate-900 → sky-900 → amber hints)
-   - Animated gradient headline text
-   - 3 highlight badges with staggered animation
-   - Glassmorphism offer card with icons (Truck, Shield, Gem)
-   - Floating star particles (reuse pattern from MegaSaleBanner)
-   - Shimmer CTA button
-   - Fully responsive
+1. **`src/hooks/useValentineCountdown.ts`** → Rename to `src/hooks/useSummerCountdown.ts`
+   - Target date: June 1, 2026 (Summer Sale launch)
+   - Same countdown logic, new naming
 
-2. **Modify `src/pages/Index.tsx`**
-   - Import `SummerSpecialBanner`
-   - Place it after `MegaSaleBanner` and before `SummerStyleGuide` wrapped in `ScrollReveal`
+2. **`src/components/ValentineCountdownBanner.tsx`** → Rewrite as `src/components/SummerSaleBanner.tsx`
+   - Gradient: sky-500 → amber-500
+   - Icons: Sun, Sparkles, ShoppingBag instead of Heart, Gift
+   - Text: "Summer Sale — Up to 50% Off"
 
-### Visual Style
-- Colors: Deep navy (`slate-900`), sky blue accents, amber/gold highlights, white text
-- Typography: Bold, uppercase tracking for headers
-- Professional, premium fashion e-commerce feel with subtle motion
+3. **`src/components/ValentineGiftGuide.tsx`** → Rewrite as `src/components/SummerStyleGuide.tsx`
+   - Categories: "Beach Vibes", "Smart Casuals", "Formal Elegance", "Party Wear"
+   - Clean, modern card design with gradient accents
+   - Links to shop/trending pages
+
+4. **`src/components/ValentineLoveQuotes.tsx`** → Rewrite as `src/components/StyleTipsCarousel.tsx`
+   - Fashion/style quotes instead of love quotes
+   - Neutral elegant design (dark background, gold accents)
+
+5. **`src/components/ValentineFloatingHearts.tsx`** → Rewrite as `src/components/FloatingParticles.tsx`
+   - Subtle floating dots/sparkles instead of hearts
+   - Light, professional feel
+
+6. **`src/components/MegaSaleBanner.tsx`** → Re-theme
+   - Remove heart decorations, rose gradients
+   - Summer gradient (sky blue to warm amber)
+   - "Summer Collection 2026" branding
+   - Sun/sparkle decorations instead of hearts
+   - Navigate to `/shop` instead of `/valentine-collection`
+
+7. **`src/components/HeartConfetti.tsx`** → Rewrite as `src/components/StarConfetti.tsx`
+   - Star/sparkle particles instead of hearts
+   - Gold/amber/white color palette
+
+8. **`src/pages/Index.tsx`** → Update imports
+   - Swap all Valentine imports for new Summer components
+   - Clean, professional layout order
+
+9. **`src/App.tsx`** → Remove `/valentine-collection` route (optional, can keep as redirect to `/shop`)
+
+### Design Direction
+- Professional, clean, modern e-commerce feel
+- No seasonal gimmicks — just polished promotional sections
+- Subtle animations (no floating hearts everywhere)
+- Color scheme: deep navy, sky blue, amber gold, clean white
 
