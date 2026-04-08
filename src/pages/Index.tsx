@@ -15,6 +15,7 @@ import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { MegaSaleBanner } from "@/components/MegaSaleBanner";
 import { SummerStyleGuide } from "@/components/SummerStyleGuide";
 import { FloatingParticles } from "@/components/FloatingParticles";
+import { SummerSpecialBanner } from "@/components/SummerSpecialBanner";
 
 import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
@@ -150,6 +151,11 @@ const Index = () => {
       {/* Mega Sale Banner */}
       <ScrollReveal delay={0.1}>
         <MegaSaleBanner />
+      </ScrollReveal>
+
+      {/* Summer Special Banner */}
+      <ScrollReveal delay={0.1}>
+        <SummerSpecialBanner />
       </ScrollReveal>
 
       {/* Summer Style Guide */}
