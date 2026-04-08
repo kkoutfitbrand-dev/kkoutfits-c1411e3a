@@ -53,7 +53,7 @@ export const EmailVerificationSteps = ({ isOpen, onClose, email }: EmailVerifica
       setCompletedSteps([]);
       
       // Auto-advance through steps for demo
-      const timers: NodeJS.Timeout[] = [];
+      const timers: ReturnType<typeof setTimeout>[] = [];
       steps.forEach((_, index) => {
         if (index > 0) {
           timers.push(

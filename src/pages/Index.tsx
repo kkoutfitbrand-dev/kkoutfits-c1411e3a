@@ -15,7 +15,7 @@ import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { MegaSaleBanner } from "@/components/MegaSaleBanner";
 import { SummerStyleGuide } from "@/components/SummerStyleGuide";
 import { FloatingParticles } from "@/components/FloatingParticles";
-import { SummerSaleBanner } from "@/components/SummerSaleBanner";
+
 import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
 import { useEffect, useState } from "react";
@@ -141,8 +141,6 @@ const Index = () => {
       
       <Navigation />
       
-      {/* Summer Sale Banner */}
-      <SummerSaleBanner />
       
       {/* Hero Section */}
       <ScrollReveal>
