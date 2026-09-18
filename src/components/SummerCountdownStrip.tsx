@@ -1,6 +1,7 @@
 import { motion, useInView } from 'framer-motion';
 import { Flame, Package, Truck, Percent } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
+import { useSaleCampaign } from '@/hooks/useSaleCampaign';
 
 const CountUp = ({ target, suffix = '' }: { target: number; suffix?: string }) => {
   const ref = useRef<HTMLSpanElement>(null);
@@ -27,13 +28,14 @@ const CountUp = ({ target, suffix = '' }: { target: number; suffix?: string }) =
   return <span ref={ref}>{count}{suffix}</span>;
 };
 
-const stats = [
-  { icon: Package, value: 500, suffix: '+', label: 'Products', color: 'text-amber-300' },
-  { icon: Percent, value: 50, suffix: '%', label: 'Up to Off', color: 'text-sky-300' },
-  { icon: Truck, value: 0, suffix: '', label: 'Free Shipping', color: 'text-emerald-300', isText: true },
-];
-
 export const SummerCountdownStrip = () => {
+  const { campaign, loading } = useSaleCampaign();
+  if (loading || !campaign) return null;
+  const stats = [
+    { icon: Package, value: 500, suffix: '+', label: 'Products', color: 'text-amber-300' },
+    { icon: Percent, value: campaign.discount_percentage, suffix: '%', label: 'Up to Off', color: 'text-sky-300' },
+    { icon: Truck, value: 0, suffix: '', label: 'Free Shipping', color: 'text-emerald-300', isText: true },
+  ];
   return (
     <section className="relative overflow-hidden">
       {/* Gradient background */}
@@ -86,7 +88,7 @@ export const SummerCountdownStrip = () => {
               <Flame className="w-4 h-4 text-yellow-200" />
               <span className="text-white text-xs font-bold uppercase tracking-wider">Limited Time</span>
             </motion.div>
-            <span className="text-white/80 text-xs hidden md:inline">Summer Sale is Live!</span>
+            <span className="text-white/80 text-xs hidden md:inline">{campaign.name} is live!</span>
           </motion.div>
 
           {/* Stats */}

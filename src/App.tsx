@@ -54,6 +54,7 @@ import Combo from "./pages/Combo";
 import ComboDetail from "./pages/ComboDetail";
 import AdminCombos from "./pages/admin/Combos";
 import AdminCoupons from "./pages/admin/Coupons";
+import AdminSales from "./pages/admin/Sales";
 import OccasionPage from "./pages/OccasionPage";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
 
@@ -116,6 +117,7 @@ const AnimatedRoutes = () => {
         <Route path="/admin/settings" element={<AdminRoute><PageTransition><AdminSettings /></PageTransition></AdminRoute>} />
         <Route path="/admin/combos" element={<AdminRoute><PageTransition><AdminCombos /></PageTransition></AdminRoute>} />
         <Route path="/admin/coupons" element={<AdminRoute><PageTransition><AdminCoupons /></PageTransition></AdminRoute>} />
+        <Route path="/admin/sales" element={<AdminRoute><PageTransition><AdminSales /></PageTransition></AdminRoute>} />
         <Route path="*" element={<PageTransition><NotFound /></PageTransition>} />
       </Routes>
     </AnimatePresence>
