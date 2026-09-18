@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, FolderTree, Layers, Ticket } from 'lucide-react';
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, FolderTree, Layers, Ticket, Tag } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +9,7 @@ const menuItems = [
   { icon: FolderTree, label: 'Categories', path: '/admin/categories' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
   { icon: Ticket, label: 'Coupons', path: '/admin/coupons' },
+  { icon: Tag, label: 'Sales', path: '/admin/sales' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];

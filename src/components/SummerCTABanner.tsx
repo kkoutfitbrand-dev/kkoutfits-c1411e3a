@@ -3,6 +3,7 @@ import { ArrowRight, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ScrollReveal } from '@/components/ScrollReveal';
+import { useSaleCampaign } from '@/hooks/useSaleCampaign';
 
 const discountBadges = [
   { value: '30%', x: 8, y: 15, delay: 0 },
@@ -21,6 +22,8 @@ const dots = Array.from({ length: 20 }, (_, i) => ({
 }));
 
 export const SummerCTABanner = () => {
+  const { campaign, loading } = useSaleCampaign();
+  if (loading || !campaign) return null;
   return (
     <section className="relative overflow-hidden py-14 md:py-20">
       {/* Warm gradient background */}
@@ -83,14 +86,14 @@ export const SummerCTABanner = () => {
               </span>
 
               <h2 className="text-2xl md:text-4xl font-bold text-white leading-tight">
-                Summer Deals Are{' '}
+                {campaign.name} Deals Are{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-sky-300">
                   Going Fast
                 </span>
               </h2>
 
               <p className="text-white/60 mt-3 text-sm md:text-base max-w-lg mx-auto">
-                Grab the hottest styles of the season before they're gone. New arrivals added daily.
+                {campaign.promotional_text}
               </p>
             </motion.div>
 
@@ -103,7 +106,7 @@ export const SummerCTABanner = () => {
             >
               <Link to="/shop">
                 <Button size="lg" className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0 px-8 group">
-                  Shop Summer Sale
+                  Shop {campaign.name}
                   <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>

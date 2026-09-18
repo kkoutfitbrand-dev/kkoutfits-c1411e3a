@@ -12,7 +12,7 @@ import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
-import { MegaSaleBanner } from "@/components/MegaSaleBanner";
+import { SaleCampaignBanner } from "@/components/SaleCampaignBanner";
 import { SummerStyleGuide } from "@/components/SummerStyleGuide";
 import { FloatingParticles } from "@/components/FloatingParticles";
 import { SummerCountdownStrip } from "@/components/SummerCountdownStrip";
@@ -152,7 +152,7 @@ const Index = () => {
 
       {/* Mega Sale Banner */}
       <ScrollReveal delay={0.1}>
-        <MegaSaleBanner />
+        <SaleCampaignBanner />
       </ScrollReveal>
 
       {/* Summer Countdown Strip */}
