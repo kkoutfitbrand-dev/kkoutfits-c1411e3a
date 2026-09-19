@@ -13,11 +13,11 @@ import { BackToTop } from "@/components/BackToTop";
 import { GoogleReviewsBanner } from "@/components/GoogleReviewsBanner";
 import { ProductGridSkeleton } from "@/components/HomeSkeleton";
 import { SaleCampaignBanner } from "@/components/SaleCampaignBanner";
-import { SummerStyleGuide } from "@/components/SummerStyleGuide";
+import { StyleGuideSection } from "@/components/StyleGuideSection";
 import { FloatingParticles } from "@/components/FloatingParticles";
-import { SummerCountdownStrip } from "@/components/SummerCountdownStrip";
-import { SummerLifestyleBanner } from "@/components/SummerLifestyleBanner";
-import { SummerCTABanner } from "@/components/SummerCTABanner";
+import { SaleCountdownStrip } from "@/components/SaleCountdownStrip";
+import { LifestyleBanner } from "@/components/LifestyleBanner";
+import { SaleCTABanner } from "@/components/SaleCTABanner";
 
 import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
@@ -155,19 +155,19 @@ const Index = () => {
         <SaleCampaignBanner />
       </ScrollReveal>
 
-      {/* Summer Countdown Strip */}
-      <SummerCountdownStrip />
+      {/* Sale Countdown Strip */}
+      <SaleCountdownStrip />
 
-      {/* Summer Style Guide */}
+      {/* Style Guide */}
       <ScrollReveal delay={0.1}>
-        <SummerStyleGuide />
+        <StyleGuideSection />
       </ScrollReveal>
       
       {/* Style Tips */}
       <StyleTipsCarousel />
 
-      {/* Summer Lifestyle Banner */}
-      <SummerLifestyleBanner />
+      {/* Lifestyle Banner */}
+      <LifestyleBanner />
 
       {/* Combo Offer Banner */}
       <ScrollReveal delay={0.1}>
@@ -243,8 +243,8 @@ const Index = () => {
         <GoogleReviewsBanner />
       </ScrollReveal>
 
-      {/* Summer CTA Banner */}
-      <SummerCTABanner />
+      {/* Sale CTA Banner */}
+      <SaleCTABanner />
 
       {/* USP Section */}
       <ScrollReveal delay={0.1}>

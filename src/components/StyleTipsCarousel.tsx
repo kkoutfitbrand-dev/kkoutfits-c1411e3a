@@ -114,7 +114,7 @@ export const StyleTipsCarousel = () => {
               viewport={{ once: true }}
               className="mt-8 text-muted-foreground"
             >
-              Elevate your wardrobe this summer ✨
+              Elevate your wardrobe today ✨
             </motion.p>
           </div>
         </ScrollReveal>

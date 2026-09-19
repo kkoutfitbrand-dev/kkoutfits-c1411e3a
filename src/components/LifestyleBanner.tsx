@@ -8,7 +8,7 @@ const features = [
   {
     icon: Glasses,
     title: 'Trendy Styles',
-    desc: 'Curated looks for every summer vibe',
+    desc: 'Curated looks for every mood',
     gradient: 'from-sky-400 to-cyan-500',
   },
   {
@@ -25,7 +25,7 @@ const features = [
   },
 ];
 
-export const SummerLifestyleBanner = () => {
+export const LifestyleBanner = () => {
   return (
     <section className="relative overflow-hidden py-12 md:py-16">
       {/* Background */}
@@ -70,7 +70,7 @@ export const SummerLifestyleBanner = () => {
               </motion.span>
 
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground leading-tight">
-                Your Summer.{' '}
+                Your Season.{' '}
                 <span className="relative">
                   <span className="relative z-10">Your Style.</span>
                   <motion.span
@@ -85,7 +85,7 @@ export const SummerLifestyleBanner = () => {
               </h2>
 
               <p className="text-muted-foreground mt-4 max-w-md mx-auto md:mx-0">
-                Discover our handpicked collection of summer essentials designed to keep you stylish and comfortable.
+                Discover our handpicked collection of wardrobe essentials designed to keep you stylish and comfortable.
               </p>
 
               <div className="mt-6">
