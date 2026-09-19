@@ -28,7 +28,7 @@ const CountUp = ({ target, suffix = '' }: { target: number; suffix?: string }) =
   return <span ref={ref}>{count}{suffix}</span>;
 };
 
-export const SummerCountdownStrip = () => {
+export const SaleCountdownStrip = () => {
   const { campaign, loading } = useSaleCampaign();
   if (loading || !campaign) return null;
   const stats = [

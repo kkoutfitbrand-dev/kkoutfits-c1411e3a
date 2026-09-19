@@ -43,7 +43,7 @@ const styleCategories = [
   {
     id: 'beach',
     title: 'Beach Vibes',
-    subtitle: 'Effortless summer looks',
+    subtitle: 'Effortless everyday looks',
     icon: Sun,
     gradient: 'from-sky-400 to-cyan-500',
     link: '/shop',
@@ -75,7 +75,7 @@ const styleCategories = [
   },
 ];
 
-export const SummerStyleGuide = () => {
+export const StyleGuideSection = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -112,13 +112,13 @@ export const SummerStyleGuide = () => {
               viewport={{ once: true }}
             >
               <Sun className="w-3.5 h-3.5" />
-              Summer Style Guide
+              Style Guide
             </motion.div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">
               Dress for the Season
             </h2>
             <p className="text-muted-foreground mt-2 max-w-lg mx-auto text-sm">
-              Curated collections for every summer occasion
+              Curated collections for every occasion
             </p>
           </div>
         </ScrollReveal>
@@ -193,4 +193,4 @@ export const SummerStyleGuide = () => {
   );
 };
 
-export default SummerStyleGuide;
+export default StyleGuideSection;

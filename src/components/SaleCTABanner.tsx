@@ -21,7 +21,7 @@ const dots = Array.from({ length: 20 }, (_, i) => ({
   duration: Math.random() * 3 + 3,
 }));
 
-export const SummerCTABanner = () => {
+export const SaleCTABanner = () => {
   const { campaign, loading } = useSaleCampaign();
   if (loading || !campaign) return null;
   return (
