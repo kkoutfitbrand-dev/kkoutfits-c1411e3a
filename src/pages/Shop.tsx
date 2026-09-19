@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Search, ShoppingBag, Heart, User, Menu, X, Sparkles, TrendingUp, Star, Percent, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSaleCampaign } from "@/hooks/useSaleCampaign";
 interface Product {
   id: string;
   title: string;
@@ -294,8 +295,8 @@ const Shop = () => {
                       <Percent className="h-3 w-3 mr-1" />
                       Limited Time
                     </Badge>
-                    <h3 className="text-2xl md:text-3xl font-bold mb-2">Mega Sale Event</h3>
-                    <p className="text-muted-foreground">Up to 50% off on selected items</p>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-2">{campaign?.title || 'Sale Event'}</h3>
+                    <p className="text-muted-foreground">{campaign ? `Up to ${campaign.discount_percentage}% off on selected items` : 'Special prices on selected items'}</p>
                   </div>
                   <Link to="/sale">
                     <Button size="lg" variant="destructive" className="rounded-full">
