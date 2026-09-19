@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tag, Percent } from "lucide-react";
 import { Json } from "@/integrations/supabase/types";
+import { useSaleCampaign } from "@/hooks/useSaleCampaign";
 
 interface Product {
   id: string;
@@ -45,6 +46,7 @@ const getDisplayPrice = (product: Product): { price: number; originalPrice?: num
 const Sale = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { campaign } = useSaleCampaign();
 
   useEffect(() => {
     const fetchSaleProducts = async () => {
@@ -84,12 +86,12 @@ const Sale = () => {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Percent className="h-8 w-8 md:h-10 md:w-10 text-destructive-foreground" />
             <h1 className="text-3xl md:text-5xl font-serif font-bold text-destructive-foreground">
-              SALE
+              {campaign ? campaign.name.toUpperCase() : 'SALE'}
             </h1>
             <Tag className="h-8 w-8 md:h-10 md:w-10 text-destructive-foreground" />
           </div>
           <p className="text-destructive-foreground/90 text-lg md:text-xl max-w-2xl mx-auto">
-            Discover amazing deals on premium fashion. Limited time offers on your favorite styles!
+            {campaign?.promotional_text || 'Discover amazing deals on premium fashion. Limited time offers on your favorite styles!'}
           </p>
         </div>
       </div>
