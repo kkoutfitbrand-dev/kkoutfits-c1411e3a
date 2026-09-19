@@ -117,6 +117,7 @@ const Shop = () => {
   const newArrivals = products.slice(0, 4);
   const trending = products.slice(0, 6);
   const saleProducts = products.filter(p => getSalePrice(p.variants));
+  const { campaign } = useSaleCampaign();
   return <div className="min-h-screen bg-background">
       {/* Scroll Progress Bar */}
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-primary z-[60] origin-left" style={{
