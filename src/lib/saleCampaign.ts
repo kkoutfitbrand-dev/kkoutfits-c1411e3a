@@ -9,6 +9,7 @@ export interface SaleCampaign {
   start_at: string;
   end_at: string;
   banner_image_url: string | null;
+  theme_id: string;
   created_at: string;
   updated_at: string;
 }

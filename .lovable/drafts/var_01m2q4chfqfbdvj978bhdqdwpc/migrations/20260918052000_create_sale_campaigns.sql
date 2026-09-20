@@ -1,6 +1,7 @@
 CREATE TABLE public.sale_campaigns (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
+  theme_id text NOT NULL DEFAULT 'big-sale',
   enabled boolean NOT NULL DEFAULT false,
   discount_percentage integer NOT NULL DEFAULT 0,
   title text NOT NULL,
