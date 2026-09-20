@@ -70,6 +70,12 @@ export default {
         "luxury-gold": "hsl(var(--luxury-gold))",
         "luxury-cream": "hsl(var(--luxury-cream))",
         "luxury-charcoal": "hsl(var(--luxury-charcoal))",
+        "campaign-primary": "hsl(var(--campaign-primary))",
+        "campaign-secondary": "hsl(var(--campaign-secondary))",
+        "campaign-accent": "hsl(var(--campaign-accent))",
+        "campaign-ink": "hsl(var(--campaign-ink))",
+        "campaign-surface": "hsl(var(--campaign-surface))",
+        "campaign-on-primary": "hsl(var(--campaign-on-primary))",
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -57,6 +57,7 @@ import AdminCoupons from "./pages/admin/Coupons";
 import AdminSales from "./pages/admin/Sales";
 import OccasionPage from "./pages/OccasionPage";
 import FloatingWhatsApp from "./components/FloatingWhatsApp";
+import { SaleThemeProvider } from "@/contexts/SaleThemeContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -131,9 +132,11 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <ScrollToTop />
-          <AnimatedRoutes />
-          <FloatingWhatsApp />
+          <SaleThemeProvider>
+            <ScrollToTop />
+            <AnimatedRoutes />
+            <FloatingWhatsApp />
+          </SaleThemeProvider>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
