@@ -65,6 +65,7 @@ CREATE TRIGGER update_sale_campaigns_updated_at
 
 INSERT INTO public.sale_campaigns (
   name,
+  theme_id,
   enabled,
   discount_percentage,
   title,
@@ -76,6 +77,7 @@ INSERT INTO public.sale_campaigns (
 )
 VALUES (
   'Big Sale',
+  'big-sale',
   true,
   50,
   'Big Sale — Big Style',
