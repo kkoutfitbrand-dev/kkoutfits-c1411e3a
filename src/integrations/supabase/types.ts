@@ -559,6 +559,54 @@ export type Database = {
         }
         Relationships: []
       }
+      sale_campaigns: {
+        Row: {
+          banner_image_url: string | null
+          created_at: string
+          discount_percentage: number
+          enabled: boolean
+          end_at: string
+          id: string
+          name: string
+          promotional_text: string
+          start_at: string
+          subtitle: string
+          theme_id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          banner_image_url?: string | null
+          created_at?: string
+          discount_percentage?: number
+          enabled?: boolean
+          end_at: string
+          id?: string
+          name: string
+          promotional_text: string
+          start_at: string
+          subtitle: string
+          theme_id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          banner_image_url?: string | null
+          created_at?: string
+          discount_percentage?: number
+          enabled?: boolean
+          end_at?: string
+          id?: string
+          name?: string
+          promotional_text?: string
+          start_at?: string
+          subtitle?: string
+          theme_id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           created_at: string
