@@ -1,86 +1,58 @@
+# Plan: Realistic Event Banners, Animated Hero, and Full Site Theme — Mobile First
 
+## Overview
+When an admin applies an event theme (Diwali, Eid, Pongal, New Year, Big Sale, etc.), the whole site transforms: realistic photographic banners appear across multiple pages, the hero gets a premium editorial redesign with animation, and all sections follow the event's colours. Everything is designed mobile-first (390px priority), scaling up to desktop.
 
-## Plan: Enhanced Summer Special Sections with Creative Animations
+## 1. Realistic Event Image Banners (AI-generated, stored in project)
 
-### Overview
-Add 3 new professional sections and upgrade existing summer components with richer animations to create a premium, immersive summer shopping experience.
+Six realistic fashion-photography banner images already created:
+- `campaign-diwali.jpg` + `campaign-diwali-detail.jpg` (festive, lamps, rich fabric)
+- `campaign-eid.jpg` (elegant emerald/gold occasion wear)
+- `campaign-evening.jpg` (generic evening retail event)
 
-### New Sections to Create
+New images to generate (realistic fashion photography, no text baked in so admin text overlays cleanly):
+- Pongal, Holi, Navratri, Independence Day, Black Friday, New Year, Clearance/End-of-Season (7 more)
+- Each theme preset in `saleThemes.ts` gets two image fields: `heroImage` (large banner) and `cardImage` (smaller promo placement).
 
-**1. Summer Countdown Hero Strip** (`SummerCountdownStrip.tsx`)
-- A slim, eye-catching gradient strip placed after the MegaSaleBanner
-- Animated wave/heat shimmer background effect
-- Pulsing "LIMITED TIME" badge with glowing border
-- Three animated stat counters: "500+ Products", "Up to 50% Off", "Free Shipping"
-- Smooth number count-up animation on scroll into view
+## 2. Hero Redesign (HeroCarousel.tsx)
+- Editorial magazine look: bold oversized display headline (Outfit font), thin accent underline, staggered line-by-line reveal animation
+- Campaign-aware: when a sale campaign is live, the hero shows the event's realistic banner image, name, discount, and CTA; otherwise the default store hero
+- Subtle Ken Burns slow-zoom on the image, floating event motif particles (diya sparkles for Diwali, colour dots for Holi, stars for New Year)
+- Mobile-first: full-bleed image, bottom-anchored text, large tap targets, safe-area padding
 
-**2. Summer Lifestyle Banner** (`SummerLifestyleBanner.tsx`)
-- Full-width split section with gradient background (sky-blue to warm sand)
-- Left side: bold text "Your Summer. Your Style." with animated underline effect
-- Right side: 3 stacked feature cards with icons (Sunglasses, Palette, Zap) that slide in from right
-- Each card has a hover lift effect and subtle gradient border
-- Floating animated sun/wave decorations in background
-- CTA button with shimmer effect linking to /shop
+## 3. Event Banners Across Pages
+New `EventPromoBanner.tsx` (small/medium variants) driven by the active campaign:
+- **Homepage**: full-width cinematic banner after hero (already SaleCampaignBanner — upgraded to realistic image + better animation), a mid-page promo strip between Categories and Trending, and the bottom CTA
+- **Shop page**: slim event banner above the product grid
+- **Sale page**: hero uses the event's realistic image
+- **Category page**: compact event ribbon banner at top
+- All disappear automatically when no campaign is active.
 
-**3. Summer Newsletter/CTA Section** (`SummerCTABanner.tsx`)
-- Placed before the footer
-- Warm gradient background with animated particle dots
-- "Don't Miss Out on Summer Deals" heading with text reveal animation
-- Animated percentage badges floating around (30%, 40%, 50% OFF)
-- Two CTA buttons: "Shop Summer Sale" and "View Trending"
-- Subtle wave pattern at the bottom using CSS
+## 4. Richer Theming and Animation
+- Extend SaleThemeContext to also set hero image, motif particles, and banner style per event
+- Theme-specific CSS animations per event (glow flicker for Diwali, confetti drift for Holi, snowfall shimmer for New Year) — pure CSS/Framer Motion, disabled under reduced-motion
+- Smooth theme transition (colour fade) when admin switches events
 
-### Upgrades to Existing Components
+## Files
+**Modify:**
+- `src/lib/saleThemes.ts` — add heroImage/cardImage + motif animation type per preset
+- `src/components/HeroCarousel.tsx` — editorial redesign, campaign-aware
+- `src/components/SaleCampaignBanner.tsx` — realistic image treatment, layered animation
+- `src/contexts/SaleThemeContext.tsx` — expose images/motif
+- `src/pages/Shop.tsx`, `src/pages/Sale.tsx`, `src/pages/CategoryPage.tsx`, `src/pages/Index.tsx` — place EventPromoBanner
+- `src/index.css` — theme keyframes (glow, drift, shimmer)
 
-**FloatingParticles.tsx Enhancement:**
-- Add variety: mix of Sparkles, Sun, and Star icons (not just Sparkles)
-- Add gentle color variation (amber, sky-blue, gold)
-- Add subtle scale pulsing to each particle
+**Create:**
+- `src/components/EventPromoBanner.tsx` — reusable responsive promo banner
+- ~7 new banner images in `src/assets/`
 
-**SummerStyleGuide.tsx Enhancement:**
-- Add animated gradient border glow on category cards
-- Add a "HOT" badge on the first category with pulse animation
-- Add parallax-like stagger on the product grid
+## Technical Notes
+- No new dependencies; Framer Motion + CSS only
+- All images are local imports (fast, no external URLs)
+- Mobile-first at 390px; every banner tested at mobile and desktop widths
+- No backend/database changes needed — uses the existing `sale_campaigns` table and theme presets
 
-**StyleTipsCarousel.tsx Enhancement:**
-- Add animated gradient text on the author name
-- Add a subtle background pattern (diagonal lines or dots)
-
-### Section Order on Homepage
-1. PromoTicker
-2. FloatingParticles (enhanced)
-3. Navigation
-4. HeroCarousel
-5. MegaSaleBanner
-6. **SummerCountdownStrip** (NEW)
-7. SummerStyleGuide (enhanced)
-8. StyleTipsCarousel (enhanced)
-9. **SummerLifestyleBanner** (NEW)
-10. ComboBanner
-11. Deals of the Day
-12. TrendingProducts
-13. Categories
-14. OccasionShopping
-15. GoogleReviews
-16. **SummerCTABanner** (NEW)
-17. USP Section
-18. Footer
-
-### Files to Create
-1. `src/components/SummerCountdownStrip.tsx`
-2. `src/components/SummerLifestyleBanner.tsx`
-3. `src/components/SummerCTABanner.tsx`
-
-### Files to Modify
-4. `src/components/FloatingParticles.tsx` — add icon variety and color variation
-5. `src/components/SummerStyleGuide.tsx` — add animated badges and card glow
-6. `src/components/StyleTipsCarousel.tsx` — enhanced background and text effects
-7. `src/pages/Index.tsx` — import and place the 3 new sections
-
-### Technical Notes
-- All animations use Framer Motion (already installed)
-- Icons from Lucide React (already installed)
-- Fully mobile responsive (390px viewport priority)
-- No new dependencies needed
-- Summer color palette: sky-blue, amber, gold, warm white consistent throughout
-
+## Validation
+- Apply Diwali via Admin > Sales, confirm hero + homepage + Shop + Sale + Category banners all switch
+- Switch to Big Sale, confirm everything reverts
+- Check mobile (390px) and desktop layouts, reduced-motion behaviour, and run type check
