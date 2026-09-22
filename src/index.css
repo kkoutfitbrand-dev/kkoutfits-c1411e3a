@@ -150,6 +150,54 @@ All colors MUST be HSL.
   to { width: 100%; }
 }
 
+/* Slow Ken Burns zoom for campaign imagery */
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.12); }
+}
+
+.animate-kenburns {
+  animation: kenburns 18s ease-in-out infinite alternate;
+}
+
+/* Themed ambient particles for campaign hero */
+@keyframes particle-glow {
+  0%, 100% { opacity: 0; transform: translateY(10px) scale(0.8); }
+  50% { opacity: 0.9; transform: translateY(-14px) scale(1.1); }
+}
+
+@keyframes particle-confetti {
+  0% { opacity: 0; transform: translateY(-10px) rotate(0deg); }
+  20% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(60px) rotate(200deg); }
+}
+
+@keyframes particle-stars {
+  0%, 100% { opacity: 0.1; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.theme-particle {
+  position: absolute;
+  bottom: 12%;
+  color: hsl(var(--campaign-accent));
+  text-shadow: 0 0 10px hsl(var(--campaign-accent) / 0.8);
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.theme-particle-glow { animation-name: particle-glow; }
+.theme-particle-confetti { animation-name: particle-confetti; animation-timing-function: linear; }
+.theme-particle-stars { animation-name: particle-stars; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-kenburns,
+  .theme-particle {
+    animation: none !important;
+  }
+  .theme-particle { display: none; }
+}
+
 @keyframes marquee {
   0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }

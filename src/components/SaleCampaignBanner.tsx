@@ -3,7 +3,7 @@ import { ArrowRight, Clock, Sparkles, Tag } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useSaleCampaign, useSaleCountdown } from '@/hooks/useSaleCampaign';
-import defaultBanner from '@/assets/big-sale-banner.jpg';
+import { getSaleTheme } from '@/lib/saleThemes';
 
 export const SaleCampaignBanner = () => {
   const { campaign, loading } = useSaleCampaign();
@@ -11,20 +11,28 @@ export const SaleCampaignBanner = () => {
 
   if (loading || !campaign) return null;
 
+  const theme = getSaleTheme(campaign.theme_id);
+  const image = campaign.banner_image_url || theme.heroImage;
   const isScheduled = countdown.status === 'scheduled';
   const countdownLabel = isScheduled ? 'Sale starts in' : 'Sale ends in';
 
   return (
     <section className="relative overflow-hidden bg-foreground text-background">
-      <img
-        src={campaign.banner_image_url || defaultBanner}
+      <motion.img
+        src={image}
         alt={campaign.title}
-        className="absolute inset-0 h-full w-full object-cover opacity-45"
+        loading="lazy"
+        width={1536}
+        height={1024}
+        initial={{ scale: 1.08 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 6, ease: 'easeOut' }}
+        className="absolute inset-0 h-full w-full object-cover opacity-50"
       />
-      <div className="absolute inset-0 bg-foreground/70" />
+      <div className="absolute inset-0 bg-gradient-to-r from-foreground/90 via-foreground/60 to-foreground/20" />
       <div className="container relative z-10 mx-auto px-4 py-12 sm:py-16 md:py-20">
         <div className="max-w-3xl">
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-5 inline-flex items-center gap-2 rounded-full border border-background/30 bg-background/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="sale-theme-mark mb-5 inline-flex items-center gap-2 rounded-full border border-background/30 bg-background/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] backdrop-blur-sm">
             <Sparkles className="h-4 w-4 text-accent" />
             {campaign.name}
             <span className="text-background/60">·</span>
