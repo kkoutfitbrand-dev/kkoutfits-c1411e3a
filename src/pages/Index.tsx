@@ -18,6 +18,7 @@ import { FloatingParticles } from "@/components/FloatingParticles";
 import { SaleCountdownStrip } from "@/components/SaleCountdownStrip";
 import { LifestyleBanner } from "@/components/LifestyleBanner";
 import { SaleCTABanner } from "@/components/SaleCTABanner";
+import { BigSaleEntryPopup } from "@/components/BigSaleEntryPopup";
 
 import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
@@ -136,6 +137,7 @@ const Index = () => {
     }
   };
   return <div className="min-h-screen bg-background overflow-x-hidden relative">
+      <BigSaleEntryPopup />
       {/* Promo Ticker Banner */}
       <PromoTicker />
 
