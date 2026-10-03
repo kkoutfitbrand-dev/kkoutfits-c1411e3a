@@ -1,8 +1,7 @@
 # Event theme refresh
 
-- [ ] Confirm palette, typography, and layout preferences for a mobile-first refresh.
-- [ ] Present three design directions using the current homepage as reference.
-- [ ] Implement the selected homepage hero, realistic event imagery, and coordinated banners across relevant pages.
-- [ ] Add restrained event animations with reduced-motion support.
-- [ ] Verify mobile layouts first, then desktop layouts and theme switching.
+- [x] Restore the homepage hero style used before the sale redesign.
+- [x] Replace the lower offer section with the supplied wide sale artwork.
+- [x] Add the supplied portrait sale artwork as a responsive session-entry popup with a Shop Now button.
+- [x] Verify the updated homepage on mobile and desktop.
 - [ ] Verify pending campaign storage after the accepted migration is applied outside this draft.
