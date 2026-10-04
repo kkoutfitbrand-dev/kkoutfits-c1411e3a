@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import popupArtworkAsset from "@/assets/big-sale-responsive.webp.asset.json";
+import popupArtwork from "@/assets/big-sale-responsive.webp";
 
 export const BigSaleEntryPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,7 +50,7 @@ export const BigSaleEntryPopup = () => {
 
         <Link to="/sale" onClick={closePopup} aria-label="Shop the Big Sale">
           <img
-            src={popupArtworkAsset.url}
+            src={popupArtwork}
             alt="KK Outfits Big Sale — up to 50% off"
             className="block aspect-[2/1] h-auto w-full object-contain"
             loading="eager"
