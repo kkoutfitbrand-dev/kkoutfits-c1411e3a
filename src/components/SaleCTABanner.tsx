@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ScrollReveal } from '@/components/ScrollReveal';
 import { useSaleCampaign } from '@/hooks/useSaleCampaign';
-import wideBanner from '@/assets/big-sale-wide-banner.png.asset.json';
+import wideBanner from '@/assets/big-sale-wide-banner.webp';
 
 export const SaleCTABanner = () => {
   const { campaign, loading } = useSaleCampaign();
@@ -17,7 +17,7 @@ export const SaleCTABanner = () => {
             className="group block overflow-hidden rounded-lg shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <img
-              src={wideBanner.url}
+              src={wideBanner}
               alt="KK Outfits Big Sale — up to 50% off"
               loading="lazy"
               width={1536}
