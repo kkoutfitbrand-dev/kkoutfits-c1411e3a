@@ -34,7 +34,7 @@ export const BigSaleEntryPopup = () => {
       aria-modal="true"
       aria-label="Big Sale offer"
     >
-      <div className="relative flex max-h-[94dvh] w-[min(92vw,430px)] flex-col overflow-hidden rounded-lg bg-foreground shadow-2xl">
+      <div className="relative flex max-h-[94dvh] w-full max-w-[430px] flex-col overflow-hidden rounded-lg bg-foreground shadow-2xl">
         <Button
           type="button"
           variant="secondary"
