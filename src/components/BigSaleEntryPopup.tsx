@@ -4,16 +4,11 @@ import { ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import popupArtwork from "@/assets/big-sale-popup.webp";
 
-const POPUP_SESSION_KEY = "big-sale-entry-popup-seen";
-
 export const BigSaleEntryPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    if (sessionStorage.getItem(POPUP_SESSION_KEY)) return;
-
-    const timer = window.setTimeout(() => setIsOpen(true), 650);
-    return () => window.clearTimeout(timer);
+    setIsOpen(true);
   }, []);
 
   useEffect(() => {
@@ -27,7 +22,6 @@ export const BigSaleEntryPopup = () => {
   }, [isOpen]);
 
   const closePopup = () => {
-    sessionStorage.setItem(POPUP_SESSION_KEY, "true");
     setIsOpen(false);
   };
 
@@ -40,7 +34,7 @@ export const BigSaleEntryPopup = () => {
       aria-modal="true"
       aria-label="Big Sale offer"
     >
-      <div className="relative flex max-h-[94dvh] w-full max-w-[430px] flex-col overflow-hidden rounded-lg bg-foreground shadow-2xl">
+      <div className="relative flex max-h-[94dvh] w-[min(92vw,430px)] flex-col overflow-hidden rounded-lg bg-foreground shadow-2xl">
         <Button
           type="button"
           variant="secondary"
@@ -57,6 +51,9 @@ export const BigSaleEntryPopup = () => {
           src={popupArtwork}
           alt="KK Outfits Big Sale — up to 50% off"
           className="min-h-0 w-full flex-1 object-contain"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           width={768}
           height={1536}
         />
