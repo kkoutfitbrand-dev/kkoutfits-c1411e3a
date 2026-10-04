@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,9 @@ export const BigSaleEntryPopup = () => {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-foreground/75 p-3 backdrop-blur-sm sm:p-6"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-foreground/75 p-3 backdrop-blur-sm sm:p-6"
       role="dialog"
       aria-modal="true"
       aria-label="Big Sale offer"
@@ -67,6 +68,7 @@ export const BigSaleEntryPopup = () => {
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
