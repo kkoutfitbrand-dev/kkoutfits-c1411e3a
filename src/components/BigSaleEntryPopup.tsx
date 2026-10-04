@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import popupArtwork from "@/assets/big-sale-popup.png.asset.json";
+import popupArtwork from "@/assets/big-sale-popup.webp";
 
 const POPUP_SESSION_KEY = "big-sale-entry-popup-seen";
 
@@ -54,7 +54,7 @@ export const BigSaleEntryPopup = () => {
         </Button>
 
         <img
-          src={popupArtwork.url}
+          src={popupArtwork}
           alt="KK Outfits Big Sale — up to 50% off"
           className="min-h-0 w-full flex-1 object-contain"
           width={768}
