@@ -1,7 +1,8 @@
-# Event theme refresh
+# Roadmap
 
-- [x] Restore the homepage hero style used before the sale redesign.
-- [x] Replace the lower offer section with the supplied wide sale artwork.
-- [x] Add the supplied portrait sale artwork as a responsive session-entry popup with a Shop Now button.
-- [x] Verify the updated homepage on mobile and desktop.
-- [ ] Verify pending campaign storage after the accepted migration is applied outside this draft.
+- [x] Inspect the uploaded banner and storefront brand cues
+- [x] Confirm the KK OUTFITS business name and creative treatment
+- [x] Save the reusable brand profile
+- [ ] Create and present distinct banner direction previews
+- [ ] Produce the approved responsive banner set
+- [ ] Place approved banners across the requested website sections and pages
