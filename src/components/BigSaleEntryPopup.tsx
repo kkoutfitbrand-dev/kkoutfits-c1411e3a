@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import popupArtwork from "@/assets/big-sale-responsive.webp";
+import popupArtworkMobile from "@/assets/big-sale-popup-mobile.webp";
+import popupArtworkDesktop from "@/assets/big-sale-popup-desktop.webp";
 
 export const BigSaleEntryPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
