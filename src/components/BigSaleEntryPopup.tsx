@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import popupArtwork from "@/assets/big-sale-responsive.webp";
+import popupArtworkMobile from "@/assets/big-sale-popup-mobile.webp";
+import popupArtworkDesktop from "@/assets/big-sale-popup-desktop.webp";
 
 export const BigSaleEntryPopup = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,7 +36,7 @@ export const BigSaleEntryPopup = () => {
       aria-modal="true"
       aria-label="Big Sale offer"
     >
-      <div className="relative w-full max-w-5xl overflow-hidden rounded-md bg-foreground shadow-2xl">
+      <div className="relative w-full max-w-md sm:max-w-5xl overflow-hidden rounded-md bg-foreground shadow-2xl">
         <Button
           type="button"
           variant="secondary"
@@ -49,10 +50,22 @@ export const BigSaleEntryPopup = () => {
         </Button>
 
         <Link to="/sale" onClick={closePopup} aria-label="Shop the Big Sale">
+          {/* Vertical artwork — mobile only */}
           <img
-            src={popupArtwork}
+            src={popupArtworkMobile}
             alt="KK Outfits Big Sale — up to 50% off"
-            className="block aspect-[2/1] h-auto w-full object-contain"
+            className="block max-h-[72dvh] w-auto max-w-full mx-auto object-contain sm:hidden"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            width={720}
+            height={1440}
+          />
+          {/* Landscape artwork — tablet & desktop */}
+          <img
+            src={popupArtworkDesktop}
+            alt="KK Outfits Big Sale — up to 50% off"
+            className="hidden aspect-[2/1] h-auto w-full object-contain sm:block"
             loading="eager"
             fetchPriority="high"
             decoding="async"
