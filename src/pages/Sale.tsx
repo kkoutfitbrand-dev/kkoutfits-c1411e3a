@@ -4,9 +4,11 @@ import { Footer } from "@/components/Footer";
 import { ProductCard } from "@/components/ProductCard";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tag, Percent } from "lucide-react";
+import { Tag } from "lucide-react";
 import { Json } from "@/integrations/supabase/types";
 import { useSaleCampaign } from "@/hooks/useSaleCampaign";
+import { EditorialFashionBanner } from "@/components/EditorialFashionBanner";
+import saleBanner from "@/assets/campaign/sale-runway-panorama.jpg.asset.json";
 
 interface Product {
   id: string;
@@ -80,23 +82,17 @@ const Sale = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
       
-      {/* Hero Banner */}
-      <div className="bg-gradient-to-r from-destructive/90 to-destructive py-12 md:py-16">
-        <div className="container px-4 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Percent className="h-8 w-8 md:h-10 md:w-10 text-destructive-foreground" />
-            <h1 className="text-3xl md:text-5xl font-serif font-bold text-destructive-foreground">
-              {campaign ? campaign.name.toUpperCase() : 'SALE'}
-            </h1>
-            <Tag className="h-8 w-8 md:h-10 md:w-10 text-destructive-foreground" />
-          </div>
-          <p className="text-destructive-foreground/90 text-lg md:text-xl max-w-2xl mx-auto">
-            {campaign?.promotional_text || 'Discover amazing deals on premium fashion. Limited time offers on your favorite styles!'}
-          </p>
-        </div>
-      </div>
+      <EditorialFashionBanner
+        image={saleBanner.url}
+        eyebrow={campaign?.name || "KK OUTFITS Sale"}
+        title={campaign?.title || "Statement Styles. Special Prices."}
+        description={campaign?.promotional_text || "Discover selected premium fashion at special prices for a limited time."}
+        cta="Explore the Sale"
+        to="#sale-products"
+        eager
+      />
 
-      <main className="container px-4 py-8 md:py-12">
+      <main id="sale-products" className="container scroll-mt-20 px-4 py-8 md:py-12">
         {loading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
             {[...Array(8)].map((_, i) => (

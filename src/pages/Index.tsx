@@ -19,6 +19,9 @@ import { SaleCountdownStrip } from "@/components/SaleCountdownStrip";
 import { LifestyleBanner } from "@/components/LifestyleBanner";
 import { SaleCTABanner } from "@/components/SaleCTABanner";
 import { BigSaleEntryPopup } from "@/components/BigSaleEntryPopup";
+import { EditorialFashionBanner } from "@/components/EditorialFashionBanner";
+import lehengaBanner from "@/assets/campaign/lehenga-runway-landscape.jpg.asset.json";
+import menswearBanner from "@/assets/campaign/menswear-runway-landscape.jpg.asset.json";
 
 import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
@@ -164,6 +167,15 @@ const Index = () => {
       <ScrollReveal delay={0.1}>
         <StyleGuideSection />
       </ScrollReveal>
+
+      <EditorialFashionBanner
+        image={lehengaBanner.url}
+        eyebrow="Women’s Occasion Edit"
+        title="Made for Every Grand Entrance"
+        description="Discover richly detailed silhouettes for celebrations, evenings and unforgettable moments."
+        cta="Shop Women’s Styles"
+        to="/shop"
+      />
       
       {/* Style Tips */}
       <StyleTipsCarousel />
@@ -206,6 +218,15 @@ const Index = () => {
       <ScrollReveal delay={0.1}>
         <TrendingProducts />
       </ScrollReveal>
+
+      <EditorialFashionBanner
+        image={menswearBanner.url}
+        eyebrow="Men’s Occasion Edit"
+        title="Tailoring with Presence"
+        description="Sharp festive layers and refined classics for moments that call for something exceptional."
+        cta="Shop Men’s Styles"
+        to="/shop"
+      />
 
       {/* Categories Section */}
       <ScrollReveal delay={0.1}>
