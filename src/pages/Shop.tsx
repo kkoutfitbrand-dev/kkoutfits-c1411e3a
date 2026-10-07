@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Search, ShoppingBag, Heart, User, Menu, X, Sparkles, TrendingUp, Star, Percent, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSaleCampaign } from "@/hooks/useSaleCampaign";
+import { EditorialFashionBanner } from "@/components/EditorialFashionBanner";
+import menswearBanner from "@/assets/campaign/menswear-runway-landscape.webp";
 interface Product {
   id: string;
   title: string;
@@ -213,39 +215,15 @@ const Shop = () => {
         </AnimatePresence>
       </header>
 
-      {/* Hero Banner */}
-      <section className="relative bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-12 md:py-20">
-        <div className="container mx-auto px-4">
-          <motion.div initial={{
-          opacity: 0,
-          y: 20
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 0.6
-        }} className="text-center max-w-3xl mx-auto">
-            <Badge variant="secondary" className="mb-4">
-              <Sparkles className="h-3 w-3 mr-1" />
-              New Collection 2026
-            </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">
-              Discover Your <span className="text-primary">Perfect Style</span>
-            </h1>
-            <p className="text-muted-foreground text-lg mb-6">
-              Explore our curated collection of premium fashion for every occasion
-            </p>
-            <div className="flex items-center justify-center gap-4">
-              <Link to="/trending">
-                <Button size="lg" className="rounded-full">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Shop Trending
-                </Button>
-              </Link>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <EditorialFashionBanner
+        image={menswearBanner}
+        eyebrow="New Collection 2026"
+        title="Discover Your Perfect Style"
+        description="Explore premium fashion chosen for celebrations, evenings and everyday confidence."
+        cta="Shop Trending"
+        to="/trending"
+        eager
+      />
 
       {/* Category Filter */}
       <section className={`border-b border-border sticky bg-background/95 backdrop-blur-md z-40 transition-all duration-300 ${isScrolled ? 'py-2 top-12 md:top-14' : 'py-6 top-16 md:top-20'}`}>

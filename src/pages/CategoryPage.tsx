@@ -11,6 +11,8 @@ import { useParams } from "react-router-dom";
 import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
+import { EditorialFashionBanner } from "@/components/EditorialFashionBanner";
+import coupleBanner from "@/assets/campaign/evening-couple-landscape.webp";
 interface Product {
   id: string;
   title: string;
@@ -151,8 +153,18 @@ const CategoryPage = () => {
   };
   return <div className="min-h-screen bg-background">
       <Navigation />
+
+      <EditorialFashionBanner
+        image={coupleBanner}
+        eyebrow="Curated by KK OUTFITS"
+        title={getCategoryTitle()}
+        description="Premium looks selected for celebrations, evenings and memorable occasions."
+        cta="View Collection"
+        to="#category-products"
+        eager
+      />
       
-      <div className="container px-4 py-8 md:py-12">
+      <div id="category-products" className="container scroll-mt-20 px-4 py-8 md:py-12">
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-3xl md:text-4xl font-serif font-bold">
             {getCategoryTitle()}
