@@ -12,7 +12,7 @@ import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Json } from "@/integrations/supabase/types";
 import { EditorialFashionBanner } from "@/components/EditorialFashionBanner";
-import coupleBanner from "@/assets/campaign/evening-couple-landscape.jpg.asset.json";
+import coupleBanner from "@/assets/campaign/evening-couple-landscape.webp";
 interface Product {
   id: string;
   title: string;
@@ -155,7 +155,7 @@ const CategoryPage = () => {
       <Navigation />
 
       <EditorialFashionBanner
-        image={coupleBanner.url}
+        image={coupleBanner}
         eyebrow="Curated by KK OUTFITS"
         title={getCategoryTitle()}
         description="Premium looks selected for celebrations, evenings and memorable occasions."

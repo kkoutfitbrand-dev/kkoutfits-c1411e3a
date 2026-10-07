@@ -20,8 +20,8 @@ import { LifestyleBanner } from "@/components/LifestyleBanner";
 import { SaleCTABanner } from "@/components/SaleCTABanner";
 import { BigSaleEntryPopup } from "@/components/BigSaleEntryPopup";
 import { EditorialFashionBanner } from "@/components/EditorialFashionBanner";
-import lehengaBanner from "@/assets/campaign/lehenga-runway-landscape.jpg.asset.json";
-import menswearBanner from "@/assets/campaign/menswear-runway-landscape.jpg.asset.json";
+import lehengaBanner from "@/assets/campaign/lehenga-runway-landscape.webp";
+import menswearBanner from "@/assets/campaign/menswear-runway-landscape.webp";
 
 import { StyleTipsCarousel } from "@/components/StyleTipsCarousel";
 import { CategoryCardWithSubs } from "@/components/CategoryCardWithSubs";
@@ -169,7 +169,7 @@ const Index = () => {
       </ScrollReveal>
 
       <EditorialFashionBanner
-        image={lehengaBanner.url}
+        image={lehengaBanner}
         eyebrow="Women’s Occasion Edit"
         title="Made for Every Grand Entrance"
         description="Discover richly detailed silhouettes for celebrations, evenings and unforgettable moments."
@@ -220,7 +220,7 @@ const Index = () => {
       </ScrollReveal>
 
       <EditorialFashionBanner
-        image={menswearBanner.url}
+        image={menswearBanner}
         eyebrow="Men’s Occasion Edit"
         title="Tailoring with Presence"
         description="Sharp festive layers and refined classics for moments that call for something exceptional."

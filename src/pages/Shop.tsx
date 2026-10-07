@@ -13,7 +13,7 @@ import { Search, ShoppingBag, Heart, User, Menu, X, Sparkles, TrendingUp, Star, 
 import { motion, AnimatePresence } from "framer-motion";
 import { useSaleCampaign } from "@/hooks/useSaleCampaign";
 import { EditorialFashionBanner } from "@/components/EditorialFashionBanner";
-import menswearBanner from "@/assets/campaign/menswear-runway-landscape.jpg.asset.json";
+import menswearBanner from "@/assets/campaign/menswear-runway-landscape.webp";
 interface Product {
   id: string;
   title: string;
@@ -216,7 +216,7 @@ const Shop = () => {
       </header>
 
       <EditorialFashionBanner
-        image={menswearBanner.url}
+        image={menswearBanner}
         eyebrow="New Collection 2026"
         title="Discover Your Perfect Style"
         description="Explore premium fashion chosen for celebrations, evenings and everyday confidence."

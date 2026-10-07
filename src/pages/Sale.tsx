@@ -8,7 +8,7 @@ import { Tag } from "lucide-react";
 import { Json } from "@/integrations/supabase/types";
 import { useSaleCampaign } from "@/hooks/useSaleCampaign";
 import { EditorialFashionBanner } from "@/components/EditorialFashionBanner";
-import saleBanner from "@/assets/campaign/sale-runway-panorama.jpg.asset.json";
+import saleBanner from "@/assets/campaign/sale-runway-panorama.webp";
 
 interface Product {
   id: string;
@@ -83,7 +83,7 @@ const Sale = () => {
       <Navigation />
       
       <EditorialFashionBanner
-        image={saleBanner.url}
+        image={saleBanner}
         eyebrow={campaign?.name || "KK OUTFITS Sale"}
         title={campaign?.title || "Statement Styles. Special Prices."}
         description={campaign?.promotional_text || "Discover selected premium fashion at special prices for a limited time."}
